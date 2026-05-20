@@ -28,7 +28,7 @@ function uid(prefix: string) {
 
 function defaultCharacterData(): CharacterNodeData {
   return {
-    name: "New Character",
+    name: "",
     dialogue: "",
     emotion: "",
     attributeSchema: [],
@@ -54,7 +54,7 @@ interface GraphSnapshot {
 function snap(
   nodes: ForgeNode[],
   edges: DialogueEdge[],
-  past: GraphSnapshot[]
+  past: GraphSnapshot[],
 ): Pick<GraphStore, "past" | "future"> {
   return {
     past: [...past.slice(-49), { nodes, edges }],
@@ -88,16 +88,31 @@ interface GraphStore {
 
   /* Node CRUD */
   addNode: (type: ForgeNodeType, position: { x: number; y: number }) => string;
-  updateNodeData: (id: string, patch: Partial<CharacterNodeData | ActionNodeData>) => void;
+  updateNodeData: (
+    id: string,
+    patch: Partial<CharacterNodeData | ActionNodeData>,
+  ) => void;
   removeNode: (id: string) => void;
   duplicateNode: (id: string) => void;
 
   /* Attribute schema management */
-  addAttribute: (nodeId: string, def: Omit<AttributeDefinition, "id">) => string;
+  addAttribute: (
+    nodeId: string,
+    def: Omit<AttributeDefinition, "id">,
+  ) => string;
   removeAttribute: (nodeId: string, attrId: string) => void;
   renameAttribute: (nodeId: string, attrId: string, name: string) => void;
-  changeAttributeType: (nodeId: string, attrId: string, type: AttributeType, options?: string[]) => void;
-  setAttributeOptions: (nodeId: string, attrId: string, options: string[]) => void;
+  changeAttributeType: (
+    nodeId: string,
+    attrId: string,
+    type: AttributeType,
+    options?: string[],
+  ) => void;
+  setAttributeOptions: (
+    nodeId: string,
+    attrId: string,
+    options: string[],
+  ) => void;
 
   /* Attribute value management */
   setAttributeValue: (nodeId: string, attrId: string, value: unknown) => void;
@@ -107,7 +122,9 @@ interface GraphStore {
   removeEdge: (id: string) => void;
 
   /* Layout */
-  setNodePositions: (positions: Record<string, { x: number; y: number }>) => void;
+  setNodePositions: (
+    positions: Record<string, { x: number; y: number }>,
+  ) => void;
 
   /* Bulk operations */
   loadGraph: (nodes: SerialNode[], edges: SerialEdge[]) => void;
@@ -117,12 +134,17 @@ interface GraphStore {
 function patchNode(
   nodes: ForgeNode[],
   id: string,
-  patchFn: (data: CharacterNodeData | ActionNodeData) => CharacterNodeData | ActionNodeData
+  patchFn: (
+    data: CharacterNodeData | ActionNodeData,
+  ) => CharacterNodeData | ActionNodeData,
 ): ForgeNode[] {
   return nodes.map((n) =>
     n.id === id
-      ? ({ ...n, data: patchFn(n.data as CharacterNodeData | ActionNodeData) } as ForgeNode)
-      : n
+      ? ({
+          ...n,
+          data: patchFn(n.data as CharacterNodeData | ActionNodeData),
+        } as ForgeNode)
+      : n,
   );
 }
 
@@ -137,8 +159,7 @@ export const useGraphStore = create<GraphStore>()(
 
       /* ── Undo / redo ── */
 
-      saveSnapshot: () =>
-        set((s) => snap(s.nodes, s.edges, s.past)),
+      saveSnapshot: () => set((s) => snap(s.nodes, s.edges, s.past)),
 
       undo: () =>
         set((s) => {
@@ -146,7 +167,10 @@ export const useGraphStore = create<GraphStore>()(
           const prev = s.past[s.past.length - 1];
           return {
             past: s.past.slice(0, -1),
-            future: [{ nodes: s.nodes, edges: s.edges }, ...s.future.slice(0, 49)],
+            future: [
+              { nodes: s.nodes, edges: s.edges },
+              ...s.future.slice(0, 49),
+            ],
             nodes: prev.nodes,
             edges: prev.edges,
           };
@@ -171,7 +195,7 @@ export const useGraphStore = create<GraphStore>()(
         const nodeSet = new Set(nodeIds);
         const selectedNodes = nodes.filter((n) => nodeSet.has(n.id));
         const selectedEdges = edges.filter(
-          (e) => nodeSet.has(e.source) && nodeSet.has(e.target)
+          (e) => nodeSet.has(e.source) && nodeSet.has(e.target),
         );
         if (selectedNodes.length > 0) {
           set({ clipboard: { nodes: selectedNodes, edges: selectedEdges } });
@@ -189,7 +213,10 @@ export const useGraphStore = create<GraphStore>()(
           return {
             ...n,
             id: newId,
-            position: { x: n.position.x + offset.x, y: n.position.y + offset.y },
+            position: {
+              x: n.position.x + offset.x,
+              y: n.position.y + offset.y,
+            },
             selected: true,
           };
         });
@@ -206,8 +233,14 @@ export const useGraphStore = create<GraphStore>()(
 
         set((s) => ({
           ...snap(s.nodes, s.edges, s.past),
-          nodes: [...s.nodes.map((n) => ({ ...n, selected: false })), ...newNodes],
-          edges: [...s.edges.map((e) => ({ ...e, selected: false })), ...newEdges],
+          nodes: [
+            ...s.nodes.map((n) => ({ ...n, selected: false })),
+            ...newNodes,
+          ],
+          edges: [
+            ...s.edges.map((e) => ({ ...e, selected: false })),
+            ...newEdges,
+          ],
         }));
 
         return newNodes.map((n) => n.id);
@@ -223,7 +256,7 @@ export const useGraphStore = create<GraphStore>()(
             (e) =>
               !edgeSet.has(e.id) &&
               !nodeSet.has(e.source) &&
-              !nodeSet.has(e.target)
+              !nodeSet.has(e.target),
           ),
         }));
       },
@@ -250,7 +283,7 @@ export const useGraphStore = create<GraphStore>()(
               animated: false,
               data: { optionText: "", conditions: {}, metadata: {} },
             },
-            s.edges
+            s.edges,
           ) as DialogueEdge[],
         })),
 
@@ -325,7 +358,7 @@ export const useGraphStore = create<GraphStore>()(
             return {
               ...data,
               attributeSchema: (data.attributeSchema ?? []).filter(
-                (a) => a.id !== attrId
+                (a) => a.id !== attrId,
               ),
               attributes: rest,
             };
@@ -337,7 +370,7 @@ export const useGraphStore = create<GraphStore>()(
           nodes: patchNode(s.nodes, nodeId, (data) => ({
             ...data,
             attributeSchema: (data.attributeSchema ?? []).map((a) =>
-              a.id === attrId ? { ...a, name } : a
+              a.id === attrId ? { ...a, name } : a,
             ),
           })),
         })),
@@ -348,7 +381,9 @@ export const useGraphStore = create<GraphStore>()(
           nodes: patchNode(s.nodes, nodeId, (data) => ({
             ...data,
             attributeSchema: (data.attributeSchema ?? []).map((a) =>
-              a.id === attrId ? { ...a, type, options: options ?? a.options } : a
+              a.id === attrId
+                ? { ...a, type, options: options ?? a.options }
+                : a,
             ),
             attributes: {
               ...data.attributes,
@@ -362,7 +397,7 @@ export const useGraphStore = create<GraphStore>()(
           nodes: patchNode(s.nodes, nodeId, (data) => ({
             ...data,
             attributeSchema: (data.attributeSchema ?? []).map((a) =>
-              a.id === attrId ? { ...a, options } : a
+              a.id === attrId ? { ...a, options } : a,
             ),
           })),
         })),
@@ -382,7 +417,7 @@ export const useGraphStore = create<GraphStore>()(
           edges: s.edges.map((e) =>
             e.id === id
               ? ({ ...e, data: { ...e.data, optionText } } as DialogueEdge)
-              : e
+              : e,
           ),
         })),
 
@@ -398,7 +433,7 @@ export const useGraphStore = create<GraphStore>()(
         set((s) => ({
           ...snap(s.nodes, s.edges, s.past),
           nodes: s.nodes.map((n) =>
-            positions[n.id] ? { ...n, position: positions[n.id] } : n
+            positions[n.id] ? { ...n, position: positions[n.id] } : n,
           ),
         })),
 
@@ -409,9 +444,9 @@ export const useGraphStore = create<GraphStore>()(
           nodes: nodes.map((n) =>
             n.type === "character"
               ? ({ ...n, data: n.data as CharacterNodeData } as ForgeNode)
-              : ({ ...n, data: n.data as ActionNodeData } as ForgeNode)
+              : ({ ...n, data: n.data as ActionNodeData } as ForgeNode),
           ),
-          edges: edges.map((e) => ({ ...e } as DialogueEdge)),
+          edges: edges.map((e) => ({ ...e }) as DialogueEdge),
           past: [],
           future: [],
         }),
@@ -440,19 +475,26 @@ export const useGraphStore = create<GraphStore>()(
           data,
         })),
       }),
-    }
-  )
+    },
+  ),
 );
 
 function getDefaultForType(type: AttributeType): unknown {
   switch (type) {
-    case "text": return "";
-    case "number": return 0;
-    case "boolean": return false;
-    case "dropdown": return "";
-    case "color": return "#6366f1";
-    case "list": return [];
-    case "object": return {};
+    case "text":
+      return "";
+    case "number":
+      return 0;
+    case "boolean":
+      return false;
+    case "dropdown":
+      return "";
+    case "color":
+      return "#6366f1";
+    case "list":
+      return [];
+    case "object":
+      return {};
   }
 }
 

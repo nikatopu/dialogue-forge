@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   User,
   Zap,
@@ -8,6 +8,8 @@ import {
   FileText,
   Trash2,
   Copy,
+  GitBranch,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +17,15 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { AttributeEditor } from "./AttributeEditor";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useShallow } from "zustand/react/shallow";
 import { useEditorStore } from "@/store/useEditorStore";
 import { cn } from "@/lib/utils";
-import type { ForgeNode, CharacterNodeData, ActionNodeData, ActionType } from "@/types";
+import type {
+  ForgeNode,
+  CharacterNodeData,
+  ActionNodeData,
+  ActionType,
+} from "@/types";
 
 const TABS = [
   { id: "properties", label: "Properties", icon: FileText },
@@ -59,7 +67,7 @@ export function NodeInspector({ node }: NodeInspectorProps) {
           "bg-linear-to-r",
           isCharacter
             ? "from-indigo-500/5 to-transparent"
-            : "from-emerald-500/5 to-transparent"
+            : "from-emerald-500/5 to-transparent",
         )}
       >
         <div
@@ -67,7 +75,7 @@ export function NodeInspector({ node }: NodeInspectorProps) {
             "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
             isCharacter
               ? "bg-indigo-500/15 border border-indigo-500/25"
-              : "bg-emerald-500/15 border border-emerald-500/25"
+              : "bg-emerald-500/15 border border-emerald-500/25",
           )}
         >
           {isCharacter ? (
@@ -124,7 +132,7 @@ export function NodeInspector({ node }: NodeInspectorProps) {
                 "border-b-2 transition-colors",
                 isActive
                   ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
               )}
             >
               <Icon className="w-3 h-3" />
@@ -182,11 +190,7 @@ export function NodeInspector({ node }: NodeInspectorProps) {
 
         {activeTab === "attributes" && (
           <div className="p-4">
-            <AttributeEditor
-              nodeId={node.id}
-              schema={schema}
-              values={values}
-            />
+            <AttributeEditor nodeId={node.id} schema={schema} values={values} />
           </div>
         )}
       </div>
@@ -202,13 +206,29 @@ interface CharacterPropertiesProps {
   onUpdate: (patch: Partial<CharacterNodeData>) => void;
 }
 
-function CharacterProperties({ data, onUpdate }: CharacterPropertiesProps) {
+function CharacterProperties({
+  nodeId,
+  data,
+  onUpdate,
+}: CharacterPropertiesProps) {
+  const characterNames = useGraphStore(
+    useShallow(
+      (s) =>
+        s.nodes
+          .filter((n) => n.type === "character" && n.id !== nodeId)
+          .map((n) => (n.data as CharacterNodeData).name)
+          .filter(Boolean)
+          .filter((name, i, arr) => arr.indexOf(name) === i), // unique names only
+    ),
+  );
+
   return (
     <div className="space-y-3.5">
       <InspectorField label="Name">
         <InlineInput
           value={data.name}
           placeholder="Character name"
+          suggestions={characterNames}
           onCommit={(v) => onUpdate({ name: v })}
         />
       </InspectorField>
@@ -255,7 +275,7 @@ interface ActionPropertiesProps {
   onUpdate: (patch: Partial<ActionNodeData>) => void;
 }
 
-function ActionProperties({ data, onUpdate }: ActionPropertiesProps) {
+function ActionProperties({ nodeId, data, onUpdate }: ActionPropertiesProps) {
   return (
     <div className="space-y-3.5">
       <InspectorField label="Label">
@@ -269,12 +289,14 @@ function ActionProperties({ data, onUpdate }: ActionPropertiesProps) {
       <InspectorField label="Action Type">
         <select
           value={data.actionType}
-          onChange={(e) => onUpdate({ actionType: e.target.value as ActionType })}
+          onChange={(e) =>
+            onUpdate({ actionType: e.target.value as ActionType })
+          }
           aria-label="Action type"
           className={cn(
             "h-7 w-full rounded-md border border-border/60 bg-background/40 px-2",
             "text-xs text-foreground appearance-none cursor-pointer",
-            "focus:outline-none focus:ring-2 focus:ring-ring/50"
+            "focus:outline-none focus:ring-2 focus:ring-ring/50",
           )}
         >
           {ACTION_TYPES.map((t) => (
@@ -284,6 +306,78 @@ function ActionProperties({ data, onUpdate }: ActionPropertiesProps) {
           ))}
         </select>
       </InspectorField>
+
+      {data.actionType === "branch" && <BranchOptionsSection nodeId={nodeId} />}
+    </div>
+  );
+}
+
+/* ─── Branch options panel ────────────────────────────────── */
+
+function BranchOptionsSection({ nodeId }: { nodeId: string }) {
+  const edges = useGraphStore(
+    useShallow((s) => s.edges.filter((e) => e.source === nodeId)),
+  );
+  const nodes = useGraphStore(useShallow((s) => s.nodes));
+  const { updateEdgeLabel, removeEdge } = useGraphStore();
+
+  function targetName(targetId: string): string {
+    const n = nodes.find((x) => x.id === targetId);
+    if (!n) return "Unknown";
+    return n.type === "character"
+      ? (n.data as CharacterNodeData).name || "Unnamed"
+      : (n.data as ActionNodeData).label || "Action";
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5">
+        <GitBranch className="w-3 h-3 text-orange-400" />
+        <SectionLabel>Branch Options</SectionLabel>
+      </div>
+
+      {edges.length === 0 ? (
+        <p className="text-[10px] text-muted-foreground/45 italic leading-relaxed">
+          Draw edges from this node to add branch options. Each edge becomes one
+          player choice.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {edges.map((edge, i) => (
+            <div key={edge.id} className="group space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground/50">
+                  Option {i + 1}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="text-[10px] text-muted-foreground/40 truncate max-w-25"
+                    title={targetName(edge.target)}
+                  >
+                    → {targetName(edge.target)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeEdge(edge.id)}
+                    title="Remove this branch option"
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-destructive transition-all"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+              <InlineInput
+                value={edge.data?.optionText ?? ""}
+                placeholder={`Choice ${i + 1} text…`}
+                onCommit={(v) => updateEdgeLabel(edge.id, v)}
+              />
+            </div>
+          ))}
+          <p className="text-[10px] text-muted-foreground/35 leading-relaxed pt-0.5">
+            Double-click an edge on the canvas to edit inline.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -316,23 +410,52 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function InlineInput({
   value,
   placeholder,
+  suggestions,
   onCommit,
 }: {
   value: string;
   placeholder?: string;
+  suggestions?: string[];
   onCommit: (v: string) => void;
 }) {
   const [local, setLocal] = useState(value);
+  const dirty = useRef(false);
+  const listId = useRef(`dl-${Math.random().toString(36).slice(2)}`).current;
+
+  useEffect(() => {
+    if (!dirty.current) setLocal(value);
+  }, [value]);
 
   return (
-    <Input
-      value={local}
-      onChange={(e) => setLocal(e.target.value)}
-      onBlur={() => onCommit(local)}
-      onKeyDown={(e) => e.key === "Enter" && onCommit(local)}
-      placeholder={placeholder}
-      className="h-7 text-xs bg-background/40 border-border/60"
-    />
+    <>
+      <Input
+        value={local}
+        list={suggestions && suggestions.length > 0 ? listId : undefined}
+        onChange={(e) => {
+          dirty.current = true;
+          setLocal(e.target.value);
+        }}
+        onBlur={() => {
+          onCommit(local);
+          dirty.current = false;
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            onCommit(local);
+            dirty.current = false;
+          }
+        }}
+        placeholder={placeholder}
+        className="h-7 text-xs bg-background/40 border-border/60"
+      />
+      {suggestions && suggestions.length > 0 && (
+        <datalist id={listId}>
+          {suggestions.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+      )}
+    </>
   );
 }
 
@@ -359,7 +482,7 @@ function InlineTextarea({
       className={cn(
         "w-full rounded-md border border-border/60 bg-background/40 px-2.5 py-1.5",
         "text-xs text-foreground resize-none leading-relaxed",
-        "focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring"
+        "focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring",
       )}
     />
   );
@@ -368,7 +491,9 @@ function InlineTextarea({
 function Chip({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center gap-1.5 bg-muted/30 rounded px-2 py-1">
-      <span className="text-[10px] font-mono text-muted-foreground">{label}</span>
+      <span className="text-[10px] font-mono text-muted-foreground">
+        {label}
+      </span>
       <span className="text-[11px] font-mono text-foreground/70 tabular-nums">
         {value}
       </span>

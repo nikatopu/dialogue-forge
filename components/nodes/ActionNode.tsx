@@ -13,6 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useValidationStore } from "@/store/useValidationStore";
+import { useGraphStore } from "@/store/useGraphStore";
+import { useShallow } from "zustand/react/shallow";
 import type { ActionFlowNode, ActionType } from "@/types";
 
 const ACTION_CONFIG: Record<
@@ -61,6 +63,11 @@ function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) 
   const Icon = cfg.icon;
   const attrCount = (data.attributeSchema ?? []).length;
   const issueLevel = useValidationStore((s) => s.nodeLevels[id] ?? null);
+  const branchEdges = useGraphStore(
+    useShallow((s) =>
+      data.actionType === "branch" ? s.edges.filter((e) => e.source === id) : []
+    )
+  );
 
   return (
     <div
@@ -123,9 +130,27 @@ function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) 
         </div>
       </div>
 
+      {/* Branch options */}
+      {data.actionType === "branch" && branchEdges.length > 0 && (
+        <div className="px-3 pb-2.5 border-t border-border/30 pt-2 space-y-1">
+          {branchEdges.map((edge, i) => (
+            <div key={edge.id} className="flex items-center gap-1.5">
+              <span className="text-[9px] font-mono text-muted-foreground/40 shrink-0 w-3">
+                {i + 1}
+              </span>
+              <span className="text-[10px] text-foreground/70 truncate leading-tight">
+                {edge.data?.optionText || (
+                  <span className="italic text-muted-foreground/35">unlabelled</span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Attributes */}
       {attrCount > 0 && (
-        <div className="px-3 pb-2.5 border-t border-border/30 pt-2">
+        <div className={cn("px-3 pb-2.5 pt-2", data.actionType !== "branch" || branchEdges.length === 0 ? "border-t border-border/30" : "")}>
           <span className="text-[10px] text-muted-foreground/50 tabular-nums">
             {attrCount} attribute{attrCount !== 1 ? "s" : ""}
           </span>
