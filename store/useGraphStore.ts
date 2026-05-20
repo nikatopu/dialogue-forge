@@ -120,6 +120,7 @@ interface GraphStore {
   /* Edge CRUD */
   updateEdgeLabel: (id: string, optionText: string) => void;
   removeEdge: (id: string) => void;
+  setJumpTarget: (sourceId: string, targetId: string | null) => void;
 
   /* Layout */
   setNodePositions: (
@@ -426,6 +427,26 @@ export const useGraphStore = create<GraphStore>()(
           ...snap(s.nodes, s.edges, s.past),
           edges: s.edges.filter((e) => e.id !== id),
         })),
+
+      setJumpTarget: (sourceId, targetId) =>
+        set((s) => {
+          const withoutOld = s.edges.filter((e) => e.source !== sourceId);
+          const newEdges =
+            targetId === null
+              ? withoutOld
+              : ([
+                  ...withoutOld,
+                  {
+                    id: uid("edge"),
+                    source: sourceId,
+                    target: targetId,
+                    type: "dialogue",
+                    animated: false,
+                    data: { optionText: "", conditions: {}, metadata: {} },
+                  } satisfies DialogueEdge,
+                ] as DialogueEdge[]);
+          return { ...snap(s.nodes, s.edges, s.past), edges: newEdges };
+        }),
 
       /* ── Layout ── */
 

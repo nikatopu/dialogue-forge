@@ -103,7 +103,7 @@ export const DEMO_NODES: SerialNode[] = [
     position: { x: -140, y: 540 },
     data: {
       actionType: "jump",
-      label: "Go to: Ruins Entrance",
+      label: "Loop: Back to Start",
       attributeSchema: [],
       attributes: {},
     },
@@ -175,6 +175,13 @@ export const DEMO_EDGES: SerialEdge[] = [
     id: "e-elder2-end",
     source: "char-elder-2",
     target: "act-end-1",
+    type: "dialogue",
+    data: { optionText: "", conditions: {}, metadata: {} },
+  },
+  {
+    id: "e-jump-hero",
+    source: "act-jump-1",
+    target: "char-hero",
     type: "dialogue",
     data: { optionText: "", conditions: {}, metadata: {} },
   },

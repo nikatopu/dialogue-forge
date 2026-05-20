@@ -21,6 +21,7 @@ interface EditorStore {
   previewOpen: boolean;
   searchOpen: boolean;
   settingsOpen: boolean;
+  pickingJumpFor: string | null;
 
   /* Actions */
   setSidebarOpen: (open: boolean) => void;
@@ -34,6 +35,7 @@ interface EditorStore {
   setPreviewOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
   setSettingsOpen: (open: boolean) => void;
+  setPickingJumpFor: (id: string | null) => void;
 }
 
 export const useEditorStore = create<EditorStore>()(
@@ -48,6 +50,7 @@ export const useEditorStore = create<EditorStore>()(
       previewOpen: false,
       searchOpen: false,
       settingsOpen: false,
+      pickingJumpFor: null,
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -60,6 +63,7 @@ export const useEditorStore = create<EditorStore>()(
       setPreviewOpen: (open) => set({ previewOpen: open }),
       setSearchOpen: (open) => set({ searchOpen: open }),
       setSettingsOpen: (open) => set({ settingsOpen: open }),
+      setPickingJumpFor: (id) => set({ pickingJumpFor: id }),
     }),
     {
       name: "dialogue-forge-ui",

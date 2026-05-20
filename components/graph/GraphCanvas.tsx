@@ -12,7 +12,7 @@ import {
   type NodeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Network, Mouse, Sparkles } from "lucide-react";
+import { Network, Mouse, Sparkles, SkipForward } from "lucide-react";
 import { useGraphStore as useGraphStoreForDemo } from "@/store/useGraphStore";
 import { useEditorStore as useEditorStoreForDemo } from "@/store/useEditorStore";
 import { DEMO_NODES, DEMO_EDGES, DEMO_PROJECT_NAME } from "@/lib/demoProject";
@@ -24,6 +24,7 @@ import { edgeTypes } from "@/components/edges";
 import { ContextMenu } from "./ContextMenu";
 import { SearchOverlay } from "./SearchOverlay";
 import { computeAutoLayout } from "@/lib/autoLayout";
+import { cn } from "@/lib/utils";
 import type { ForgeNodeType } from "@/types";
 
 /* ─── Provider wrapper ─────────────────────────────────────── */
@@ -43,7 +44,7 @@ export { SearchOverlay };
 
 function FlowEditor() {
   const { screenToFlowPosition } = useReactFlow();
-  const { setSelectedNodeId, setContextMenu, setSearchOpen } = useEditorStore();
+  const { setSelectedNodeId, setContextMenu, setSearchOpen, pickingJumpFor, setPickingJumpFor } = useEditorStore();
   const {
     nodes,
     edges,
@@ -56,6 +57,7 @@ function FlowEditor() {
     removeNodes,
     copySelected,
     pasteSelected,
+    setJumpTarget,
     undo,
     redo,
     saveSnapshot,
@@ -89,16 +91,26 @@ function FlowEditor() {
   /* ── Node selection ── */
   const onNodeClick = useCallback<NodeMouseHandler>(
     (_, node) => {
+      const { pickingJumpFor: picking } = useEditorStore.getState();
+      if (picking) {
+        if (node.id !== picking) setJumpTarget(picking, node.id);
+        setPickingJumpFor(null);
+        return;
+      }
       setSelectedNodeId(node.id);
       setContextMenu(null);
     },
-    [setSelectedNodeId, setContextMenu]
+    [setSelectedNodeId, setContextMenu, setJumpTarget, setPickingJumpFor]
   );
 
   const onPaneClick = useCallback(() => {
+    if (useEditorStore.getState().pickingJumpFor) {
+      setPickingJumpFor(null);
+      return;
+    }
     setSelectedNodeId(null);
     setContextMenu(null);
-  }, [setSelectedNodeId, setContextMenu]);
+  }, [setSelectedNodeId, setContextMenu, setPickingJumpFor]);
 
   /* ── Context menu ── */
   const onNodeContextMenu = useCallback<NodeMouseHandler>(
@@ -171,6 +183,7 @@ function FlowEditor() {
         return;
       }
       if (e.key === "Escape") {
+        setPickingJumpFor(null);
         setSelectedNodeId(null);
         setContextMenu(null);
         return;
@@ -185,7 +198,7 @@ function FlowEditor() {
         }
       }
     },
-    [undo, redo, duplicateNode, copySelected, pasteSelected, removeNodes, setSelectedNodeId, setContextMenu, setSearchOpen, setNodePositions, fitView]
+    [undo, redo, duplicateNode, copySelected, pasteSelected, removeNodes, setSelectedNodeId, setContextMenu, setSearchOpen, setNodePositions, setPickingJumpFor, fitView]
   );
 
   const hasNodes = nodes.length > 0;
@@ -193,7 +206,7 @@ function FlowEditor() {
   return (
     <div
       ref={reactFlowWrapper}
-      className="flex-1 relative overflow-hidden bg-background min-w-0"
+      className={cn("flex-1 relative overflow-hidden bg-background min-w-0", pickingJumpFor && "cursor-crosshair")}
       onKeyDown={onKeyDown}
       tabIndex={-1}
     >
@@ -248,6 +261,14 @@ function FlowEditor() {
           ariaLabel="Minimap"
         />
       </ReactFlow>
+
+      {/* Jump-picking banner */}
+      {pickingJumpFor && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2 rounded-xl border border-sky-500/40 bg-sky-500/10 backdrop-blur-sm shadow-lg text-sm text-sky-300 pointer-events-none select-none">
+          <SkipForward className="w-3.5 h-3.5 shrink-0" />
+          Click a node to set as jump target — or press <kbd className="font-mono bg-sky-500/20 border border-sky-500/30 rounded px-1 text-[11px]">Esc</kbd> to cancel
+        </div>
+      )}
 
       {/* Search overlay */}
       <SearchOverlay />

@@ -9,7 +9,12 @@ import {
   Trash2,
   Copy,
   GitBranch,
+  SkipForward,
+  Square,
+  Wrench,
+  Crosshair,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +31,59 @@ import type {
   ActionNodeData,
   ActionType,
 } from "@/types";
+
+const ACTION_STRIP: Record<
+  ActionType,
+  {
+    icon: LucideIcon;
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+    glow: string;
+  }
+> = {
+  trigger: {
+    icon: Zap,
+    label: "Trigger",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/15",
+    border: "border-emerald-500/25",
+    glow: "from-emerald-500/5",
+  },
+  branch: {
+    icon: GitBranch,
+    label: "Branch",
+    color: "text-orange-400",
+    bg: "bg-orange-500/15",
+    border: "border-orange-500/25",
+    glow: "from-orange-500/5",
+  },
+  jump: {
+    icon: SkipForward,
+    label: "Jump",
+    color: "text-sky-400",
+    bg: "bg-sky-500/15",
+    border: "border-sky-500/25",
+    glow: "from-sky-500/5",
+  },
+  end: {
+    icon: Square,
+    label: "End",
+    color: "text-rose-400",
+    bg: "bg-rose-500/15",
+    border: "border-rose-500/25",
+    glow: "from-rose-500/5",
+  },
+  custom: {
+    icon: Wrench,
+    label: "Custom",
+    color: "text-violet-400",
+    bg: "bg-violet-500/15",
+    border: "border-violet-500/25",
+    glow: "from-violet-500/5",
+  },
+};
 
 const TABS = [
   { id: "properties", label: "Properties", icon: FileText },
@@ -49,6 +107,10 @@ export function NodeInspector({ node }: NodeInspectorProps) {
   const values = data.attributes ?? {};
   const attrCount = schema.length;
 
+  const actionCfg = !isCharacter
+    ? (ACTION_STRIP[(data as ActionNodeData).actionType] ?? ACTION_STRIP.custom)
+    : null;
+
   function handleDelete() {
     removeNode(node.id);
     setSelectedNodeId(null);
@@ -64,24 +126,25 @@ export function NodeInspector({ node }: NodeInspectorProps) {
       <div
         className={cn(
           "flex items-center gap-2.5 px-4 py-3 border-b border-border/50",
-          "bg-linear-to-r",
-          isCharacter
-            ? "from-indigo-500/5 to-transparent"
-            : "from-emerald-500/5 to-transparent",
+          "bg-linear-to-r to-transparent",
+          isCharacter ? "from-indigo-500/5" : actionCfg!.glow,
         )}
       >
         <div
           className={cn(
-            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
             isCharacter
-              ? "bg-indigo-500/15 border border-indigo-500/25"
-              : "bg-emerald-500/15 border border-emerald-500/25",
+              ? "bg-indigo-500/15 border-indigo-500/25"
+              : cn(actionCfg!.bg, actionCfg!.border),
           )}
         >
           {isCharacter ? (
             <User className="w-3.5 h-3.5 text-indigo-400" />
           ) : (
-            <Zap className="w-3.5 h-3.5 text-emerald-400" />
+            (() => {
+              const Icon = actionCfg!.icon;
+              return <Icon className={cn("w-3.5 h-3.5", actionCfg!.color)} />;
+            })()
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -91,7 +154,7 @@ export function NodeInspector({ node }: NodeInspectorProps) {
               : (data as ActionNodeData).label || "Action"}
           </p>
           <p className="text-[10px] text-muted-foreground capitalize">
-            {node.type} node
+            {isCharacter ? "Character" : actionCfg!.label} node
           </p>
         </div>
         {/* Quick actions */}
@@ -308,6 +371,7 @@ function ActionProperties({ nodeId, data, onUpdate }: ActionPropertiesProps) {
       </InspectorField>
 
       {data.actionType === "branch" && <BranchOptionsSection nodeId={nodeId} />}
+      {data.actionType === "jump" && <JumpTargetSection nodeId={nodeId} />}
     </div>
   );
 }
@@ -377,6 +441,78 @@ function BranchOptionsSection({ nodeId }: { nodeId: string }) {
             Double-click an edge on the canvas to edit inline.
           </p>
         </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Jump target panel ───────────────────────────────── */
+
+function JumpTargetSection({ nodeId }: { nodeId: string }) {
+  const outEdge = useGraphStore(
+    useShallow((s) => s.edges.find((e) => e.source === nodeId) ?? null),
+  );
+  const nodes = useGraphStore(useShallow((s) => s.nodes));
+  const { setJumpTarget } = useGraphStore();
+  const { pickingJumpFor, setPickingJumpFor } = useEditorStore();
+
+  const isPicking = pickingJumpFor === nodeId;
+
+  function nodeName(n: ForgeNode): string {
+    return n.type === "character"
+      ? (n.data as CharacterNodeData).name || "Unnamed"
+      : (n.data as ActionNodeData).label || "Action";
+  }
+
+  const candidates = nodes.filter((n) => n.id !== nodeId);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <SkipForward className="w-3 h-3 text-sky-400" />
+          <SectionLabel>Jump To</SectionLabel>
+        </div>
+        <button
+          type="button"
+          onClick={() => setPickingJumpFor(isPicking ? null : nodeId)}
+          title={
+            isPicking ? "Cancel picking" : "Click a node on the canvas to pick"
+          }
+          className={cn(
+            "flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors",
+            isPicking
+              ? "bg-sky-500/20 text-sky-300 border border-sky-500/40"
+              : "bg-muted/50 text-foreground/80 border-border/50 hover:text-sky-400 hover:bg-sky-500/10 hover:border-sky-500/30",
+          )}
+        >
+          <Crosshair className="w-2.5 h-2.5" />
+          {isPicking ? "Cancel" : "Pick"}
+        </button>
+      </div>
+
+      <select
+        value={outEdge?.target ?? ""}
+        onChange={(e) => setJumpTarget(nodeId, e.target.value || null)}
+        aria-label="Jump target node"
+        className={cn(
+          "h-7 w-full rounded-md border border-border/60 bg-background/40 px-2",
+          "text-xs text-foreground appearance-none cursor-pointer",
+          "focus:outline-none focus:ring-2 focus:ring-ring/50",
+        )}
+      >
+        <option value="">— none —</option>
+        {candidates.map((n) => (
+          <option key={n.id} value={n.id}>
+            {nodeName(n)}
+          </option>
+        ))}
+      </select>
+
+      {!outEdge && !isPicking && (
+        <p className="text-[10px] text-muted-foreground/45 italic leading-relaxed">
+          Pick a target node or draw an edge on the canvas.
+        </p>
       )}
     </div>
   );
