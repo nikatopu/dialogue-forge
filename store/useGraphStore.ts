@@ -16,6 +16,7 @@ import type {
   ForgeNodeType,
   CharacterNodeData,
   ActionNodeData,
+  StartNodeData,
   AttributeDefinition,
   AttributeType,
   SerialNode,
@@ -43,6 +44,10 @@ function defaultActionData(): ActionNodeData {
     attributeSchema: [],
     attributes: {},
   };
+}
+
+function defaultStartData(): StartNodeData {
+  return { name: "Entry Point" };
 }
 
 interface GraphSnapshot {
@@ -295,6 +300,8 @@ export const useGraphStore = create<GraphStore>()(
         const node: ForgeNode =
           type === "character"
             ? { id, type: "character", position, data: defaultCharacterData() }
+            : type === "start"
+            ? { id, type: "start", position, data: defaultStartData() }
             : { id, type: "action", position, data: defaultActionData() };
         set((s) => ({
           ...snap(s.nodes, s.edges, s.past),
@@ -465,6 +472,8 @@ export const useGraphStore = create<GraphStore>()(
           nodes: nodes.map((n) =>
             n.type === "character"
               ? ({ ...n, data: n.data as CharacterNodeData } as ForgeNode)
+              : n.type === "start"
+              ? ({ ...n, data: n.data as StartNodeData } as ForgeNode)
               : ({ ...n, data: n.data as ActionNodeData } as ForgeNode),
           ),
           edges: edges.map((e) => ({ ...e }) as DialogueEdge),

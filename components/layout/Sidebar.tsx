@@ -7,6 +7,7 @@ import {
   Plus,
   User,
   Zap,
+  Flag,
   ChevronRight,
   GripVertical,
   FileText,
@@ -37,14 +38,38 @@ const NODE_TEMPLATES = [
   {
     type: "action" as const,
     label: "Action",
-    description: "Trigger event",
+    description: "Trigger / branch / jump",
     icon: Zap,
     iconColor: "text-emerald-400",
     iconBg: "bg-emerald-500/12",
     dotColor: "bg-emerald-400",
   },
+  {
+    type: "start" as const,
+    label: "Start",
+    description: "Entry point",
+    icon: Flag,
+    iconColor: "text-teal-400",
+    iconBg: "bg-teal-500/12",
+    dotColor: "bg-teal-400",
+  },
 ];
 
+const TAG_COLORS: Record<string, string> = {
+  start: "bg-teal-500/15 text-teal-400 border-teal-500/25",
+  trigger: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  triggers: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  branch: "bg-violet-500/15 text-violet-400 border-violet-500/25",
+  choice: "bg-violet-500/15 text-violet-400 border-violet-500/25",
+  combat: "bg-rose-500/15 text-rose-400 border-rose-500/25",
+  audio: "bg-sky-500/15 text-sky-400 border-sky-500/25",
+  game: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+  ui: "bg-indigo-500/15 text-indigo-400 border-indigo-500/25",
+  jump: "bg-orange-500/15 text-orange-400 border-orange-500/25",
+  "multi-entry": "bg-cyan-500/15 text-cyan-400 border-cyan-500/25",
+  basic: "bg-muted text-muted-foreground border-border",
+  linear: "bg-muted text-muted-foreground border-border",
+};
 
 interface SectionProps {
   label: string;
@@ -61,8 +86,8 @@ function Section({ label, open, onToggle, badge, children }: SectionProps) {
         type="button"
         onClick={onToggle}
         className={cn(
-          "w-full flex items-center justify-between px-2 py-1.5 rounded-md",
-          "hover:bg-muted/50 transition-colors group"
+          "w-57 flex items-center justify-between px-2 py-1.5 rounded-md",
+          "hover:bg-muted/50 transition-colors group",
         )}
       >
         <div className="flex items-center gap-1.5">
@@ -95,7 +120,9 @@ function Section({ label, open, onToggle, badge, children }: SectionProps) {
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
             className="overflow-hidden"
           >
-            <div className="pt-1 pb-1 space-y-1">{children}</div>
+            <div className="pt-1 pb-1 space-y-1 overflow-y-scroll max-h-100 w-55">
+              {children}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -112,7 +139,8 @@ export function Sidebar() {
     nodes: true,
     templates: false,
   });
-  const [pendingTemplate, setPendingTemplate] = useState<ProjectTemplate | null>(null);
+  const [pendingTemplate, setPendingTemplate] =
+    useState<ProjectTemplate | null>(null);
 
   const toggle = (key: keyof typeof openSections) =>
     setOpenSections((s) => ({ ...s, [key]: !s[key] }));
@@ -137,135 +165,149 @@ export function Sidebar() {
     (n) =>
       !search ||
       n.label.toLowerCase().includes(search.toLowerCase()) ||
-      n.description.toLowerCase().includes(search.toLowerCase())
+      n.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <>
-    <motion.aside
-      animate={{
-        width: sidebarOpen ? 240 : 0,
-        opacity: sidebarOpen ? 1 : 0,
-      }}
-      transition={{ type: "spring", stiffness: 320, damping: 32 }}
-      className="shrink-0 overflow-hidden border-r border-border bg-card flex flex-col"
-    >
-      {/* Fixed-width inner prevents layout thrash during animation */}
-      <div className="w-[240px] flex flex-col h-full">
-        {/* Search */}
-        <div className="px-2 py-2 border-b border-border shrink-0">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search nodes…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-8 pl-8 pr-7 text-xs bg-background/40 border-border/60 focus:bg-background/70"
-            />
-            <AnimatePresence>
-              {search && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  onClick={() => setSearch("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                </motion.button>
-              )}
-            </AnimatePresence>
+      <motion.aside
+        animate={{
+          width: sidebarOpen ? 240 : 0,
+          opacity: sidebarOpen ? 1 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 320, damping: 32 }}
+        className="shrink-0 overflow-hidden border-r border-border bg-card flex flex-col"
+      >
+        {/* Fixed-width inner prevents layout thrash during animation */}
+        <div className="w-60 flex flex-col h-full">
+          {/* Search */}
+          <div className="px-2 py-2 border-b border-border shrink-0">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search nodes…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-8 pl-8 pr-7 text-xs bg-background/40 border-border/60 focus:bg-background/70"
+              />
+              <AnimatePresence>
+                {search && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={() => setSearch("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Scrollable content */}
+          <ScrollArea className="flex-1">
+            <div className="p-2 space-y-0.5">
+              {/* Node Types */}
+              <Section
+                label="Node Types"
+                open={openSections.nodes}
+                onToggle={() => toggle("nodes")}
+              >
+                {filteredTemplates.length > 0 ? (
+                  filteredTemplates.map((node) => (
+                    <NodeTypeCard key={node.type} node={node} />
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground px-2 py-2">
+                    No nodes match &ldquo;{search}&rdquo;
+                  </p>
+                )}
+              </Section>
+
+              <Separator className="my-2 opacity-50" />
+
+              {/* Templates */}
+              <Section
+                label="Templates"
+                open={openSections.templates}
+                onToggle={() => toggle("templates")}
+                badge={PROJECT_TEMPLATES.length}
+              >
+                {PROJECT_TEMPLATES.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => handleTemplateClick(t)}
+                    className={cn(
+                      "w-full flex flex-col gap-1 px-2.5 py-2 rounded-lg text-left",
+                      "hover:bg-muted/50 transition-colors group",
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center shrink-0 group-hover:bg-muted transition-colors">
+                        <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium truncate">{t.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {t.description}
+                        </p>
+                      </div>
+                    </div>
+                    {t.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pl-9">
+                        {t.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={cn(
+                              "text-[9px] font-medium px-1.5 py-0.5 rounded border",
+                              TAG_COLORS[tag] ??
+                                "bg-muted text-muted-foreground border-border",
+                            )}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </Section>
+            </div>
+          </ScrollArea>
+
+          {/* Add Node button */}
+          <div className="p-2 border-t border-border shrink-0">
+            <Button
+              type="button"
+              className="w-full h-8 gap-1.5 text-xs font-medium"
+              onClick={() => {
+                const offset = nodes.length * 24;
+                addNode("character", { x: 100 + offset, y: 100 + offset });
+              }}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Node
+            </Button>
           </div>
         </div>
+      </motion.aside>
 
-        {/* Scrollable content */}
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-0.5">
-            {/* Node Types */}
-            <Section
-              label="Node Types"
-              open={openSections.nodes}
-              onToggle={() => toggle("nodes")}
-            >
-              {filteredTemplates.length > 0 ? (
-                filteredTemplates.map((node) => (
-                  <NodeTypeCard key={node.type} node={node} />
-                ))
-              ) : (
-                <p className="text-xs text-muted-foreground px-2 py-2">
-                  No nodes match &ldquo;{search}&rdquo;
-                </p>
-              )}
-            </Section>
-
-            <Separator className="my-2 opacity-50" />
-
-            {/* Templates */}
-            <Section
-              label="Templates"
-              open={openSections.templates}
-              onToggle={() => toggle("templates")}
-              badge={PROJECT_TEMPLATES.length}
-            >
-              {PROJECT_TEMPLATES.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => handleTemplateClick(t)}
-                  className={cn(
-                    "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left",
-                    "hover:bg-muted/50 transition-colors group"
-                  )}
-                >
-                  <div className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center shrink-0 group-hover:bg-muted transition-colors">
-                    <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium truncate">{t.name}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      {t.description}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </Section>
-          </div>
-        </ScrollArea>
-
-        {/* Add Node button */}
-        <div className="p-2 border-t border-border shrink-0">
-          <Button
-            type="button"
-            className="w-full h-8 gap-1.5 text-xs font-medium"
-            onClick={() => {
-              const offset = nodes.length * 24;
-              addNode("character", { x: 100 + offset, y: 100 + offset });
-            }}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Add Node
-          </Button>
-        </div>
-      </div>
-    </motion.aside>
-
-    <ConfirmModal
-      open={pendingTemplate !== null}
-      title="Replace current project?"
-      message="Loading this template will replace your existing nodes and edges. Make sure you've exported anything you want to keep."
-      confirmLabel="Load template"
-      onConfirm={confirmLoadTemplate}
-      onCancel={() => setPendingTemplate(null)}
-    />
+      <ConfirmModal
+        open={pendingTemplate !== null}
+        title="Replace current project?"
+        message="Loading this template will replace your existing nodes and edges. Make sure you've exported anything you want to keep."
+        confirmLabel="Load template"
+        onConfirm={confirmLoadTemplate}
+        onCancel={() => setPendingTemplate(null)}
+      />
     </>
   );
 }
 
-function NodeTypeCard({
-  node,
-}: {
-  node: (typeof NODE_TEMPLATES)[number];
-}) {
+function NodeTypeCard({ node }: { node: (typeof NODE_TEMPLATES)[number] }) {
   const Icon = node.icon;
 
   function onDragStart(e: React.DragEvent) {
@@ -282,13 +324,13 @@ function NodeTypeCard({
         "flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg border border-border/60",
         "cursor-grab active:cursor-grabbing select-none",
         "hover:border-border hover:bg-muted/40 hover:shadow-sm",
-        "active:scale-[0.97] transition-all duration-150 group"
+        "active:scale-[0.97] transition-all duration-150 group",
       )}
     >
       <div
         className={cn(
           "w-8 h-8 rounded-md flex items-center justify-center shrink-0",
-          node.iconBg
+          node.iconBg,
         )}
       >
         <Icon className={cn("w-4 h-4", node.iconColor)} />

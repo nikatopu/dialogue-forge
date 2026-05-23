@@ -25,7 +25,7 @@ import { ContextMenu } from "./ContextMenu";
 import { SearchOverlay } from "./SearchOverlay";
 import { computeAutoLayout } from "@/lib/autoLayout";
 import { cn } from "@/lib/utils";
-import type { ForgeNodeType } from "@/types";
+import type { ForgeNodeType, ForgeNode } from "@/types";
 
 /* ─── Provider wrapper ─────────────────────────────────────── */
 
@@ -120,6 +120,15 @@ function FlowEditor() {
       setContextMenu({ x: e.clientX, y: e.clientY, nodeId: node.id });
     },
     [setSelectedNodeId, setContextMenu]
+  );
+
+  /* ── Block incoming edges to Start nodes ── */
+  const isValidConnection = useCallback(
+    (connection: { target: string | null }) => {
+      const target = nodes.find((n) => n.id === connection.target) as ForgeNode | undefined;
+      return target?.type !== "start";
+    },
+    [nodes]
   );
 
   /* ── Snapshot before drag so position changes are undoable ── */
@@ -222,6 +231,7 @@ function FlowEditor() {
         onNodeDragStart={onNodeDragStart}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        isValidConnection={isValidConnection}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
@@ -253,7 +263,9 @@ function FlowEditor() {
           nodeColor={(n) =>
             n.type === "character"
               ? "oklch(0.585 0.233 260)"
-              : "oklch(0.62 0.22 170)"
+              : n.type === "start"
+                ? "oklch(0.62 0.18 180)"
+                : "oklch(0.62 0.22 170)"
           }
           maskColor="oklch(0 0 0 / 55%)"
           pannable
@@ -308,9 +320,10 @@ function EmptyCanvasState() {
       </p>
       <p className="text-sm text-muted-foreground/60 max-w-65 leading-relaxed">
         Drag a{" "}
-        <span className="text-indigo-400 font-medium">Character</span> or{" "}
+        <span className="text-teal-400 font-medium">Start</span>,{" "}
+        <span className="text-indigo-400 font-medium">Character</span>, or{" "}
         <span className="text-emerald-400 font-medium">Action</span> node from
-        the sidebar to start
+        the sidebar to begin
       </p>
 
       {/* EmptyCanvasState is only shown when nodes.length === 0, so no confirm needed */}

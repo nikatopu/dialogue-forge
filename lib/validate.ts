@@ -1,4 +1,10 @@
-import type { ForgeNode, DialogueEdge, CharacterNodeData, ActionNodeData } from "@/types";
+import type {
+  ForgeNode,
+  DialogueEdge,
+  CharacterNodeData,
+  ActionNodeData,
+  StartNodeData,
+} from "@/types";
 
 export type IssueLevel = "error" | "warning" | "info";
 
@@ -39,12 +45,24 @@ export function validateGraph(
     if (nodeIds.has(e.target)) inDeg.set(e.target, (inDeg.get(e.target) ?? 0) + 1);
   }
 
+  const startNodes = nodes.filter((n) => n.type === "start");
+
+  /* ── Missing Start warning (only when graph has multiple nodes) ── */
+  if (startNodes.length === 0 && nodes.length > 1) {
+    push({
+      level: "warning",
+      code: "no_start_node",
+      message: "No Start node found — add one to define an entry point",
+    });
+  }
+
   /* ── Per-node rules ── */
   for (const node of nodes) {
     const out = outDeg.get(node.id) ?? 0;
     const inc = inDeg.get(node.id) ?? 0;
 
-    if (out === 0 && inc === 0 && nodes.length > 1) {
+    /* Generic orphan check (skip Start nodes — they're inherently entry points) */
+    if (node.type !== "start" && out === 0 && inc === 0 && nodes.length > 1) {
       push({
         level: "error",
         code: "orphan_node",
@@ -54,6 +72,32 @@ export function validateGraph(
       continue;
     }
 
+    /* ─── Start node rules ─── */
+    if (node.type === "start") {
+      const d = node.data as StartNodeData;
+
+      if (inc > 0) {
+        push({
+          level: "error",
+          code: "start_has_incoming",
+          message: `Start node "${d.name || "Unnamed"}" must not have incoming edges`,
+          nodeId: node.id,
+        });
+      }
+
+      if (out === 0 && nodes.length > 1) {
+        push({
+          level: "warning",
+          code: "empty_start_branch",
+          message: `Start node "${d.name || "Unnamed"}" has no outgoing edges`,
+          nodeId: node.id,
+        });
+      }
+
+      continue;
+    }
+
+    /* ─── Character node rules ─── */
     if (node.type === "character") {
       const d = node.data as CharacterNodeData;
       if (!d.dialogue?.trim()) {
@@ -66,8 +110,10 @@ export function validateGraph(
       }
     }
 
+    /* ─── Action node rules ─── */
     if (node.type === "action") {
       const d = node.data as ActionNodeData;
+
       if (!d.label?.trim()) {
         push({
           level: "warning",
@@ -76,6 +122,7 @@ export function validateGraph(
           nodeId: node.id,
         });
       }
+
       if (d.actionType !== "end" && out === 0 && nodes.length > 1) {
         push({
           level: "warning",
@@ -83,6 +130,26 @@ export function validateGraph(
           message: `Action "${d.label || "Unnamed"}" leads nowhere`,
           nodeId: node.id,
         });
+      }
+
+      /* Trigger-specific checks */
+      if (d.actionType === "trigger") {
+        if (!d.category) {
+          push({
+            level: "warning",
+            code: "trigger_missing_category",
+            message: `Trigger "${d.label || "Unnamed"}" has no category`,
+            nodeId: node.id,
+          });
+        }
+        if (!d.event?.trim()) {
+          push({
+            level: "warning",
+            code: "trigger_missing_event",
+            message: `Trigger "${d.label || "Unnamed"}" has no event`,
+            nodeId: node.id,
+          });
+        }
       }
     }
   }
@@ -122,6 +189,7 @@ export function validateGraph(
 
 function getNodeLabel(node: ForgeNode): string {
   if (node.type === "character") return (node.data as CharacterNodeData).name || "Unnamed";
+  if (node.type === "start") return (node.data as StartNodeData).name || "Start";
   return (node.data as ActionNodeData).label || "Action";
 }
 

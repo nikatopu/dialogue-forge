@@ -19,7 +19,7 @@ export function serializeGraph(
     exportedAt: new Date().toISOString(),
     nodes: nodes.map(({ id, type, position, data }) => ({
       id,
-      type: type as "character" | "action",
+      type: type as "character" | "action" | "start",
       position,
       data,
     })),

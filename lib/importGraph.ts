@@ -28,8 +28,30 @@ const characterDataImportSchema = z.object({
 const actionDataImportSchema = z.object({
   actionType: z.enum(["trigger", "branch", "jump", "end", "custom"]).catch("trigger"),
   label: z.string().catch(""),
+  jumpTarget: z.string().optional(),
+  /* Trigger fields — optional for backward compat */
+  category: z.enum(["game", "variable", "audio", "animation", "ui", "custom"]).optional(),
+  event: z.string().optional(),
+  params: z.record(z.string(), z.string()).optional(),
+  executionMode: z.enum(["immediate", "beforeNext", "afterNext"]).optional(),
   attributeSchema: z.array(attributeDefinitionImportSchema).catch([]),
   attributes: z.record(z.string(), z.unknown()).catch({}),
+}).passthrough()
+  /* Migration: old triggers (no category) get category="custom", event=label */
+  .transform((d) => {
+    if (d.actionType === "trigger" && !d.category) {
+      return {
+        ...d,
+        category: "custom" as const,
+        event: d.event ?? d.label ?? "",
+        executionMode: d.executionMode ?? ("immediate" as const),
+      };
+    }
+    return d;
+  });
+
+const startDataImportSchema = z.object({
+  name: z.string().catch(""),
 }).passthrough();
 
 const serialNodeSchema = z.discriminatedUnion("type", [
@@ -44,6 +66,12 @@ const serialNodeSchema = z.discriminatedUnion("type", [
     type: z.literal("action"),
     position: positionSchema,
     data: actionDataImportSchema,
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("start"),
+    position: positionSchema,
+    data: startDataImportSchema,
   }),
 ]);
 

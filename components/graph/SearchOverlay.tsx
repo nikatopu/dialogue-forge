@@ -7,13 +7,11 @@ import { useReactFlow } from "@xyflow/react";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { cn } from "@/lib/utils";
-import type { ForgeNode, CharacterNodeData, ActionNodeData } from "@/types";
+import type { ForgeNode, CharacterNodeData, ActionNodeData, StartNodeData } from "@/types";
 
 function getNodeLabel(node: ForgeNode): string {
-  if (node.type === "character") {
-    const d = node.data as CharacterNodeData;
-    return d.name || "Unnamed";
-  }
+  if (node.type === "character") return (node.data as CharacterNodeData).name || "Unnamed";
+  if (node.type === "start") return (node.data as StartNodeData).name || "Entry Point";
   return (node.data as ActionNodeData).label || "Action";
 }
 
@@ -22,6 +20,7 @@ function getNodeSubtitle(node: ForgeNode): string {
     const d = node.data as CharacterNodeData;
     return d.dialogue ? d.dialogue.slice(0, 60) + (d.dialogue.length > 60 ? "…" : "") : "";
   }
+  if (node.type === "start") return "start";
   return (node.data as ActionNodeData).actionType;
 }
 
@@ -134,7 +133,9 @@ export function SearchOverlay() {
                           "text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded shrink-0",
                           node.type === "character"
                             ? "bg-indigo-500/15 text-indigo-400"
-                            : "bg-emerald-500/15 text-emerald-400"
+                            : node.type === "start"
+                              ? "bg-teal-500/15 text-teal-400"
+                              : "bg-emerald-500/15 text-emerald-400"
                         )}
                       >
                         {node.type}

@@ -130,6 +130,28 @@ function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) 
         </div>
       </div>
 
+      {/* Trigger execution mode badge */}
+      {data.actionType === "trigger" && data.executionMode && (
+        <div className="px-3 pb-2 -mt-0.5">
+          <span
+            className={cn(
+              "text-[9px] font-medium px-1.5 py-0.5 rounded border",
+              data.executionMode === "immediate"
+                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                : data.executionMode === "beforeNext"
+                  ? "bg-sky-500/10 text-sky-400 border-sky-500/20"
+                  : "bg-violet-500/10 text-violet-400 border-violet-500/20"
+            )}
+          >
+            {data.executionMode === "immediate"
+              ? "Immediate"
+              : data.executionMode === "beforeNext"
+                ? "Before Next"
+                : "After Next"}
+          </span>
+        </div>
+      )}
+
       {/* Branch options */}
       {data.actionType === "branch" && branchEdges.length > 0 && (
         <div className="px-3 pb-2.5 border-t border-border/30 pt-2 space-y-1">

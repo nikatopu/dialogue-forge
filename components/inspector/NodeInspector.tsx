@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   User,
   Zap,
+  Flag,
   Sliders,
   FileText,
   Trash2,
@@ -13,6 +14,12 @@ import {
   Square,
   Wrench,
   Crosshair,
+  Swords,
+  Music,
+  Hash,
+  Clapperboard,
+  Monitor,
+  Plus,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -30,7 +37,11 @@ import type {
   CharacterNodeData,
   ActionNodeData,
   ActionType,
+  TriggerCategory,
+  TriggerExecutionMode,
+  StartNodeData,
 } from "@/types";
+import { TRIGGER_EVENTS } from "@/types";
 
 const ACTION_STRIP: Record<
   ActionType,
@@ -101,15 +112,42 @@ export function NodeInspector({ node }: NodeInspectorProps) {
   const { updateNodeData, removeNode, duplicateNode } = useGraphStore();
   const { setSelectedNodeId } = useEditorStore();
 
+  const isStart = node.type === "start";
   const isCharacter = node.type === "character";
-  const data = node.data as CharacterNodeData | ActionNodeData;
-  const schema = data.attributeSchema ?? [];
-  const values = data.attributes ?? {};
+  const isAction = node.type === "action";
+
+  const data = node.data as CharacterNodeData | ActionNodeData | StartNodeData;
+  const schema = (data as CharacterNodeData).attributeSchema ?? [];
+  const values = (data as CharacterNodeData).attributes ?? {};
   const attrCount = schema.length;
 
-  const actionCfg = !isCharacter
+  const actionCfg = isAction
     ? (ACTION_STRIP[(data as ActionNodeData).actionType] ?? ACTION_STRIP.custom)
     : null;
+
+  const stripGlow = isStart
+    ? "from-teal-500/5"
+    : isCharacter
+      ? "from-indigo-500/5"
+      : actionCfg!.glow;
+
+  const stripIconBg = isStart
+    ? "bg-teal-500/15 border-teal-500/25"
+    : isCharacter
+      ? "bg-indigo-500/15 border-indigo-500/25"
+      : cn(actionCfg!.bg, actionCfg!.border);
+
+  const stripLabel = isStart
+    ? (data as StartNodeData).name || "Entry Point"
+    : isCharacter
+      ? (data as CharacterNodeData).name || "Unnamed"
+      : (data as ActionNodeData).label || "Action";
+
+  const stripType = isStart
+    ? "Start node"
+    : isCharacter
+      ? "Character node"
+      : `${actionCfg!.label} node`;
 
   function handleDelete() {
     removeNode(node.id);
@@ -127,18 +165,18 @@ export function NodeInspector({ node }: NodeInspectorProps) {
         className={cn(
           "flex items-center gap-2.5 px-4 py-3 border-b border-border/50",
           "bg-linear-to-r to-transparent",
-          isCharacter ? "from-indigo-500/5" : actionCfg!.glow,
+          stripGlow,
         )}
       >
         <div
           className={cn(
             "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
-            isCharacter
-              ? "bg-indigo-500/15 border-indigo-500/25"
-              : cn(actionCfg!.bg, actionCfg!.border),
+            stripIconBg,
           )}
         >
-          {isCharacter ? (
+          {isStart ? (
+            <Flag className="w-3.5 h-3.5 text-teal-400" />
+          ) : isCharacter ? (
             <User className="w-3.5 h-3.5 text-indigo-400" />
           ) : (
             (() => {
@@ -148,16 +186,9 @@ export function NodeInspector({ node }: NodeInspectorProps) {
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold truncate">
-            {isCharacter
-              ? (data as CharacterNodeData).name || "Unnamed"
-              : (data as ActionNodeData).label || "Action"}
-          </p>
-          <p className="text-[10px] text-muted-foreground capitalize">
-            {isCharacter ? "Character" : actionCfg!.label} node
-          </p>
+          <p className="text-sm font-semibold truncate">{stripLabel}</p>
+          <p className="text-[10px] text-muted-foreground capitalize">{stripType}</p>
         </div>
-        {/* Quick actions */}
         <div className="flex gap-1 shrink-0">
           <Button
             variant="ghost"
@@ -217,7 +248,12 @@ export function NodeInspector({ node }: NodeInspectorProps) {
       <div className="flex-1 overflow-y-auto">
         {activeTab === "properties" && (
           <div className="p-4 space-y-4">
-            {isCharacter ? (
+            {isStart ? (
+              <StartNodeProperties
+                data={data as StartNodeData}
+                onUpdate={(patch) => updateNodeData(node.id, patch)}
+              />
+            ) : isCharacter ? (
               <CharacterProperties
                 nodeId={node.id}
                 data={data as CharacterNodeData}
@@ -233,7 +269,6 @@ export function NodeInspector({ node }: NodeInspectorProps) {
 
             <Separator className="opacity-40" />
 
-            {/* Node metadata */}
             <div className="space-y-1.5">
               <SectionLabel>Node ID</SectionLabel>
               <p className="text-[10px] font-mono text-muted-foreground bg-muted/30 rounded px-2 py-1 break-all">
@@ -253,7 +288,13 @@ export function NodeInspector({ node }: NodeInspectorProps) {
 
         {activeTab === "attributes" && (
           <div className="p-4">
-            <AttributeEditor nodeId={node.id} schema={schema} values={values} />
+            {isStart ? (
+              <p className="text-[10px] text-muted-foreground/45 italic">
+                Start nodes do not have attributes.
+              </p>
+            ) : (
+              <AttributeEditor nodeId={node.id} schema={schema} values={values} />
+            )}
           </div>
         )}
       </div>
@@ -262,6 +303,30 @@ export function NodeInspector({ node }: NodeInspectorProps) {
 }
 
 /* ─── Property forms ──────────────────────────────────── */
+
+interface StartNodePropertiesProps {
+  data: StartNodeData;
+  onUpdate: (patch: Partial<StartNodeData>) => void;
+}
+
+function StartNodeProperties({ data, onUpdate }: StartNodePropertiesProps) {
+  return (
+    <div className="space-y-3.5">
+      <InspectorField label="Entry Name">
+        <InlineInput
+          value={data.name}
+          placeholder="e.g. Main Story, Combat"
+          onCommit={(v) => onUpdate({ name: v })}
+        />
+      </InspectorField>
+      <p className="text-[10px] text-muted-foreground/45 leading-relaxed">
+        Start nodes are entry points for your dialogue graph. Connect outgoing
+        edges to begin the flow. Each Start node appears as a choice in the
+        preview.
+      </p>
+    </div>
+  );
+}
 
 interface CharacterPropertiesProps {
   nodeId: string;
@@ -370,8 +435,241 @@ function ActionProperties({ nodeId, data, onUpdate }: ActionPropertiesProps) {
         </select>
       </InspectorField>
 
+      {data.actionType === "trigger" && (
+        <TriggerSection data={data} onUpdate={onUpdate} />
+      )}
       {data.actionType === "branch" && <BranchOptionsSection nodeId={nodeId} />}
       {data.actionType === "jump" && <JumpTargetSection nodeId={nodeId} />}
+    </div>
+  );
+}
+
+/* ─── Trigger panel ───────────────────────────────────────── */
+
+const CATEGORY_ICONS: Record<TriggerCategory, LucideIcon> = {
+  game: Swords,
+  variable: Hash,
+  audio: Music,
+  animation: Clapperboard,
+  ui: Monitor,
+  custom: Wrench,
+};
+
+const CATEGORY_COLORS: Record<TriggerCategory, string> = {
+  game: "text-emerald-400",
+  variable: "text-violet-400",
+  audio: "text-sky-400",
+  animation: "text-orange-400",
+  ui: "text-indigo-400",
+  custom: "text-zinc-400",
+};
+
+const EXECUTION_DESCRIPTIONS: Record<TriggerExecutionMode, string> = {
+  immediate: "Fires at the moment this node is reached",
+  beforeNext: "Fires before the next dialogue line plays",
+  afterNext: "Fires after the next dialogue line plays",
+};
+
+const ALL_CATEGORIES: TriggerCategory[] = [
+  "game",
+  "variable",
+  "audio",
+  "animation",
+  "ui",
+  "custom",
+];
+
+function TriggerSection({
+  data,
+  onUpdate,
+}: {
+  data: ActionNodeData;
+  onUpdate: (patch: Partial<ActionNodeData>) => void;
+}) {
+  const category = data.category ?? "custom";
+  const CategoryIcon = CATEGORY_ICONS[category];
+  const events = TRIGGER_EVENTS[category];
+
+  function handleCategoryChange(cat: TriggerCategory) {
+    onUpdate({ category: cat, event: "", params: {} });
+  }
+
+  return (
+    <div className="space-y-3.5">
+      <Separator className="opacity-30" />
+
+      {/* Category */}
+      <InspectorField label="Category">
+        <div className="flex flex-wrap gap-1">
+          {ALL_CATEGORIES.map((cat) => {
+            const CatIcon = CATEGORY_ICONS[cat];
+            const isSelected = category === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => handleCategoryChange(cat)}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium border transition-colors",
+                  isSelected
+                    ? cn(
+                        CATEGORY_COLORS[cat],
+                        "bg-muted border-current/30",
+                      )
+                    : "text-muted-foreground border-border/50 hover:border-border hover:text-foreground",
+                )}
+              >
+                <CatIcon className="w-3 h-3" />
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+        <div className={cn("flex items-center gap-1.5 mt-1.5 text-[10px]", CATEGORY_COLORS[category])}>
+          <CategoryIcon className="w-3 h-3" />
+          <span className="capitalize font-medium">{category}</span>
+        </div>
+      </InspectorField>
+
+      {/* Event */}
+      <InspectorField label="Event">
+        {category === "custom" ? (
+          <InlineInput
+            value={data.event ?? ""}
+            placeholder="Custom event name"
+            onCommit={(v) => onUpdate({ event: v })}
+          />
+        ) : (
+          <select
+            value={data.event ?? ""}
+            onChange={(e) => onUpdate({ event: e.target.value })}
+            aria-label="Trigger event"
+            className={cn(
+              "h-7 w-full rounded-md border border-border/60 bg-background/40 px-2",
+              "text-xs text-foreground appearance-none cursor-pointer",
+              "focus:outline-none focus:ring-2 focus:ring-ring/50",
+            )}
+          >
+            <option value="">— select event —</option>
+            {events.map((ev) => (
+              <option key={ev} value={ev}>
+                {ev}
+              </option>
+            ))}
+          </select>
+        )}
+      </InspectorField>
+
+      {/* Execution Mode */}
+      <InspectorField label="Execution Mode">
+        <select
+          value={data.executionMode ?? "immediate"}
+          onChange={(e) =>
+            onUpdate({ executionMode: e.target.value as TriggerExecutionMode })
+          }
+          aria-label="Execution mode"
+          className={cn(
+            "h-7 w-full rounded-md border border-border/60 bg-background/40 px-2",
+            "text-xs text-foreground appearance-none cursor-pointer",
+            "focus:outline-none focus:ring-2 focus:ring-ring/50",
+          )}
+        >
+          <option value="immediate">Immediate</option>
+          <option value="beforeNext">Before Next</option>
+          <option value="afterNext">After Next</option>
+        </select>
+        <p className="text-[10px] text-muted-foreground/50 leading-relaxed mt-1">
+          {EXECUTION_DESCRIPTIONS[data.executionMode ?? "immediate"]}
+        </p>
+      </InspectorField>
+
+      {/* Params */}
+      <ParamsEditor
+        params={data.params ?? {}}
+        onUpdate={(params) => onUpdate({ params })}
+      />
+    </div>
+  );
+}
+
+function ParamsEditor({
+  params,
+  onUpdate,
+}: {
+  params: Record<string, string>;
+  onUpdate: (params: Record<string, string>) => void;
+}) {
+  const entries = Object.entries(params);
+
+  function addParam() {
+    onUpdate({ ...params, "": "" });
+  }
+
+  function updateKey(oldKey: string, newKey: string) {
+    const next: Record<string, string> = {};
+    for (const [k, v] of Object.entries(params)) {
+      next[k === oldKey ? newKey : k] = v;
+    }
+    onUpdate(next);
+  }
+
+  function updateValue(key: string, value: string) {
+    onUpdate({ ...params, [key]: value });
+  }
+
+  function removeParam(key: string) {
+    const next = { ...params };
+    delete next[key];
+    onUpdate(next);
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <SectionLabel>Parameters</SectionLabel>
+        <button
+          type="button"
+          onClick={addParam}
+          className="flex items-center gap-0.5 text-[10px] text-muted-foreground/60 hover:text-foreground transition-colors"
+        >
+          <Plus className="w-3 h-3" />
+          Add
+        </button>
+      </div>
+
+      {entries.length === 0 ? (
+        <p className="text-[10px] text-muted-foreground/40 italic">
+          No parameters. Click Add to pass data to the event.
+        </p>
+      ) : (
+        <div className="space-y-1.5">
+          {entries.map(([key, value], i) => (
+            <div key={i} className="flex gap-1.5 items-center group">
+              <Input
+                value={key}
+                placeholder="key"
+                onChange={(e) => updateKey(key, e.target.value)}
+                className="h-6 text-[10px] font-mono bg-background/40 border-border/60 w-1/3 shrink-0"
+              />
+              <span className="text-muted-foreground/40 text-[10px]">=</span>
+              <Input
+                value={value}
+                placeholder="value"
+                onChange={(e) => updateValue(key, e.target.value)}
+                className="h-6 text-[10px] font-mono bg-background/40 border-border/60 flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => removeParam(key)}
+                title="Remove parameter"
+                className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-destructive transition-all shrink-0"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

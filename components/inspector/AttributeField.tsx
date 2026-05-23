@@ -126,9 +126,9 @@ function BooleanValue({ value, onChange }: { value: boolean; onChange: (v: unkno
     >
       <span
         className={cn(
-          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm",
+          "absolute top-px h-4 w-4 rounded-full bg-white shadow-sm",
           "transition-transform duration-200",
-          value ? "translate-x-4" : "translate-x-0.5"
+          !value && "-translate-x-4"
         )}
       />
     </button>
