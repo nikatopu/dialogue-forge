@@ -110,7 +110,7 @@ interface NodeInspectorProps {
 export function NodeInspector({ node }: NodeInspectorProps) {
   const [activeTab, setActiveTab] = useState<TabId>("properties");
   const { updateNodeData, removeNode, duplicateNode } = useGraphStore();
-  const { setSelectedNodeId } = useEditorStore();
+  const { setSelectedNodeId, setMobileInspectorOpen } = useEditorStore();
 
   const isStart = node.type === "start";
   const isCharacter = node.type === "character";
@@ -152,6 +152,7 @@ export function NodeInspector({ node }: NodeInspectorProps) {
   function handleDelete() {
     removeNode(node.id);
     setSelectedNodeId(null);
+    setMobileInspectorOpen(false);
   }
 
   function handleDuplicate() {

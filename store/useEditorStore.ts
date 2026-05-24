@@ -22,6 +22,10 @@ interface EditorStore {
   searchOpen: boolean;
   settingsOpen: boolean;
   pickingJumpFor: string | null;
+  /** Mobile: bottom sheet for creating new nodes */
+  nodeSheetOpen: boolean;
+  /** Mobile: whether the inspector bottom sheet is open */
+  mobileInspectorOpen: boolean;
 
   /* Actions */
   setSidebarOpen: (open: boolean) => void;
@@ -36,6 +40,8 @@ interface EditorStore {
   setSearchOpen: (open: boolean) => void;
   setSettingsOpen: (open: boolean) => void;
   setPickingJumpFor: (id: string | null) => void;
+  setNodeSheetOpen: (open: boolean) => void;
+  setMobileInspectorOpen: (open: boolean) => void;
 }
 
 export const useEditorStore = create<EditorStore>()(
@@ -51,6 +57,8 @@ export const useEditorStore = create<EditorStore>()(
       searchOpen: false,
       settingsOpen: false,
       pickingJumpFor: null,
+      nodeSheetOpen: false,
+      mobileInspectorOpen: false,
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -64,6 +72,8 @@ export const useEditorStore = create<EditorStore>()(
       setSearchOpen: (open) => set({ searchOpen: open }),
       setSettingsOpen: (open) => set({ settingsOpen: open }),
       setPickingJumpFor: (id) => set({ pickingJumpFor: id }),
+      setNodeSheetOpen: (open) => set({ nodeSheetOpen: open }),
+      setMobileInspectorOpen: (open) => set({ mobileInspectorOpen: open }),
     }),
     {
       name: "dialogue-forge-ui",

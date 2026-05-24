@@ -6,22 +6,55 @@ import {
   Layers,
   Keyboard,
   Info,
+  X,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { BottomSheet } from "@/components/ui/BottomSheet";
 import { NodeInspector } from "@/components/inspector/NodeInspector";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useIsMobile } from "@/hooks/useBreakpoint";
 import { cn } from "@/lib/utils";
+import type { ForgeNode } from "@/types";
+
+const NODE_TYPE_BADGE: Record<string, string> = {
+  character: "text-indigo-400 border-indigo-500/30 bg-indigo-500/10",
+  action: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+  start: "text-teal-400 border-teal-500/30 bg-teal-500/10",
+};
 
 export function InspectorPanel() {
-  const { inspectorOpen, selectedNodeId } = useEditorStore();
+  const { inspectorOpen, selectedNodeId, mobileInspectorOpen, setMobileInspectorOpen } =
+    useEditorStore();
   const { nodes } = useGraphStore();
+  const isMobile = useIsMobile();
 
   const selectedNode = selectedNodeId
-    ? nodes.find((n) => n.id === selectedNodeId) ?? null
+    ? (nodes.find((n) => n.id === selectedNodeId) ?? null)
     : null;
 
+  /* ── Mobile: bottom sheet ───────────────────────────────────── */
+  if (isMobile) {
+    return (
+      <BottomSheet
+        open={mobileInspectorOpen}
+        onClose={() => setMobileInspectorOpen(false)}
+        size="full"
+        title="Inspector"
+      >
+        {/* NodeInspector uses flex-col h-full internally so it fills the sheet's
+            flex-1 content area correctly without creating a nested scroll trap. */}
+        {selectedNode ? (
+          <NodeInspector node={selectedNode} />
+        ) : (
+          <EmptyInspector />
+        )}
+      </BottomSheet>
+    );
+  }
+
+  /* ── Desktop: right panel ───────────────────────────────────── */
   return (
     <motion.aside
       animate={{
@@ -32,30 +65,7 @@ export function InspectorPanel() {
       className="shrink-0 overflow-hidden border-l border-border bg-card flex flex-col"
     >
       <div className="w-75 flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
-          <div className="flex items-center gap-2">
-            <Layers className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Inspector
-            </span>
-          </div>
-          {selectedNode && (
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-[10px] h-4 px-1.5 capitalize",
-                selectedNode.type === "character"
-                  ? "text-indigo-400 border-indigo-500/30 bg-indigo-500/10"
-                  : "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
-              )}
-            >
-              {selectedNode.type}
-            </Badge>
-          )}
-        </div>
-
-        {/* Body */}
+        <InspectorHeader selectedNode={selectedNode} />
         {selectedNode ? (
           <NodeInspector node={selectedNode} />
         ) : (
@@ -67,6 +77,54 @@ export function InspectorPanel() {
     </motion.aside>
   );
 }
+
+/* ── Shared header ─────────────────────────────────────────────── */
+
+function InspectorHeader({
+  selectedNode,
+  onClose,
+  showClose,
+}: {
+  selectedNode: ForgeNode | null;
+  onClose?: () => void;
+  showClose?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
+      <div className="flex items-center gap-2">
+        <Layers className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Inspector
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        {selectedNode && (
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-[10px] h-4 px-1.5 capitalize",
+              NODE_TYPE_BADGE[selectedNode.type] ?? NODE_TYPE_BADGE.action,
+            )}
+          >
+            {selectedNode.type}
+          </Badge>
+        )}
+        {showClose && onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close inspector"
+            className="w-6 h-6 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Empty state ───────────────────────────────────────────────── */
 
 function EmptyInspector() {
   return (
@@ -84,7 +142,7 @@ function EmptyInspector() {
         Nothing selected
       </p>
       <p className="text-xs text-muted-foreground leading-relaxed max-w-45">
-        Click a node on the canvas to inspect its properties
+        Tap a node on the canvas to inspect its properties
       </p>
 
       <div className="mt-7 w-full space-y-1.5">

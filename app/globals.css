@@ -176,6 +176,11 @@
   background: oklch(1 0 0 / 18%);
 }
 
+/* ─── Mobile safe-area utility ───────────────────────────── */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /* ─── React Flow overrides ────────────────────────────────── */
 .react-flow__controls {
   background: var(--card) !important;

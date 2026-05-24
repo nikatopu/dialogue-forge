@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -19,7 +19,10 @@ import {
   Code2,
   Layers,
   Copy,
+  ChevronDown,
+  BookOpen,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /* ─── TOC definition ────────────────────────────────────────── */
@@ -42,6 +45,19 @@ type SectionId = (typeof TOC)[number]["id"];
 export function HowToUseContent() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<SectionId>(TOC[0].id);
+  const [tocOpen, setTocOpen] = useState(false);
+
+  const scrollToSection = useCallback((id: string) => {
+    const container = containerRef.current;
+    const el = document.getElementById(id);
+    if (!container || !el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const target = container.scrollTop + (elRect.top - containerRect.top) - 80;
+    container.scrollTo({ top: target, behavior: "smooth" });
+    setActiveId(id as SectionId);
+    setTocOpen(false);
+  }, []);
 
   /* Scroll-position-based active section tracking */
   useEffect(() => {
@@ -66,17 +82,7 @@ export function HowToUseContent() {
     return () => container.removeEventListener("scroll", update);
   }, []);
 
-  function scrollToSection(id: string) {
-    const container = containerRef.current;
-    const el = document.getElementById(id);
-    if (!container || !el) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const target = container.scrollTop + (elRect.top - containerRect.top) - 80;
-    container.scrollTo({ top: target, behavior: "smooth" });
-    setActiveId(id as SectionId);
-  }
+  /* scrollToSection is defined above via useCallback */
 
   return (
     <div
@@ -106,6 +112,57 @@ export function HowToUseContent() {
             fiction. Design conversations with a node graph, then export structured JSON your
             game engine can traverse at runtime.
           </p>
+        </div>
+
+        {/* Mobile collapsible TOC — hidden on lg+ */}
+        <div className="lg:hidden mb-8 rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setTocOpen((o) => !o)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left"
+          >
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                On this page
+              </span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 text-muted-foreground transition-transform duration-200",
+                tocOpen && "rotate-180"
+              )}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {tocOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                className="overflow-hidden"
+              >
+                <nav className="px-3 pb-3 space-y-0.5">
+                  {TOC.map(({ id, title }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => scrollToSection(id)}
+                      className={cn(
+                        "w-full text-left text-xs py-2 px-3 rounded-lg transition-all duration-150",
+                        activeId === id
+                          ? "text-primary font-medium bg-primary/8"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                      )}
+                    >
+                      {title}
+                    </button>
+                  ))}
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Two-column layout */}

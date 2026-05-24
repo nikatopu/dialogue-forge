@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useIsMobile } from "@/hooks/useBreakpoint";
 import { PROJECT_TEMPLATES } from "@/lib/templates";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { cn } from "@/lib/utils";
@@ -131,9 +132,10 @@ function Section({ label, open, onToggle, badge, children }: SectionProps) {
 }
 
 export function Sidebar() {
-  const { sidebarOpen } = useEditorStore();
+  const { sidebarOpen, setSidebarOpen } = useEditorStore();
   const { addNode, nodes, loadGraph } = useGraphStore();
   const { setProjectName } = useEditorStore();
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({
     nodes: true,
@@ -170,16 +172,38 @@ export function Sidebar() {
 
   return (
     <>
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {isMobile && sidebarOpen && (
+          <motion.div
+            key="sidebar-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
+
       <motion.aside
-        animate={{
-          width: sidebarOpen ? 240 : 0,
-          opacity: sidebarOpen ? 1 : 0,
-        }}
+        initial={false}
+        animate={
+          isMobile
+            ? { x: sidebarOpen ? 0 : -288 }
+            : { width: sidebarOpen ? 240 : 0, opacity: sidebarOpen ? 1 : 0 }
+        }
         transition={{ type: "spring", stiffness: 320, damping: 32 }}
-        className="shrink-0 overflow-hidden border-r border-border bg-card flex flex-col"
+        className={cn(
+          "bg-card flex flex-col border-r border-border",
+          isMobile
+            ? "fixed left-0 top-12 bottom-0 z-50 w-72 shadow-2xl"
+            : "shrink-0 overflow-hidden",
+        )}
       >
-        {/* Fixed-width inner prevents layout thrash during animation */}
-        <div className="w-60 flex flex-col h-full">
+        {/* Fixed-width inner prevents layout thrash during desktop animation */}
+        <div className={cn("flex flex-col h-full", isMobile ? "w-72" : "w-60")}>
           {/* Search */}
           <div className="px-2 py-2 border-b border-border shrink-0">
             <div className="relative">

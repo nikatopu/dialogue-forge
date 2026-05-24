@@ -92,7 +92,7 @@ interface GraphStore {
   onConnect: (connection: Connection) => void;
 
   /* Node CRUD */
-  addNode: (type: ForgeNodeType, position: { x: number; y: number }) => string;
+  addNode: (type: ForgeNodeType, position: { x: number; y: number }, initialData?: Partial<ActionNodeData>) => string;
   updateNodeData: (
     id: string,
     patch: Partial<CharacterNodeData | ActionNodeData>,
@@ -295,14 +295,14 @@ export const useGraphStore = create<GraphStore>()(
 
       /* ── Node CRUD ── */
 
-      addNode: (type, position) => {
+      addNode: (type, position, initialData?) => {
         const id = uid(type);
         const node: ForgeNode =
           type === "character"
             ? { id, type: "character", position, data: defaultCharacterData() }
             : type === "start"
             ? { id, type: "start", position, data: defaultStartData() }
-            : { id, type: "action", position, data: defaultActionData() };
+            : { id, type: "action", position, data: { ...defaultActionData(), ...initialData } };
         set((s) => ({
           ...snap(s.nodes, s.edges, s.past),
           nodes: [...s.nodes, node],

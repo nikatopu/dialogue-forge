@@ -187,7 +187,7 @@ export function PreviewModal({ open, onClose }: PreviewModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+          className="fixed inset-0 z-[200] flex items-end md:items-center justify-center md:p-6"
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -203,10 +203,10 @@ export function PreviewModal({ open, onClose }: PreviewModalProps) {
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
             className={cn(
-              "relative z-10 w-full max-w-lg",
-              "rounded-2xl border border-border/60",
+              "relative z-10 w-full md:max-w-lg",
+              "rounded-t-2xl md:rounded-2xl border border-border/60",
               "bg-card shadow-2xl flex flex-col",
-              "max-h-[80vh]"
+              "h-[92dvh] md:h-auto md:max-h-[80vh]",
             )}
           >
             {/* Header */}
@@ -537,10 +537,11 @@ function ChoiceList({
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.04 }}
           className={cn(
-            "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-left",
+            "w-full flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left",
             "border border-border/50 bg-muted/20 hover:bg-muted/50",
             "text-sm text-foreground/80 hover:text-foreground",
-            "transition-colors group"
+            "transition-colors group",
+            "min-h-[44px]", // touch target minimum
           )}
         >
           <span className="text-[10px] font-mono text-muted-foreground/40 w-4 shrink-0">

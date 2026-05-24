@@ -110,7 +110,7 @@ export function TopBar() {
   const SaveIcon = saveFlash === "saved" ? Check : saveFlash === "error" ? AlertCircle : Save;
 
   return (
-    <header className="h-12 flex items-center gap-1 px-3 shrink-0 border-b border-border bg-card/80 backdrop-blur-sm z-50">
+    <header className="h-12 flex items-center gap-1 px-3 shrink-0 border-b border-border bg-card/80 backdrop-blur-sm z-50 relative">
       {/* Hidden file input for import */}
       <input
         ref={fileInputRef}
@@ -132,15 +132,15 @@ export function TopBar() {
           </span>
         </div>
 
-        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40" />
-
+        {/* sidebar toggle — desktop only (mobile has MobileToolbar) */}
+        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon-sm"
               onClick={toggleSidebar}
-              className={cn(!sidebarOpen && "text-muted-foreground")}
+              className={cn("hidden md:flex", !sidebarOpen && "text-muted-foreground")}
             >
               <PanelLeft className="w-4 h-4" />
             </Button>
@@ -194,7 +194,7 @@ export function TopBar() {
       </div>
 
       {/* ── Right actions ── */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 md:gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -225,7 +225,8 @@ export function TopBar() {
           <TooltipContent side="bottom">Redo (Ctrl+Y)</TooltipContent>
         </Tooltip>
 
-        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40" />
+        {/* Save / Import / Export — hidden on mobile (use long-press or export via settings) */}
+        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -234,8 +235,9 @@ export function TopBar() {
               size="icon-sm"
               onClick={handleSave}
               className={cn(
+                "hidden md:flex",
                 saveFlash === "saved" && "text-emerald-400",
-                saveFlash === "error" && "text-destructive"
+                saveFlash === "error" && "text-destructive",
               )}
             >
               <SaveIcon className="w-3.5 h-3.5" />
@@ -252,6 +254,7 @@ export function TopBar() {
               variant="ghost"
               size="icon-sm"
               onClick={() => fileInputRef.current?.click()}
+              className="hidden md:flex"
             >
               <Upload className="w-3.5 h-3.5" />
             </Button>
@@ -265,6 +268,7 @@ export function TopBar() {
               variant="ghost"
               size="icon-sm"
               onClick={handleExport}
+              className="hidden md:flex"
             >
               <Download className="w-3.5 h-3.5" />
             </Button>
@@ -272,7 +276,7 @@ export function TopBar() {
           <TooltipContent side="bottom">Export JSON</TooltipContent>
         </Tooltip>
 
-        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40" />
+        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -280,6 +284,7 @@ export function TopBar() {
               variant="ghost"
               size="icon-sm"
               onClick={() => setSearchOpen(true)}
+              className="hidden md:flex"
             >
               <Search className="w-3.5 h-3.5" />
             </Button>
@@ -294,7 +299,7 @@ export function TopBar() {
               size="icon-sm"
               onClick={() => setNodePositions(computeAutoLayout(nodes, edges))}
               disabled={nodes.length === 0}
-              className="disabled:opacity-30"
+              className="hidden md:flex disabled:opacity-30"
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
             </Button>
@@ -302,22 +307,23 @@ export function TopBar() {
           <TooltipContent side="bottom">Auto layout (Ctrl+L)</TooltipContent>
         </Tooltip>
 
-        <Separator orientation="vertical" className="h-4 mx-1 opacity-40" />
+        <Separator orientation="vertical" className="h-4 mx-1 opacity-40 hidden md:block" />
 
+        {/* Preview — visible on all sizes */}
         <Button
           size="sm"
-          className="gap-1.5 h-7 px-3 text-xs font-medium"
+          className="gap-1.5 h-7 px-3 text-xs font-medium hidden md:flex"
           onClick={() => setPreviewOpen(true)}
         >
           <Play className="w-3 h-3 fill-current" />
           Preview
         </Button>
 
-        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40" />
+        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon-sm" asChild>
+            <Button variant="ghost" size="icon-sm" asChild className="hidden md:flex">
               <a href="/how-to-use" target="_blank" rel="noopener noreferrer" aria-label="How to use">
                 <BookOpen className="w-3.5 h-3.5" />
               </a>
@@ -328,20 +334,26 @@ export function TopBar() {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon-sm" onClick={() => setSettingsOpen(true)}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setSettingsOpen(true)}
+              className="hidden md:flex"
+            >
               <Settings className="w-3.5 h-3.5" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Settings</TooltipContent>
         </Tooltip>
 
+        {/* Inspector toggle — desktop only */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon-sm"
               onClick={toggleInspector}
-              className={cn(!inspectorOpen && "text-muted-foreground")}
+              className={cn("hidden md:flex", !inspectorOpen && "text-muted-foreground")}
             >
               <PanelRight className="w-4 h-4" />
             </Button>
@@ -349,6 +361,39 @@ export function TopBar() {
           <TooltipContent side="bottom">
             {inspectorOpen ? "Hide inspector" : "Show inspector"}
           </TooltipContent>
+        </Tooltip>
+
+        {/* Mobile: save + export as icon-only buttons */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleSave}
+              className={cn(
+                "flex md:hidden",
+                saveFlash === "saved" && "text-emerald-400",
+                saveFlash === "error" && "text-destructive",
+              )}
+            >
+              <SaveIcon className="w-3.5 h-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Save</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleExport}
+              className="flex md:hidden"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Export JSON</TooltipContent>
         </Tooltip>
       </div>
       <ConfirmModal

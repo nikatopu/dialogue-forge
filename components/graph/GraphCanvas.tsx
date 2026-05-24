@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
+import { useIsMobile } from "@/hooks/useBreakpoint";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -44,7 +45,10 @@ export { SearchOverlay };
 
 function FlowEditor() {
   const { screenToFlowPosition } = useReactFlow();
-  const { setSelectedNodeId, setContextMenu, setSearchOpen, pickingJumpFor, setPickingJumpFor } = useEditorStore();
+  const { setSelectedNodeId, setContextMenu, setSearchOpen, pickingJumpFor, setPickingJumpFor, setMobileInspectorOpen } = useEditorStore();
+  const isMobile = useIsMobile();
+  /** Tracks last tap for double-tap detection on mobile */
+  const lastTapRef = useRef<{ nodeId: string; time: number } | null>(null);
   const {
     nodes,
     edges,
@@ -88,7 +92,7 @@ function FlowEditor() {
     [screenToFlowPosition, addNode, setSelectedNodeId]
   );
 
-  /* ── Node selection ── */
+  /* ── Node selection (with double-tap inspector on mobile) ── */
   const onNodeClick = useCallback<NodeMouseHandler>(
     (_, node) => {
       const { pickingJumpFor: picking } = useEditorStore.getState();
@@ -99,8 +103,20 @@ function FlowEditor() {
       }
       setSelectedNodeId(node.id);
       setContextMenu(null);
+
+      if (isMobile) {
+        const now = Date.now();
+        const last = lastTapRef.current;
+        if (last && last.nodeId === node.id && now - last.time < 350) {
+          /* Double-tap → open inspector sheet */
+          setMobileInspectorOpen(true);
+          lastTapRef.current = null;
+        } else {
+          lastTapRef.current = { nodeId: node.id, time: now };
+        }
+      }
     },
-    [setSelectedNodeId, setContextMenu, setJumpTarget, setPickingJumpFor]
+    [isMobile, setSelectedNodeId, setContextMenu, setJumpTarget, setPickingJumpFor, setMobileInspectorOpen],
   );
 
   const onPaneClick = useCallback(() => {
@@ -240,6 +256,11 @@ function FlowEditor() {
         multiSelectionKeyCode="Shift"
         selectionKeyCode="Shift"
         panActivationKeyCode="Space"
+        /* Touch support */
+        zoomOnPinch={true}
+        panOnDrag={isMobile ? [1, 2] : true}
+        selectionOnDrag={!isMobile}
+        preventScrolling={true}
         defaultEdgeOptions={{
           type: "dialogue",
           animated: false,
