@@ -1,368 +1,427 @@
-# Dialogue Forge
+<div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![React Flow](https://img.shields.io/badge/ReactFlow-v12-purple)
-![Version](https://img.shields.io/github/v/release/nikatopu/dialogue-forge)
+<br />
 
-Dialogue Forge is a visual dialogue editor for games, RPGs, visual novels, and interactive stories.
+```
+██████╗ ██╗ █████╗ ██╗      ██████╗  ██████╗ ██╗   ██╗███████╗
+██╔══██╗██║██╔══██╗██║     ██╔═══██╗██╔════╝ ██║   ██║██╔════╝
+██║  ██║██║███████║██║     ██║   ██║██║  ███╗██║   ██║█████╗  
+██║  ██║██║██╔══██║██║     ██║   ██║██║   ██║██║   ██║██╔══╝  
+██████╔╝██║██║  ██║███████╗╚██████╔╝╚██████╔╝╚██████╔╝███████╗
+╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚══════╝
 
-Build conversations as graphs, preview every branch directly in the editor, then export structured JSON ready for your runtime.
+        ███████╗ ██████╗ ██████╗  ██████╗ ███████╗            
+        ██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝            
+        █████╗  ██║   ██║██████╔╝██║  ███╗█████╗              
+        ██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝              
+        ██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗            
+        ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝            
+```
+
+**Build branching dialogue the way stories actually work: visually, node by node.**
+
+<br />
+
+[![Next.js](https://img.shields.io/badge/Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript_5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![React Flow](https://img.shields.io/badge/React_Flow_v12-FF0072?style=flat-square)](https://reactflow.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![Version](https://img.shields.io/github/v/release/nikatopu/dialogue-forge?style=flat-square&color=6366f1)](https://github.com/nikatopu/dialogue-forge/releases)
+[![License](https://img.shields.io/badge/license-MIT-6366f1?style=flat-square)](./LICENSE)
+
+<br />
+
+[**Live Demo**](https://dialogue-forge.nikatopu.dev) · [**Roadmap**](https://dialogue-forge.nikatopu.dev/roadmap) · [**How to Use**](https://dialogue-forge.nikatopu.dev/how-to-use) · [**Report a Bug**](https://github.com/nikatopu/dialogue-forge/issues)
+
+<br />
+
+</div>
 
 <p align="center">
-  <img src="./public/preview.jpg" alt="Dialogue Forge preview" />
+  <img src="./public/preview.jpg" alt="Dialogue Forge — Visual Dialogue Tree Editor" width="100%" style="border-radius: 12px" />
 </p>
 
-🌐 Demo: https://dialogue-forge.nikatopu.dev/
+<br />
 
 ---
 
-## Features
+<br />
 
-### Build dialogue visually
+## What is Dialogue Forge?
 
-Create conversations using a node-based editor:
+Dialogue Forge is a **visual branching dialogue editor** built for game developers, narrative designers, and interactive fiction writers. Design complex conversation graphs with a drag-and-drop canvas, preview every branch without leaving the editor, and export structured JSON ready for Unity, Godot, Unreal, or any custom runtime.
 
-- **Start nodes** — dialogue entry points and independent story branches
-- **Character nodes** — dialogue, emotions, portraits, and metadata
-- **Action nodes** — Branch / Trigger / Jump / End
+No code required to design. No guesswork required to preview. No friction between idea and export.
 
-Editor features include:
-
-- Drag & drop graph editing
-- Auto layout (`Ctrl + L`)
-- Search (`Ctrl + F`)
-- Multi-select editing
-- Copy / paste subgraphs
-- Undo / redo history
-- Live validation
-- Import / Export
+<br />
 
 ---
 
-### Build game flows, not just dialogue
+<br />
 
-Dialogue Forge supports more than linear conversations.
+## Feature Overview
 
-Create:
+<br />
 
-- Main story flows
-- NPC conversations
-- Shops
-- Combat encounters
-- Tutorials
-- Quest chains
+### Node-Based Visual Editing
 
-Multiple **Start nodes** allow one project to contain several dialogue systems.
+Conversations are graphs. Dialogue Forge treats them that way.
 
-Example:
+| Node          | Purpose                                                    |
+| ------------- | ---------------------------------------------------------- |
+| **Start**     | Entry points — one per story branch, quest, NPC, or scene  |
+| **Character** | Speaker line with name, emotion, portrait, and metadata    |
+| **Action**    | Branch choices, Jump links, Trigger events, or End markers |
 
-```text
-START Main Story
+Every connection is a potential story path. Every branch is a traversable flow.
 
-START Merchant
+<br />
 
-START Combat
+### The Full Editor Toolkit
 
-START Tutorial
+```
+Drag & drop canvas      Auto layout (Ctrl+L)      Live validation
+Search nodes (Ctrl+F)   Copy / paste subgraphs    Undo / redo history
+Multi-select editing    Import / Export JSON       Context menus
 ```
 
-Each entry becomes selectable during preview and automatically organized into its own graph cluster.
+<br />
 
----
+### Multi-Entry Narratives
 
-### Runtime events
+A single project can hold your entire game's dialogue. Each `START` node becomes its own independent flow:
 
-Trigger nodes support structured runtime events.
-
-Categories:
-
-- Game
-- Variables
-- Audio
-- Animation
-- UI
-- Custom
-
-Examples:
-
-```text
-PlayMusic → battle_theme
-
-QuestStarted → main_story
-
-OpenInventory
+```
+┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
+│  START MainStory│   │  START Merchant │   │  START Tutorial │
+│  ─────────────  │   │  ─────────────  │   │  ─────────────  │
+│  Chapter 1...   │   │  Welcome to...  │   │  Press WASD...  │
+└────────┬────────┘   └────────┬────────┘   └────────┬────────┘
+         │                     │                     │
+        ...                   ...                   ...
 ```
 
-Events support execution timing:
+Each entry runs its own preview flow. All live inside one `.forge.json` file.
 
-⚡ Immediate
+<br />
 
-→ Before Next Node
+### Runtime Event System
 
-✓ After Next Node
+Trigger nodes emit structured events your game engine can act on.
 
-Allowing runtime chains like:
+**Trigger categories:**
 
-```text
-Dialogue
-→ Play music
+| Category  | Examples                                          |
+| --------- | ------------------------------------------------- |
+| Game      | `QuestStarted`, `FlagSet`, `AchievementUnlocked`  |
+| Variables | `SetGold +50`, `PlayerLevel`, `RelationshipScore` |
+| Audio     | `PlayMusic battle_theme`, `StopAmbience`          |
+| Animation | `PlayAnim wave`, `SetExpression sad`              |
+| UI        | `OpenInventory`, `ShowHUD`, `FadeIn`              |
+| Custom    | Anything your runtime handles                     |
 
-Dialogue
-→ Start quest
+**Execution timing:** Immediate · Before Next Node · After Next Node
 
-Dialogue
-→ Trigger cutscene
+<br />
+
+### In-Editor Preview
+
+Test every branch without leaving Dialogue Forge.
+
+- Select any entry point and walk through the entire flow
+- Traverse all branch choices interactively
+- Inspect trigger events and execution timing
+- Follow Jump links across the graph
+- Switch between branches mid-preview
+
+Ship dialogue you've actually seen play out.
+
+<br />
+
+---
+
+<br />
+
+## Cloud Workspace
+
+Work locally, sync globally — or stay local forever. Your choice.
+
+```
+Without an account          With an account (free)
+────────────────────        ──────────────────────────────
+✓ Full editor               ✓ Everything local, plus:
+✓ Unlimited local files     ✓ Cloud autosave
+✓ Import / Export           ✓ Up to 5 cloud projects
+✓ All templates             ✓ Access from any device
+✓ All themes                ✓ Local → cloud migration
+                            ✓ Autosave status indicator
 ```
 
----
+Sign in with **Google** or **GitHub**. Guests are never blocked.
 
-### Preview before exporting
-
-Preview conversations directly inside the editor.
-
-Supports:
-
-- Entry selection
-- Branch traversal
-- Trigger visualization
-- Event timing
-- Jump flows
-- Branch switching
-
-No exporting required just to test dialogue.
+<br />
 
 ---
 
-### Templates included
+<br />
 
-Built-in templates:
+## Production Templates
 
-- Simple Dialogue
-- Choice Branch
-- Combat Banter
-- Multi Branch Story
-- Combat Encounter
-- Quest System
-- Shop System
+Start fast with templates built for real game scenarios.
 
-Templates act as examples and onboarding projects.
+| Template           | Description                                      |
+| ------------------ | ------------------------------------------------ |
+| NPC Conversation   | Greeting + multi-branch player responses         |
+| Quest Giver        | Accept / decline with follow-up flows            |
+| Merchant           | Shop greeting, haggle, and farewell paths        |
+| Combat Encounter   | Pre-battle dialogue with outcome branches        |
+| Companion Dialogue | Relationship tier system with emotional paths    |
+| Tutorial Sequence  | Step-by-step guided onboarding flow              |
+| Cutscene           | Cinematic narrative with timed triggers          |
+| Multi-Entry RPG    | Full project starter with multiple story threads |
 
----
+**Insert mode** — append a template into your existing graph without losing any work. IDs are remapped automatically.
 
-### Mobile ready
+**Replace mode** — load a template as a fresh workspace.
 
-Dialogue Forge works on desktop, tablet, and mobile.
-
-Features include:
-
-- Touch-friendly graph editing
-- Pinch zoom
-- Mobile inspector sheets
-- Floating actions
-- Responsive preview
-- Touch gestures
-
-Build dialogue anywhere.
+<br />
 
 ---
 
-### Import / Export
+<br />
 
-Projects export as:
+## Themes
 
-```text
-.forge.json
+Six dark variants. One accent color per theme, applied across every panel, node, badge, and graph element.
+
+```
+  ● Default    —  Indigo    #6366f1
+  ● Ocean      —  Cyan      #06b6d4
+  ● Forest     —  Green     #16a34a
+  ● Midnight   —  Violet    #7c3aed
+  ● Rose       —  Pink      #f43f5e
+  ● Cyber      —  Lime      #84cc16
 ```
 
-Export runtime-ready dialogue graphs and load them again anytime.
+Preferences persist across sessions and sync to cloud accounts.
 
-Older projects remain compatible across updates.
+<br />
 
 ---
+
+<br />
+
+## Mobile & Tablet
+
+Dialogue Forge is fully responsive and touch-first.
+
+- Pinch to zoom the canvas
+- Bottom sheets for node creation and inspection
+- Floating action buttons
+- Full preview on mobile
+- Tablet layout with adaptive panels
+
+Design dialogue on the train. Finish it at your desk.
+
+<br />
+
+---
+
+<br />
 
 ## Tech Stack
 
-Dialogue Forge is built around a modern frontend stack focused on visual editing and interactivity.
+```
+Framework      Next.js 16         App Router, server + client components
+Language       TypeScript 5       Strict, end-to-end typed
+Styling        Tailwind CSS v4    CSS-first, no config file
+Components     shadcn/ui          Radix primitives + custom design system
+Graph Engine   React Flow v12     Nodes, edges, handles, minimap
+State          Zustand            Persist middleware, per-slice stores
+Animation      Framer Motion      Panel transitions, presence animations
+Validation     Zod                Runtime schema validation
+Icons          Lucide             Consistent icon set
+Auth / DB      Supabase           Auth, Postgres, realtime, storage
+```
 
-| Layer        | Technology              |
-| ------------ | ----------------------- |
-| Framework    | Next.js 16 (App Router) |
-| Language     | TypeScript 5            |
-| Styling      | Tailwind CSS v4         |
-| Components   | shadcn/ui               |
-| Graph Engine | React Flow v12          |
-| State        | Zustand                 |
-| Animation    | Framer Motion           |
-| Validation   | Zod                     |
-| Icons        | Lucide                  |
+<br />
 
 ---
 
+<br />
+
 ## Getting Started
 
-Clone the project and start the editor locally.
+**1. Install and run**
 
 ```bash
+git clone https://github.com/nikatopu/dialogue-forge.git
+cd dialogue-forge
 npm install
 npm run dev
 ```
 
-Open:
+**2. Open the editor**
 
-```text
+```
 http://localhost:3000
 ```
 
-Load a template or demo project to start immediately.
+**3. Pick a template or start blank**
+
+Load one of the built-in templates from the toolbar to hit the ground running, or start with an empty canvas.
+
+<br />
 
 ---
+
+<br />
+
+## Cloud Setup (Optional)
+
+The editor works fully offline without any credentials. To enable cloud sync:
+
+**1. Copy the environment template**
+
+```bash
+cp .env.local.example .env.local
+```
+
+**2. Add your Supabase credentials**
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
+
+**3. Run the database schema**
+
+```
+lib/supabase/schema.sql
+```
+
+**4. Enable OAuth providers in Supabase**
+
+- Authentication → Providers → Google
+- Authentication → Providers → GitHub
+
+<br />
+
+---
+
+<br />
 
 ## Keyboard Shortcuts
 
-| Shortcut     | Action           |
-| ------------ | ---------------- |
-| Ctrl + Z     | Undo             |
-| Ctrl + Y     | Redo             |
-| Ctrl + D     | Duplicate node   |
-| Ctrl + C     | Copy selection   |
-| Ctrl + V     | Paste            |
-| Ctrl + F     | Search           |
-| Ctrl + L     | Auto layout      |
-| Ctrl + S     | Export JSON      |
-| Del          | Delete           |
-| Esc          | Close / Deselect |
-| Space + Drag | Pan              |
-| Shift        | Multi-select     |
+| Shortcut       | Action           |
+| -------------- | ---------------- |
+| `Ctrl + Z`     | Undo             |
+| `Ctrl + Y`     | Redo             |
+| `Ctrl + D`     | Duplicate node   |
+| `Ctrl + C`     | Copy node        |
+| `Ctrl + V`     | Paste node       |
+| `Ctrl + F`     | Search nodes     |
+| `Ctrl + L`     | Auto layout      |
+| `Ctrl + S`     | Export JSON      |
+| `Del`          | Delete selected  |
+| `Esc`          | Deselect / close |
+| `Space + Drag` | Pan canvas       |
+| `Shift`        | Multi-select     |
+
+<br />
 
 ---
 
-## Export Format
-
-Example:
-
-```jsonc
-{
-  "version": 1,
-
-  "nodes": [
-    {
-      "id": "start-main",
-
-      "type": "start",
-
-      "data": {
-        "name": "Main Story",
-      },
-    },
-
-    {
-      "id": "hero",
-
-      "type": "character",
-
-      "data": {
-        "name": "Hero",
-
-        "dialogue": "We finally arrived.",
-
-        "emotion": "happy",
-      },
-    },
-
-    {
-      "id": "trigger-1",
-
-      "type": "action",
-
-      "data": {
-        "actionType": "trigger",
-
-        "category": "audio",
-
-        "event": "PlayMusic",
-
-        "executionMode": "beforeNext",
-
-        "params": {
-          "track": "battle_theme",
-        },
-      },
-    },
-  ],
-}
-```
-
----
-
-## Runtime Quick Start
-
-```ts
-import graph from "./dialogue.forge.json";
-
-const starts = graph.nodes.filter((n) => n.type === "start");
-
-const entry = starts.find((n) => n.data.name === "Main Story") ?? starts[0];
-
-runDialogue(entry);
-```
-
-See `/how-to-use` for:
-
-- TypeScript runtime integration
-- Unity C#
-- Godot
-- Unreal
-- Runtime traversal examples
-
----
+<br />
 
 ## Project Structure
 
-```text
-app/
-components/
-store/
-hooks/
-lib/
-types/
-schemas/
+```
+dialogue-forge/
+├── app/
+│   ├── page.tsx              # Editor entry
+│   ├── projects/             # Cloud project dashboard
+│   ├── roadmap/              # Public roadmap
+│   ├── how-to-use/           # Documentation
+│   ├── auth/                 # Auth callback
+│   ├── privacy/              # Privacy policy
+│   └── terms/                # Terms of service
+│
+├── components/
+│   ├── nodes/                # Character, Action, Start node UIs
+│   ├── layout/               # TopBar, Sidebar, EditorLayout
+│   ├── settings/             # SettingsPanel (fullscreen)
+│   ├── auth/                 # SignInModal
+│   ├── dashboard/            # ProjectCard, DashboardPage
+│   ├── modals/               # ConfirmModal, TemplateActionModal
+│   └── preview/              # In-editor preview player
+│
+├── store/
+│   ├── useGraphStore.ts      # Nodes, edges, undo/redo
+│   ├── useEditorStore.ts     # UI state, theme, project ID
+│   └── useProjectStore.ts    # Cloud projects, auth user
+│
+└── lib/
+    ├── supabase/             # Client, server, schema, types
+    ├── templates.ts          # Built-in template definitions
+    ├── exportGraph.ts        # Serialization + JSON download
+    ├── roadmap.ts            # Roadmap data
+    └── applyTheme.ts         # DOM theme application
 ```
 
-Main areas:
-
-```text
-graph/
-nodes/
-preview/
-validation/
-inspector/
-layout/
-```
+<br />
 
 ---
 
-## Browser Storage
+<br />
 
-Dialogue Forge automatically saves locally.
+## Local Storage
 
-Keys:
+Dialogue Forge autosaves to the browser on every change.
 
-```text
-dialogue-forge-graph
-dialogue-forge-ui
+```
+dialogue-forge-graph    →  All nodes and edges
+dialogue-forge-ui       →  Theme, sidebar state, project name
 ```
 
-Closing the browser restores the previous session automatically.
+Closing and reopening the browser restores your last session exactly. Use `Ctrl + S` to export a portable `.forge.json` backup.
 
-Use:
-
-```text
-Ctrl + S
-```
-
-to export portable copies outside the browser.
+<br />
 
 ---
 
-Built with Next.js, TypeScript, React Flow, and lots of graph logic.
+<br />
+
+## Roadmap
+
+Dialogue Forge is growing into a full **narrative workflow platform**.
+
+```
+v1.4  Gameplay State System    Variables, conditions, conditional branches
+v1.5  Narrative Database       Character library, portraits, voice metadata
+v1.6  Quest & Scene Systems    Quest graphs, timeline view, story chapters
+v1.7  Collaboration            Shared projects, comments, review mode
+v1.8  Runtime Ecosystem        Unity SDK, Godot plugin, React player
+v1.9  Analytics & QA           Path analysis, validation reports, heatmaps
+v2.0  AI Narrative Assistant   Dialogue generation, tone rewriting, localization
+```
+
+Full details at [dialogue-forge.nikatopu.dev/roadmap](https://dialogue-forge.nikatopu.dev/roadmap)
+
+<br />
+
+---
+
+<br />
+
+<div align="center">
+
+Built with Next.js, TypeScript, React Flow, Supabase, and a lot of graph logic.
+
+**If Dialogue Forge saves you time, a star on GitHub means a lot.**
+
+[**Star on GitHub**](https://github.com/nikatopu/dialogue-forge) · [**Report an Issue**](https://github.com/nikatopu/dialogue-forge/issues) · [**nikatopu@gmail.com**](mailto:nikatopu@gmail.com)
+
+<br />
+
+</div>

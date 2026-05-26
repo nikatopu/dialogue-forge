@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -12,6 +13,8 @@ import {
   GripVertical,
   FileText,
   X,
+  Download,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +25,6 @@ import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { PROJECT_TEMPLATES } from "@/lib/templates";
-import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { cn } from "@/lib/utils";
 import type { ProjectTemplate } from "@/lib/templates";
 
@@ -105,7 +107,7 @@ function Section({ label, open, onToggle, badge, children }: SectionProps) {
         {badge !== undefined && badge > 0 && (
           <Badge
             variant="secondary"
-            className="text-[10px] h-4 px-1.5 min-w-[18px] justify-center"
+            className="text-[10px] h-4 px-1.5 min-w-4.5 justify-center"
           >
             {badge}
           </Badge>
@@ -133,7 +135,7 @@ function Section({ label, open, onToggle, badge, children }: SectionProps) {
 
 export function Sidebar() {
   const { sidebarOpen, setSidebarOpen } = useEditorStore();
-  const { addNode, nodes, loadGraph } = useGraphStore();
+  const { addNode, nodes, loadGraph, insertGraph } = useGraphStore();
   const { setProjectName } = useEditorStore();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
@@ -156,7 +158,13 @@ export function Sidebar() {
     }
   }
 
-  function confirmLoadTemplate() {
+  function handleInsert() {
+    if (!pendingTemplate) return;
+    insertGraph(pendingTemplate.nodes, pendingTemplate.edges);
+    setPendingTemplate(null);
+  }
+
+  function handleReplace() {
     if (!pendingTemplate) return;
     loadGraph(pendingTemplate.nodes, pendingTemplate.edges);
     setProjectName(pendingTemplate.name);
@@ -319,14 +327,17 @@ export function Sidebar() {
         </div>
       </motion.aside>
 
-      <ConfirmModal
-        open={pendingTemplate !== null}
-        title="Replace current project?"
-        message="Loading this template will replace your existing nodes and edges. Make sure you've exported anything you want to keep."
-        confirmLabel="Load template"
-        onConfirm={confirmLoadTemplate}
-        onCancel={() => setPendingTemplate(null)}
-      />
+      {typeof document !== "undefined" &&
+        pendingTemplate &&
+        createPortal(
+          <TemplateActionModal
+            template={pendingTemplate}
+            onInsert={handleInsert}
+            onReplace={handleReplace}
+            onCancel={() => setPendingTemplate(null)}
+          />,
+          document.body,
+        )}
     </>
   );
 }
@@ -369,5 +380,93 @@ function NodeTypeCard({ node }: { node: (typeof NODE_TEMPLATES)[number] }) {
 
       <GripVertical className="w-3.5 h-3.5 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors shrink-0" />
     </div>
+  );
+}
+
+function TemplateActionModal({
+  template,
+  onInsert,
+  onReplace,
+  onCancel,
+}: {
+  template: ProjectTemplate;
+  onInsert: () => void;
+  onReplace: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      onClick={onCancel}
+    >
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        className="relative w-full max-w-sm mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+            <h2 className="text-sm font-semibold">{template.name}</h2>
+          </div>
+          <button
+            type="button"
+            aria-label="Cancel"
+            onClick={onCancel}
+            className="text-muted-foreground hover:text-foreground transition-colors rounded-md p-1 hover:bg-muted/50"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {template.description}
+          </p>
+
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={onInsert}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-border/60 bg-card hover:bg-muted/40 hover:border-border transition-all text-left group"
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+                <Download className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs font-medium">Insert into current project</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Append template nodes below the existing graph
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={onReplace}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:border-destructive/30 transition-all text-left group"
+            >
+              <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0 group-hover:bg-destructive/15 transition-colors">
+                <Upload className="w-4 h-4 text-destructive/70" />
+              </div>
+              <div>
+                <p className="text-xs font-medium">Replace current project</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Clear all existing nodes and load this template
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

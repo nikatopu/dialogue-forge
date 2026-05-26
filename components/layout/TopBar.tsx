@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   Workflow,
   Save,
   Download,
   Play,
-  Settings,
   PanelLeft,
   PanelRight,
   Pencil,
@@ -17,7 +16,16 @@ import {
   AlertCircle,
   LayoutDashboard,
   Search,
+  Cloud,
+  CloudOff,
+  Loader2,
+  User,
+  MoreHorizontal,
+  Map,
   BookOpen,
+  Keyboard,
+  Settings,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,28 +36,44 @@ import {
 } from "@/components/ui/tooltip";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useProjectStore } from "@/store/useProjectStore";
+import { useIsMobile } from "@/hooks/useBreakpoint";
 import { serializeGraph, downloadJson } from "@/lib/exportGraph";
 import { parseGraphJson, readFileAsText } from "@/lib/importGraph";
 import { computeAutoLayout } from "@/lib/autoLayout";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
+import { SignInModal } from "@/components/auth/SignInModal";
+import { UserMenu, SignInButton } from "@/components/auth/UserMenu";
+import { ProfileSheet } from "@/components/auth/ProfileSheet";
 import { cn } from "@/lib/utils";
+import type { AutosaveStatus } from "@/types";
 
 export function TopBar() {
   const {
     sidebarOpen, toggleSidebar,
     inspectorOpen, toggleInspector,
     projectName, setProjectName,
+    autosaveStatus,
     setPreviewOpen,
     setSearchOpen,
     setSettingsOpen,
   } = useEditorStore();
   const { undo, redo, past, future, nodes, edges, loadGraph, setNodePositions } = useGraphStore();
+  const { user, isAuthLoading } = useProjectStore();
+  const isMobile = useIsMobile();
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(projectName);
   const [saveFlash, setSaveFlash] = useState<"idle" | "saved" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pendingImport, setPendingImport] = useState<{ nodes: Parameters<typeof loadGraph>[0]; edges: Parameters<typeof loadGraph>[1]; name?: string } | null>(null);
+  const [pendingImport, setPendingImport] = useState<{
+    nodes: Parameters<typeof loadGraph>[0];
+    edges: Parameters<typeof loadGraph>[1];
+    name?: string;
+  } | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   function commitName() {
     const trimmed = nameValue.trim();
@@ -132,7 +156,6 @@ export function TopBar() {
           </span>
         </div>
 
-        {/* sidebar toggle — desktop only (mobile has MobileToolbar) */}
         <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
         <Tooltip>
           <TooltipTrigger asChild>
@@ -140,7 +163,7 @@ export function TopBar() {
               variant="ghost"
               size="icon-sm"
               onClick={toggleSidebar}
-              className={cn("hidden md:flex", !sidebarOpen && "text-muted-foreground")}
+              className={cn("hidden md:flex cursor-pointer", !sidebarOpen && "text-muted-foreground")}
             >
               <PanelLeft className="w-4 h-4" />
             </Button>
@@ -182,7 +205,7 @@ export function TopBar() {
               setEditingName(true);
             }}
             className={cn(
-              "group flex items-center gap-1.5 px-2.5 py-1 rounded-md",
+              "group flex items-center gap-1.5 px-2.5 py-1 rounded-md cursor-pointer",
               "text-sm font-medium text-foreground",
               "hover:bg-muted/50 transition-colors max-w-xs truncate"
             )}
@@ -194,7 +217,7 @@ export function TopBar() {
       </div>
 
       {/* ── Right actions ── */}
-      <div className="flex items-center gap-1 md:gap-1">
+      <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -202,7 +225,7 @@ export function TopBar() {
               size="icon-sm"
               onClick={undo}
               disabled={past.length === 0}
-              className="disabled:opacity-30"
+              className="disabled:opacity-30 cursor-pointer"
             >
               <Undo2 className="w-3.5 h-3.5" />
             </Button>
@@ -217,7 +240,7 @@ export function TopBar() {
               size="icon-sm"
               onClick={redo}
               disabled={future.length === 0}
-              className="disabled:opacity-30"
+              className="disabled:opacity-30 cursor-pointer"
             >
               <Redo2 className="w-3.5 h-3.5" />
             </Button>
@@ -225,7 +248,6 @@ export function TopBar() {
           <TooltipContent side="bottom">Redo (Ctrl+Y)</TooltipContent>
         </Tooltip>
 
-        {/* Save / Import / Export — hidden on mobile (use long-press or export via settings) */}
         <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
 
         <Tooltip>
@@ -235,7 +257,7 @@ export function TopBar() {
               size="icon-sm"
               onClick={handleSave}
               className={cn(
-                "hidden md:flex",
+                "hidden md:flex cursor-pointer",
                 saveFlash === "saved" && "text-emerald-400",
                 saveFlash === "error" && "text-destructive",
               )}
@@ -248,34 +270,6 @@ export function TopBar() {
           </TooltipContent>
         </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => fileInputRef.current?.click()}
-              className="hidden md:flex"
-            >
-              <Upload className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Import JSON</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={handleExport}
-              className="hidden md:flex"
-            >
-              <Download className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Export JSON</TooltipContent>
-        </Tooltip>
-
         <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
 
         <Tooltip>
@@ -284,7 +278,7 @@ export function TopBar() {
               variant="ghost"
               size="icon-sm"
               onClick={() => setSearchOpen(true)}
-              className="hidden md:flex"
+              className="hidden md:flex cursor-pointer"
             >
               <Search className="w-3.5 h-3.5" />
             </Button>
@@ -299,7 +293,7 @@ export function TopBar() {
               size="icon-sm"
               onClick={() => setNodePositions(computeAutoLayout(nodes, edges))}
               disabled={nodes.length === 0}
-              className="hidden md:flex disabled:opacity-30"
+              className="hidden md:flex disabled:opacity-30 cursor-pointer"
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
             </Button>
@@ -309,10 +303,10 @@ export function TopBar() {
 
         <Separator orientation="vertical" className="h-4 mx-1 opacity-40 hidden md:block" />
 
-        {/* Preview — visible on all sizes */}
+        {/* Preview */}
         <Button
           size="sm"
-          className="gap-1.5 h-7 px-3 text-xs font-medium hidden md:flex"
+          className="gap-1.5 h-7 px-3 text-xs font-medium hidden md:flex cursor-pointer"
           onClick={() => setPreviewOpen(true)}
         >
           <Play className="w-3 h-3 fill-current" />
@@ -321,39 +315,14 @@ export function TopBar() {
 
         <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon-sm" asChild className="hidden md:flex">
-              <a href="/how-to-use" target="_blank" rel="noopener noreferrer" aria-label="How to use">
-                <BookOpen className="w-3.5 h-3.5" />
-              </a>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">How to use</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setSettingsOpen(true)}
-              className="hidden md:flex"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Settings</TooltipContent>
-        </Tooltip>
-
-        {/* Inspector toggle — desktop only */}
+        {/* Inspector toggle */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon-sm"
               onClick={toggleInspector}
-              className={cn("hidden md:flex", !inspectorOpen && "text-muted-foreground")}
+              className={cn("hidden md:flex cursor-pointer", !inspectorOpen && "text-muted-foreground")}
             >
               <PanelRight className="w-4 h-4" />
             </Button>
@@ -363,7 +332,17 @@ export function TopBar() {
           </TooltipContent>
         </Tooltip>
 
-        {/* Mobile: save + export as icon-only buttons */}
+        {/* More dropdown (desktop) */}
+        <MoreMenu
+          onImport={() => fileInputRef.current?.click()}
+          onExport={handleExport}
+          onSettings={() => setSettingsOpen(true)}
+          onShortcuts={() => setSettingsOpen(true)}
+          onClearWorkspace={() => setConfirmClear(true)}
+          nodesCount={nodes.length}
+        />
+
+        {/* Mobile: save + export */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -371,7 +350,7 @@ export function TopBar() {
               size="icon-sm"
               onClick={handleSave}
               className={cn(
-                "flex md:hidden",
+                "flex md:hidden cursor-pointer",
                 saveFlash === "saved" && "text-emerald-400",
                 saveFlash === "error" && "text-destructive",
               )}
@@ -388,14 +367,56 @@ export function TopBar() {
               variant="ghost"
               size="icon-sm"
               onClick={handleExport}
-              className="flex md:hidden"
+              className="flex md:hidden cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Export JSON</TooltipContent>
         </Tooltip>
+
+        {/* Autosave status */}
+        <AutosaveIndicator status={autosaveStatus} />
+
+        <Separator orientation="vertical" className="h-4 mx-0.5 opacity-40 hidden md:block" />
+
+        {/* Auth */}
+        {!isAuthLoading && (
+          <>
+            <div className="hidden md:flex items-center">
+              {user ? (
+                <UserMenu onSettings={() => setSettingsOpen(true)} />
+              ) : (
+                <SignInButton onClick={() => setSignInOpen(true)} />
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="flex md:hidden w-8 h-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => setProfileSheetOpen(true)}
+              aria-label="Account"
+            >
+              {user?.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.avatarUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
+              ) : (
+                <User className="w-4 h-4" />
+              )}
+            </button>
+          </>
+        )}
       </div>
+
+      {/* Modals */}
+      <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
+      <ProfileSheet
+        open={profileSheetOpen}
+        onClose={() => setProfileSheetOpen(false)}
+        onSettings={() => setSettingsOpen(true)}
+        onSignIn={() => setSignInOpen(true)}
+      />
+
       <ConfirmModal
         open={pendingImport !== null}
         title="Replace current project?"
@@ -404,6 +425,165 @@ export function TopBar() {
         onConfirm={confirmImport}
         onCancel={() => setPendingImport(null)}
       />
+
+      <ConfirmModal
+        open={confirmClear}
+        title="Clear workspace?"
+        message="This will permanently delete all nodes, edges, and undo history. This cannot be undone."
+        confirmLabel="Delete everything"
+        onConfirm={() => {
+          useGraphStore.getState().clearGraph();
+          setConfirmClear(false);
+        }}
+        onCancel={() => setConfirmClear(false)}
+      />
     </header>
+  );
+}
+
+/* ─── More dropdown ──────────────────────────────────────── */
+
+function MoreMenu({
+  onImport,
+  onExport,
+  onSettings,
+  onShortcuts,
+  onClearWorkspace,
+  nodesCount,
+}: {
+  onImport: () => void;
+  onExport: () => void;
+  onSettings: () => void;
+  onShortcuts: () => void;
+  onClearWorkspace: () => void;
+  nodesCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDown(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative hidden md:block">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setOpen((v) => !v)}
+            className={cn("cursor-pointer", open && "bg-muted/60 text-foreground")}
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        </TooltipTrigger>
+        {!open && <TooltipContent side="bottom">More options</TooltipContent>}
+      </Tooltip>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-52 rounded-xl border border-border bg-card shadow-xl overflow-hidden z-100 py-1">
+          <MenuItem icon={Upload} label="Import JSON" onClick={() => { onImport(); setOpen(false); }} />
+          <MenuItem icon={Download} label="Export JSON" onClick={() => { onExport(); setOpen(false); }} />
+          <MenuDivider />
+          <MenuItem icon={Map} label="Roadmap" href="/roadmap" onClick={() => setOpen(false)} />
+          <MenuItem icon={BookOpen} label="How to use" href="/how-to-use" onClick={() => setOpen(false)} />
+          <MenuDivider />
+          <MenuItem icon={Settings} label="Settings" onClick={() => { onSettings(); setOpen(false); }} />
+          <MenuItem icon={Keyboard} label="Shortcuts" onClick={() => { onShortcuts(); setOpen(false); }} />
+          <MenuDivider />
+          <MenuItem
+            icon={Trash2}
+            label="Clear workspace"
+            onClick={() => { onClearWorkspace(); setOpen(false); }}
+            destructive
+            disabled={nodesCount === 0}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuDivider() {
+  return <div className="h-px bg-border/50 my-1" />;
+}
+
+function MenuItem({
+  icon: Icon,
+  label,
+  href,
+  onClick,
+  destructive,
+  disabled,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href?: string;
+  onClick: () => void;
+  destructive?: boolean;
+  disabled?: boolean;
+}) {
+  const cls = cn(
+    "w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left cursor-pointer",
+    destructive
+      ? "text-destructive/70 hover:text-destructive hover:bg-destructive/5 disabled:opacity-40"
+      : "text-foreground/80 hover:text-foreground hover:bg-muted/50"
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cls}
+        onClick={onClick}
+      >
+        <Icon className="w-3.5 h-3.5 shrink-0" />
+        {label}
+      </a>
+    );
+  }
+
+  return (
+    <button type="button" className={cls} onClick={onClick} disabled={disabled}>
+      <Icon className="w-3.5 h-3.5 shrink-0" />
+      {label}
+    </button>
+  );
+}
+
+/* ─── Autosave indicator ─────────────────────────────────── */
+
+function AutosaveIndicator({ status }: { status: AutosaveStatus }) {
+  if (status === "idle") return null;
+
+  return (
+    <div
+      className={cn(
+        "hidden md:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-md transition-all",
+        status === "saving" && "text-muted-foreground",
+        status === "saved" && "text-emerald-400",
+        status === "error" && "text-destructive",
+        status === "offline" && "text-amber-400"
+      )}
+    >
+      {status === "saving" && <Loader2 className="w-3 h-3 animate-spin" />}
+      {status === "saved" && <Cloud className="w-3 h-3" />}
+      {status === "error" && <AlertCircle className="w-3 h-3" />}
+      {status === "offline" && <CloudOff className="w-3 h-3" />}
+      <span>
+        {status === "saving" && "Saving…"}
+        {status === "saved" && "Saved"}
+        {status === "error" && "Save failed"}
+        {status === "offline" && "Offline"}
+      </span>
+    </div>
   );
 }

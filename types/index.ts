@@ -2,7 +2,7 @@ import { type Node, type Edge } from "@xyflow/react";
 
 /* ─── Primitive enums ─────────────────────────────────── */
 
-export type Theme = "dark" | "light";
+export type Theme = "default" | "ocean" | "forest" | "midnight" | "rose" | "cyber";
 
 export type ForgeNodeType = "character" | "action" | "start";
 
@@ -112,6 +112,38 @@ export interface SerialEdge {
   type?: string;
   data: DialogueEdgeData;
 }
+
+/* ─── Trigger event catalogue ─────────────────────────── */
+
+/* ─── Project / Cloud types ───────────────────────────── */
+
+export type ProjectMode = "local" | "cloud";
+
+export type AutosaveStatus = "idle" | "saving" | "saved" | "error" | "offline";
+
+export interface CloudProject {
+  id: string;
+  userId: string;
+  name: string;
+  graph: { nodes: SerialNode[]; edges: SerialEdge[] };
+  previewImage: string | null;
+  mode: ProjectMode;
+  isTemplate: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string | null;
+  avatarUrl: string | null;
+  fullName: string | null;
+  provider: string | null;
+}
+
+/* ─── Template metadata (extended) ───────────────────── */
+
+export type TemplateDifficulty = "beginner" | "intermediate" | "advanced";
 
 /* ─── Trigger event catalogue ─────────────────────────── */
 

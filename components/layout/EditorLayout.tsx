@@ -9,18 +9,29 @@ import { MobileNodeSheet } from "./MobileNodeSheet";
 import { GraphCanvas } from "@/components/graph/GraphCanvas";
 import { ValidationBar } from "@/components/validation/ValidationBar";
 import { PreviewModal } from "@/components/preview/PreviewModal";
-import { SettingsModal } from "@/components/modals/SettingsModal";
+import { SettingsPanel } from "@/components/settings/SettingsPanel";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useValidationStore } from "@/store/useValidationStore";
 import { useEditorStore } from "@/store/useEditorStore";
 import { validateGraph } from "@/lib/validate";
 import { useIsMobile } from "@/hooks/useBreakpoint";
+import { useCloudSync } from "@/hooks/useCloudSync";
+import { useProjectStore } from "@/store/useProjectStore";
 import { cn } from "@/lib/utils";
 
 export function EditorLayout() {
   const setIssues = useValidationStore((s) => s.setIssues);
   const { previewOpen, setPreviewOpen, selectedNodeId, setMobileInspectorOpen } = useEditorStore();
   const isMobile = useIsMobile();
+  const { initAuth } = useProjectStore();
+
+  // Initialise auth once on mount
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
+
+  // Cloud autosave (no-op for guests and local-only projects)
+  useCloudSync();
 
   useEffect(() => {
     const { nodes, edges } = useGraphStore.getState();
@@ -70,7 +81,7 @@ export function EditorLayout() {
 
       {/* Modals */}
       <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} />
-      <SettingsModal />
+      <SettingsPanel />
     </div>
   );
 }

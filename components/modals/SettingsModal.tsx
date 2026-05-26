@@ -8,13 +8,26 @@ import {
   Trash2,
   Keyboard,
   Info,
+  User,
+  Cloud,
+  Download,
+  LogOut,
+  GitBranch,
+  Globe,
+  Loader2,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useProjectStore } from "@/store/useProjectStore";
+import { projectService, FREE_PLAN_CLOUD_LIMIT } from "@/lib/services/projectService";
+import { serializeGraph, downloadJson } from "@/lib/exportGraph";
+import { SignInModal } from "@/components/auth/SignInModal";
 import { ConfirmModal } from "./ConfirmModal";
 import { cn } from "@/lib/utils";
+import type { Json } from "@/lib/supabase/types";
 
 const SHORTCUTS = [
   { keys: ["Ctrl", "Z"], label: "Undo" },
@@ -32,9 +45,14 @@ const SHORTCUTS = [
 ];
 
 export function SettingsModal() {
-  const { settingsOpen, setSettingsOpen } = useEditorStore();
+  const { settingsOpen, setSettingsOpen, currentProjectId } = useEditorStore();
   const { clearGraph, nodes } = useGraphStore();
+  const { user, signOut, cloudProjectCount, canCreateCloudProject, loadProjects } = useProjectStore();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+
+  const isLocalDraft = !currentProjectId && nodes.length > 0;
 
   useEffect(() => {
     if (!settingsOpen) return;
@@ -44,6 +62,31 @@ export function SettingsModal() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [settingsOpen, confirmClear, setSettingsOpen]);
+
+  function handleExportLocal() {
+    const { nodes: n, edges: e } = useGraphStore.getState();
+    const { projectName } = useEditorStore.getState();
+    downloadJson(serializeGraph(n, e, projectName));
+  }
+
+  async function handleSaveDraftToCloud() {
+    if (!user || !canCreateCloudProject()) return;
+    setSavingDraft(true);
+    try {
+      const { nodes: n, edges: e } = useGraphStore.getState();
+      const { projectName } = useEditorStore.getState();
+      const serialized = serializeGraph(n, e, projectName);
+      const project = await projectService.create({
+        name: projectName,
+        graph: { nodes: serialized.nodes, edges: serialized.edges } as unknown as Json,
+        mode: "cloud",
+      });
+      useEditorStore.getState().setCurrentProjectId(project.id);
+      await loadProjects();
+    } finally {
+      setSavingDraft(false);
+    }
+  }
 
   if (typeof document === "undefined") return null;
 
@@ -74,6 +117,7 @@ export function SettingsModal() {
                 <h2 className="text-sm font-semibold">Settings</h2>
                 <button
                   type="button"
+                  aria-label="Close settings"
                   onClick={() => setSettingsOpen(false)}
                   className="text-muted-foreground hover:text-foreground transition-colors rounded-md p-1 hover:bg-muted/50"
                 >
@@ -133,6 +177,143 @@ export function SettingsModal() {
 
                 <Separator className="opacity-40" />
 
+                {/* Account */}
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Account
+                    </span>
+                  </div>
+
+                  {user ? (
+                    <div className="space-y-2.5">
+                      {/* Profile card */}
+                      <div className="rounded-xl border border-border/50 bg-muted/20 p-3">
+                        <div className="flex items-center gap-3">
+                          {user.avatarUrl ? (
+                            <img
+                              src={user.avatarUrl}
+                              alt=""
+                              className="w-9 h-9 rounded-full shrink-0 object-cover"
+                            />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                              {(user.fullName || user.email || "?")[0].toUpperCase()}
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            {user.fullName && (
+                              <p className="text-xs font-medium truncate">{user.fullName}</p>
+                            )}
+                            {user.email && (
+                              <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+                            )}
+                            {user.provider && (
+                              <div className="flex items-center gap-1 mt-0.5">
+                                {user.provider === "github" ? (
+                                  <GitBranch className="w-2.5 h-2.5 text-muted-foreground" />
+                                ) : (
+                                  <Globe className="w-2.5 h-2.5 text-muted-foreground" />
+                                )}
+                                <span className="text-[10px] text-muted-foreground capitalize">
+                                  {user.provider}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cloud usage */}
+                      <div className="rounded-xl border border-border/50 bg-muted/10 p-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Cloud className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">Cloud projects</span>
+                          </div>
+                          <span className="text-xs font-medium tabular-nums">
+                            {cloudProjectCount} / {FREE_PLAN_CLOUD_LIMIT}
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-muted/50">
+                          <div
+                            className={cn(
+                              "h-full rounded-full transition-all",
+                              cloudProjectCount === 0 && "w-0",
+                              cloudProjectCount === 1 && "w-1/5",
+                              cloudProjectCount === 2 && "w-2/5",
+                              cloudProjectCount === 3 && "w-3/5",
+                              cloudProjectCount === 4 && "w-4/5",
+                              cloudProjectCount >= FREE_PLAN_CLOUD_LIMIT && "w-full",
+                              cloudProjectCount >= FREE_PLAN_CLOUD_LIMIT
+                                ? "bg-destructive/70"
+                                : "bg-primary/60"
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Save local draft to cloud */}
+                      {isLocalDraft && canCreateCloudProject() && (
+                        <button
+                          type="button"
+                          onClick={handleSaveDraftToCloud}
+                          disabled={savingDraft}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors text-left disabled:opacity-50"
+                        >
+                          {savingDraft ? (
+                            <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5 shrink-0" />
+                          )}
+                          {savingDraft ? "Saving to cloud…" : "Save local draft to cloud"}
+                        </button>
+                      )}
+
+                      {/* Export */}
+                      {nodes.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleExportLocal}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors text-left"
+                        >
+                          <Download className="w-3.5 h-3.5 shrink-0" />
+                          Export local data
+                        </button>
+                      )}
+
+                      {/* Sign out */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          signOut();
+                          setSettingsOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-colors text-left"
+                      >
+                        <LogOut className="w-3.5 h-3.5 shrink-0" />
+                        Sign out
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Sign in to save projects to the cloud and access them from any device.
+                      </p>
+                      <Button
+                        size="sm"
+                        className="w-full h-7 text-xs"
+                        onClick={() => setSignInOpen(true)}
+                      >
+                        Sign in
+                      </Button>
+                    </div>
+                  )}
+                </section>
+
+                <Separator className="opacity-40" />
+
                 {/* Danger zone */}
                 <section>
                   <div className="flex items-center gap-2 mb-3">
@@ -179,6 +360,8 @@ export function SettingsModal() {
         }}
         onCancel={() => setConfirmClear(false)}
       />
+
+      <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
     </>,
     document.body
   );

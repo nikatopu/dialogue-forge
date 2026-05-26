@@ -28,14 +28,14 @@ import { cn } from "@/lib/utils";
 /* ─── TOC definition ────────────────────────────────────────── */
 
 const TOC = [
-  { id: "interface",   title: "The Interface" },
-  { id: "node-types",  title: "Node Types" },
-  { id: "building",    title: "Building a Graph" },
-  { id: "selection",   title: "Selection & Multi-Select" },
-  { id: "shortcuts",   title: "Keyboard Shortcuts" },
-  { id: "saving",      title: "Saving & Loading" },
+  { id: "interface", title: "The Interface" },
+  { id: "node-types", title: "Node Types" },
+  { id: "building", title: "Building a Graph" },
+  { id: "selection", title: "Selection & Multi-Select" },
+  { id: "shortcuts", title: "Keyboard Shortcuts" },
+  { id: "saving", title: "Saving & Loading" },
   { id: "json-format", title: "The Exported JSON" },
-  { id: "runtime",     title: "Using the JSON in Your Game" },
+  { id: "runtime", title: "Using the JSON in Your Game" },
 ] as const;
 
 type SectionId = (typeof TOC)[number]["id"];
@@ -105,12 +105,14 @@ export function HowToUseContent() {
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <Network className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">Dialogue Forge</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Dialogue Forge
+            </h1>
           </div>
           <p className="text-base text-muted-foreground leading-relaxed max-w-xl">
-            A visual editor for building branching dialogue trees for games and interactive
-            fiction. Design conversations with a node graph, then export structured JSON your
-            game engine can traverse at runtime.
+            A visual editor for building branching dialogue trees for games and
+            interactive fiction. Design conversations with a node graph, then
+            export structured JSON your game engine can traverse at runtime.
           </p>
         </div>
 
@@ -130,7 +132,7 @@ export function HowToUseContent() {
             <ChevronDown
               className={cn(
                 "w-4 h-4 text-muted-foreground transition-transform duration-200",
-                tocOpen && "rotate-180"
+                tocOpen && "rotate-180",
               )}
             />
           </button>
@@ -153,7 +155,7 @@ export function HowToUseContent() {
                         "w-full text-left text-xs py-2 px-3 rounded-lg transition-all duration-150",
                         activeId === id
                           ? "text-primary font-medium bg-primary/8"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/30",
                       )}
                     >
                       {title}
@@ -167,7 +169,6 @@ export function HowToUseContent() {
 
         {/* Two-column layout */}
         <div className="flex gap-12 items-start">
-
           {/* ── Sticky TOC sidebar (lg+) ── */}
           <aside className="hidden lg:block w-48 shrink-0">
             <div className="sticky top-8">
@@ -186,7 +187,7 @@ export function HowToUseContent() {
                           "border-l-2",
                           activeId === id
                             ? "border-primary text-primary font-medium bg-primary/8"
-                            : "border-transparent text-muted-foreground hover:text-foreground/80 hover:bg-muted/30"
+                            : "border-transparent text-muted-foreground hover:text-foreground/80 hover:bg-muted/30",
                         )}
                       >
                         {title}
@@ -200,20 +201,42 @@ export function HowToUseContent() {
 
           {/* ── Main content ── */}
           <div className="flex-1 min-w-0 space-y-14">
-
             {/* 1. The Interface */}
             <section id="interface" aria-labelledby="heading-interface">
-              <SectionHeading id="heading-interface" icon={Layers} title="The Interface" />
+              <SectionHeading
+                id="heading-interface"
+                icon={Layers}
+                title="The Interface"
+              />
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {[
-                  { label: "Sidebar", desc: "Drag node types onto the canvas or click a template to load a starter project." },
-                  { label: "Canvas", desc: "Your graph lives here. Pan with Space+drag, zoom with the scroll wheel." },
-                  { label: "Inspector", desc: "Click any node to open its detail panel on the right — edit name, dialogue, emotion, and custom attributes." },
-                  { label: "Validation bar", desc: "Runs continuously. Surfaces errors (disconnected nodes, empty dialogue) and warnings at the bottom of the screen." },
+                  {
+                    label: "Sidebar",
+                    desc: "Drag node types onto the canvas or click a template to load a starter project.",
+                  },
+                  {
+                    label: "Canvas",
+                    desc: "Your graph lives here. Pan with Space+drag, zoom with the scroll wheel.",
+                  },
+                  {
+                    label: "Inspector",
+                    desc: "Click any node to open its detail panel on the right — edit name, dialogue, emotion, and custom attributes.",
+                  },
+                  {
+                    label: "Validation bar",
+                    desc: "Runs continuously. Surfaces errors (disconnected nodes, empty dialogue) and warnings at the bottom of the screen.",
+                  },
                 ].map((item) => (
-                  <div key={item.label} className="rounded-xl border border-border/60 bg-card/60 p-4">
-                    <p className="text-xs font-semibold text-foreground mb-1">{item.label}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <div
+                    key={item.label}
+                    className="rounded-xl border border-border/60 bg-card/60 p-4"
+                  >
+                    <p className="text-xs font-semibold text-foreground mb-1">
+                      {item.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -221,10 +244,15 @@ export function HowToUseContent() {
 
             {/* 2. Node Types */}
             <section id="node-types" aria-labelledby="heading-node-types">
-              <SectionHeading id="heading-node-types" icon={User} title="Node Types" />
+              <SectionHeading
+                id="heading-node-types"
+                icon={User}
+                title="Node Types"
+              />
               <p className="text-sm text-muted-foreground mt-2 mb-4">
-                Every node is either a <strong className="text-foreground">Character</strong> node or an{" "}
-                <strong className="text-foreground">Action</strong> node.
+                Every node is either a{" "}
+                <strong className="text-foreground">Character</strong> node or
+                an <strong className="text-foreground">Action</strong> node.
               </p>
               <div className="space-y-3">
                 <NodeCard
@@ -265,16 +293,38 @@ export function HowToUseContent() {
 
             {/* 3. Building a Graph */}
             <section id="building" aria-labelledby="heading-building">
-              <SectionHeading id="heading-building" icon={MousePointer} title="Building a Graph" />
+              <SectionHeading
+                id="heading-building"
+                icon={MousePointer}
+                title="Building a Graph"
+              />
               <ol className="space-y-3 mt-4">
                 {[
-                  { n: "1", text: "Drag a Character or Action node from the sidebar onto the canvas, or click \"Add Node\" at the bottom of the sidebar." },
-                  { n: "2", text: "Click a node to open its inspector. Edit name, dialogue, and any attributes." },
-                  { n: "3", text: "Connect nodes by hovering over a node's right handle until the cursor changes, then drag to another node's left handle." },
-                  { n: "4", text: "For Branch nodes, double-click each outgoing edge label to type the player choice text." },
-                  { n: "5", text: "Every conversation path must end at an End action node. The validation bar will flag open paths." },
+                  {
+                    n: "1",
+                    text: 'Drag a Character or Action node from the sidebar onto the canvas, or click "Add Node" at the bottom of the sidebar.',
+                  },
+                  {
+                    n: "2",
+                    text: "Click a node to open its inspector. Edit name, dialogue, and any attributes.",
+                  },
+                  {
+                    n: "3",
+                    text: "Connect nodes by hovering over a node's right handle until the cursor changes, then drag to another node's left handle.",
+                  },
+                  {
+                    n: "4",
+                    text: "For Branch nodes, double-click each outgoing edge label to type the player choice text.",
+                  },
+                  {
+                    n: "5",
+                    text: "Every conversation path must end at an End action node. The validation bar will flag open paths.",
+                  },
                 ].map((step) => (
-                  <li key={step.n} className="flex gap-3 text-sm text-muted-foreground">
+                  <li
+                    key={step.n}
+                    className="flex gap-3 text-sm text-muted-foreground"
+                  >
                     <span className="w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                       {step.n}
                     </span>
@@ -286,44 +336,84 @@ export function HowToUseContent() {
 
             {/* 4. Selection & Multi-Select */}
             <section id="selection" aria-labelledby="heading-selection">
-              <SectionHeading id="heading-selection" icon={Copy} title="Selection & Multi-Select" />
+              <SectionHeading
+                id="heading-selection"
+                icon={Copy}
+                title="Selection & Multi-Select"
+              />
               <div className="space-y-2.5 mt-4 text-sm text-muted-foreground">
-                <p><Kbd>Click</Kbd> — select a single node and open it in the inspector.</p>
-                <p><Kbd>Shift</Kbd> + <Kbd>Click</Kbd> — add a node or edge to the current selection.</p>
-                <p><Kbd>Shift</Kbd> + drag on the canvas — draw a selection rectangle.</p>
-                <p><Kbd>Ctrl</Kbd><Kbd>C</Kbd> — copy all selected nodes and the edges that connect them to each other.</p>
-                <p><Kbd>Ctrl</Kbd><Kbd>V</Kbd> — paste the copied subgraph offset by 40 px. All internal edges are recreated with fresh IDs; connections to nodes outside the selection are not copied.</p>
-                <p><Kbd>Del</Kbd> — delete all selected nodes and/or selected edges in one action.</p>
-                <p>Click an edge to select it, then press <Kbd>Del</Kbd> to remove just that edge without touching its nodes.</p>
+                <p>
+                  <Kbd>Click</Kbd> — select a single node and open it in the
+                  inspector.
+                </p>
+                <p>
+                  <Kbd>Shift</Kbd> + <Kbd>Click</Kbd> — add a node or edge to
+                  the current selection.
+                </p>
+                <p>
+                  <Kbd>Shift</Kbd> + drag on the canvas — draw a selection
+                  rectangle.
+                </p>
+                <p>
+                  <Kbd>Ctrl</Kbd>
+                  <Kbd>C</Kbd> — copy all selected nodes and the edges that
+                  connect them to each other.
+                </p>
+                <p>
+                  <Kbd>Ctrl</Kbd>
+                  <Kbd>V</Kbd> — paste the copied subgraph offset by 40 px. All
+                  internal edges are recreated with fresh IDs; connections to
+                  nodes outside the selection are not copied.
+                </p>
+                <p>
+                  <Kbd>Del</Kbd> — delete all selected nodes and/or selected
+                  edges in one action.
+                </p>
+                <p>
+                  Click an edge to select it, then press <Kbd>Del</Kbd> to
+                  remove just that edge without touching its nodes.
+                </p>
               </div>
             </section>
 
             {/* 5. Keyboard Shortcuts */}
             <section id="shortcuts" aria-labelledby="heading-shortcuts">
-              <SectionHeading id="heading-shortcuts" icon={Keyboard} title="Keyboard Shortcuts" />
+              <SectionHeading
+                id="heading-shortcuts"
+                icon={Keyboard}
+                title="Keyboard Shortcuts"
+              />
               <div className="mt-4 rounded-xl border border-border/50 overflow-hidden">
                 {[
-                  { keys: ["Ctrl", "Z"],        label: "Undo" },
-                  { keys: ["Ctrl", "Y"],        label: "Redo" },
-                  { keys: ["Ctrl", "D"],        label: "Duplicate selected node" },
-                  { keys: ["Ctrl", "C"],        label: "Copy selected nodes (preserves edges)" },
-                  { keys: ["Ctrl", "V"],        label: "Paste copied subgraph" },
-                  { keys: ["Ctrl", "F"],        label: "Search nodes" },
-                  { keys: ["Ctrl", "L"],        label: "Auto layout" },
-                  { keys: ["Ctrl", "S"],        label: "Save / export JSON" },
-                  { keys: ["Del"],              label: "Delete selected node(s) or edge(s)" },
-                  { keys: ["Esc"],              label: "Deselect / close panels" },
-                  { keys: ["Space", "+ drag"],  label: "Pan the canvas" },
-                  { keys: ["Shift"],            label: "Multi-select (click or drag)" },
+                  { keys: ["Ctrl", "Z"], label: "Undo" },
+                  { keys: ["Ctrl", "Y"], label: "Redo" },
+                  { keys: ["Ctrl", "D"], label: "Duplicate selected node" },
+                  {
+                    keys: ["Ctrl", "C"],
+                    label: "Copy selected nodes (preserves edges)",
+                  },
+                  { keys: ["Ctrl", "V"], label: "Paste copied subgraph" },
+                  { keys: ["Ctrl", "F"], label: "Search nodes" },
+                  { keys: ["Ctrl", "L"], label: "Auto layout" },
+                  { keys: ["Ctrl", "S"], label: "Save / export JSON" },
+                  {
+                    keys: ["Del"],
+                    label: "Delete selected node(s) or edge(s)",
+                  },
+                  { keys: ["Esc"], label: "Deselect / close panels" },
+                  { keys: ["Space", "+ drag"], label: "Pan the canvas" },
+                  { keys: ["Shift"], label: "Multi-select (click or drag)" },
                 ].map((row, i, arr) => (
                   <div
                     key={row.label}
                     className={cn(
                       "flex items-center justify-between px-4 py-2.5",
-                      i !== arr.length - 1 && "border-b border-border/30"
+                      i !== arr.length - 1 && "border-b border-border/30",
                     )}
                   >
-                    <span className="text-xs text-muted-foreground">{row.label}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {row.label}
+                    </span>
                     <div className="flex items-center gap-1">
                       {row.keys.map((k) => (
                         <kbd
@@ -341,32 +431,48 @@ export function HowToUseContent() {
 
             {/* 6. Saving & Loading */}
             <section id="saving" aria-labelledby="heading-saving">
-              <SectionHeading id="heading-saving" icon={Download} title="Saving & Loading" />
+              <SectionHeading
+                id="heading-saving"
+                icon={Download}
+                title="Saving & Loading"
+              />
               <div className="space-y-3 mt-4">
                 <InfoRow icon={Download} label="Save / Export">
-                  Clicking <strong className="text-foreground">Save</strong> (or pressing{" "}
-                  <Kbd>Ctrl</Kbd><Kbd>S</Kbd>) downloads a{" "}
-                  <code className="text-[11px] bg-muted/60 px-1 rounded">.forge.json</code> file.
-                  This is your project file — keep it somewhere safe.
+                  Clicking <strong className="text-foreground">Save</strong> (or
+                  pressing <Kbd>Ctrl</Kbd>
+                  <Kbd>S</Kbd>) downloads a{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    .forge.json
+                  </code>{" "}
+                  file. This is your project file — keep it somewhere safe.
                 </InfoRow>
                 <InfoRow icon={Upload} label="Import">
-                  Click the <strong className="text-foreground">Import</strong> button and select a
-                  previously saved <code className="text-[11px] bg-muted/60 px-1 rounded">.forge.json</code> (or
-                  any compatible JSON). If the canvas has content you&apos;ll be asked to confirm
-                  before replacing it.
+                  Click the <strong className="text-foreground">Import</strong>{" "}
+                  button and select a previously saved{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    .forge.json
+                  </code>{" "}
+                  (or any compatible JSON). If the canvas has content
+                  you&apos;ll be asked to confirm before replacing it.
                 </InfoRow>
                 <InfoRow icon={Play} label="Preview">
-                  The <strong className="text-foreground">Preview</strong> button runs the dialogue in a
-                  lightweight simulator so you can walk through every branch before exporting.
+                  The <strong className="text-foreground">Preview</strong>{" "}
+                  button runs the dialogue in a lightweight simulator so you can
+                  walk through every branch before exporting.
                 </InfoRow>
               </div>
             </section>
 
             {/* 7. The Exported JSON */}
             <section id="json-format" aria-labelledby="heading-json-format">
-              <SectionHeading id="heading-json-format" icon={FileJson} title="The Exported JSON" />
+              <SectionHeading
+                id="heading-json-format"
+                icon={FileJson}
+                title="The Exported JSON"
+              />
               <p className="text-sm text-muted-foreground mt-2 mb-4">
-                The export is a self-contained JSON object. Here&apos;s the top-level shape:
+                The export is a self-contained JSON object. Here&apos;s the
+                top-level shape:
               </p>
               <CodeBlock>{`{
   "version": 1,
@@ -428,11 +534,16 @@ export function HowToUseContent() {
 
             {/* 8. Runtime integration */}
             <section id="runtime" aria-labelledby="heading-runtime">
-              <SectionHeading id="heading-runtime" icon={Code2} title="Using the JSON in Your Game" />
+              <SectionHeading
+                id="heading-runtime"
+                icon={Code2}
+                title="Using the JSON in Your Game"
+              />
               <p className="text-sm text-muted-foreground mt-2 mb-5">
-                The graph is a directed acyclic graph (DAG). At runtime, load the JSON, find the
-                entry node, and walk edges until you hit an <em>end</em> action. Below is a
-                complete, copy-pasteable TypeScript runtime.
+                The graph is a directed acyclic graph (DAG). At runtime, load
+                the JSON, find the entry node, and walk edges until you hit an{" "}
+                <em>end</em> action. Below is a complete, copy-pasteable
+                TypeScript runtime.
               </p>
 
               <Label>Step 1 — TypeScript types</Label>
@@ -543,22 +654,39 @@ while (!runner.isEnded) {
               <div className="rounded-xl border border-border/50 bg-card/40 p-4 text-sm text-muted-foreground space-y-2">
                 <p>
                   <strong className="text-foreground">Unity (C#)</strong> — use{" "}
-                  <code className="text-[11px] bg-muted/60 px-1 rounded">Newtonsoft.Json</code> or{" "}
-                  <code className="text-[11px] bg-muted/60 px-1 rounded">System.Text.Json</code> to
-                  deserialize into equivalent C# classes. The traversal logic maps 1-to-1.
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    Newtonsoft.Json
+                  </code>{" "}
+                  or{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    System.Text.Json
+                  </code>{" "}
+                  to deserialize into equivalent C# classes. The traversal logic
+                  maps 1-to-1.
                 </p>
                 <p>
-                  <strong className="text-foreground">Godot (GDScript)</strong> — use{" "}
-                  <code className="text-[11px] bg-muted/60 px-1 rounded">JSON.parse_string()</code> and
-                  store nodes/edges in Dictionary arrays. GDScript&apos;s dynamic typing makes
-                  traversal straightforward.
+                  <strong className="text-foreground">Godot (GDScript)</strong>{" "}
+                  — use{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    JSON.parse_string()
+                  </code>{" "}
+                  and store nodes/edges in Dictionary arrays. GDScript&apos;s
+                  dynamic typing makes traversal straightforward.
                 </p>
                 <p>
-                  <strong className="text-foreground">Unreal (C++/Blueprints)</strong> — deserialize
-                  with{" "}
-                  <code className="text-[11px] bg-muted/60 px-1 rounded">FJsonSerializer</code> into{" "}
-                  <code className="text-[11px] bg-muted/60 px-1 rounded">TMap</code> structures.
-                  Blueprint-callable functions can wrap the runner pattern.
+                  <strong className="text-foreground">
+                    Unreal (C++/Blueprints)
+                  </strong>{" "}
+                  — deserialize with{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    FJsonSerializer
+                  </code>{" "}
+                  into{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    TMap
+                  </code>{" "}
+                  structures. Blueprint-callable functions can wrap the runner
+                  pattern.
                 </p>
               </div>
 
@@ -566,30 +694,42 @@ while (!runner.isEnded) {
                 <p className="text-xs font-semibold text-primary mb-2">Tips</p>
                 <ul className="text-xs text-muted-foreground space-y-1.5 list-disc list-inside">
                   <li>
-                    The <code className="bg-muted/60 px-1 rounded">position</code> field on each node
-                    is only for the editor canvas — safely ignore it at runtime.
+                    The{" "}
+                    <code className="bg-muted/60 px-1 rounded">position</code>{" "}
+                    field on each node is only for the editor canvas — safely
+                    ignore it at runtime.
                   </li>
                   <li>
-                    <code className="bg-muted/60 px-1 rounded">conditions</code> and{" "}
-                    <code className="bg-muted/60 px-1 rounded">metadata</code> on edges are reserved
-                    for future runtime logic, e.g. only show a branch choice if the player has enough
-                    gold.
+                    <code className="bg-muted/60 px-1 rounded">conditions</code>{" "}
+                    and{" "}
+                    <code className="bg-muted/60 px-1 rounded">metadata</code>{" "}
+                    on edges are reserved for future runtime logic, e.g. only
+                    show a branch choice if the player has enough gold.
                   </li>
                   <li>
-                    Character <code className="bg-muted/60 px-1 rounded">attributes</code> mirror the{" "}
-                    <code className="bg-muted/60 px-1 rounded">attributeSchema</code> — use the schema
-                    to know each value&apos;s type before reading it.
+                    Character{" "}
+                    <code className="bg-muted/60 px-1 rounded">attributes</code>{" "}
+                    mirror the{" "}
+                    <code className="bg-muted/60 px-1 rounded">
+                      attributeSchema
+                    </code>{" "}
+                    — use the schema to know each value&apos;s type before
+                    reading it.
                   </li>
                   <li>
-                    Files are versioned (<code className="bg-muted/60 px-1 rounded">&quot;version&quot;: 1</code>) so
-                    you can handle format migrations as the tool evolves.
+                    Files are versioned (
+                    <code className="bg-muted/60 px-1 rounded">
+                      &quot;version&quot;: 1
+                    </code>
+                    ) so you can handle format migrations as the tool evolves.
                   </li>
                 </ul>
               </div>
             </section>
-
-          </div>{/* end main content */}
-        </div>{/* end two-column */}
+          </div>
+          {/* end main content */}
+        </div>
+        {/* end two-column */}
 
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-border/30 text-center">
@@ -644,7 +784,12 @@ function NodeCard({
       : "bg-emerald-500/10 text-emerald-400";
   return (
     <div className="flex gap-3 rounded-xl border border-border/50 bg-card/40 p-4">
-      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", cls)}>
+      <div
+        className={cn(
+          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+          cls,
+        )}
+      >
         <Icon className="w-4 h-4" />
       </div>
       <div>
@@ -669,7 +814,9 @@ function InfoRow({
       <Icon className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
       <div>
         <p className="text-xs font-semibold text-foreground mb-0.5">{label}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">{children}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {children}
+        </p>
       </div>
     </div>
   );
@@ -683,9 +830,20 @@ function Kbd({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Label({ children, className }: { children: React.ReactNode; className?: string }) {
+function Label({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <p className={cn("text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2", className)}>
+    <p
+      className={cn(
+        "text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2",
+        className,
+      )}
+    >
       {children}
     </p>
   );

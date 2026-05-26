@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Theme } from "@/types";
+import type { Theme, AutosaveStatus } from "@/types";
 
 interface ContextMenuState {
   x: number;
@@ -26,6 +26,10 @@ interface EditorStore {
   nodeSheetOpen: boolean;
   /** Mobile: whether the inspector bottom sheet is open */
   mobileInspectorOpen: boolean;
+  /** Cloud: ID of the currently open cloud project (null = local draft) */
+  currentProjectId: string | null;
+  /** Cloud: autosave status indicator */
+  autosaveStatus: AutosaveStatus;
 
   /* Actions */
   setSidebarOpen: (open: boolean) => void;
@@ -42,6 +46,8 @@ interface EditorStore {
   setPickingJumpFor: (id: string | null) => void;
   setNodeSheetOpen: (open: boolean) => void;
   setMobileInspectorOpen: (open: boolean) => void;
+  setCurrentProjectId: (id: string | null) => void;
+  setAutosaveStatus: (status: AutosaveStatus) => void;
 }
 
 export const useEditorStore = create<EditorStore>()(
@@ -51,7 +57,7 @@ export const useEditorStore = create<EditorStore>()(
       inspectorOpen: true,
       selectedNodeId: null,
       projectName: "Untitled Project",
-      theme: "dark",
+      theme: "default",
       contextMenu: null,
       previewOpen: false,
       searchOpen: false,
@@ -59,6 +65,8 @@ export const useEditorStore = create<EditorStore>()(
       pickingJumpFor: null,
       nodeSheetOpen: false,
       mobileInspectorOpen: false,
+      currentProjectId: null,
+      autosaveStatus: "idle",
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -74,9 +82,19 @@ export const useEditorStore = create<EditorStore>()(
       setPickingJumpFor: (id) => set({ pickingJumpFor: id }),
       setNodeSheetOpen: (open) => set({ nodeSheetOpen: open }),
       setMobileInspectorOpen: (open) => set({ mobileInspectorOpen: open }),
+      setCurrentProjectId: (id) => set({ currentProjectId: id }),
+      setAutosaveStatus: (status) => set({ autosaveStatus: status }),
     }),
     {
       name: "dialogue-forge-ui",
+      version: 2,
+      migrate: (persisted, version) => {
+        const s = persisted as Record<string, unknown>;
+        if (version < 2 && (s.theme === "dark" || s.theme === "light" || !s.theme)) {
+          s.theme = "default";
+        }
+        return s;
+      },
       partialize: (s) => ({
         sidebarOpen: s.sidebarOpen,
         inspectorOpen: s.inspectorOpen,

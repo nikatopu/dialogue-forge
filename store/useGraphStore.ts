@@ -86,6 +86,9 @@ interface GraphStore {
   /* Bulk delete */
   removeNodes: (nodeIds: string[], edgeIds?: string[]) => void;
 
+  /* Bulk import (append, remap IDs, offset positions) */
+  insertGraph: (nodes: SerialNode[], edges: SerialEdge[]) => void;
+
   /* React Flow change handlers */
   onNodesChange: (changes: NodeChange<ForgeNode>[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
@@ -487,6 +490,43 @@ export const useGraphStore = create<GraphStore>()(
           nodes: [],
           edges: [],
         })),
+
+      insertGraph: (newNodes, newEdges) =>
+        set((s) => {
+          const maxY = s.nodes.reduce(
+            (m, n) => Math.max(m, n.position.y + 200),
+            0,
+          );
+          const offsetY = s.nodes.length === 0 ? 0 : maxY + 120;
+
+          const idMap: Record<string, string> = {};
+          for (const n of newNodes) {
+            idMap[n.id] = uid(n.type);
+          }
+
+          const mapped: ForgeNode[] = newNodes.map((n) => {
+            const id = idMap[n.id];
+            const pos = { x: n.position.x, y: n.position.y + offsetY };
+            if (n.type === "character")
+              return { id, type: "character", position: pos, data: n.data as CharacterNodeData };
+            if (n.type === "start")
+              return { id, type: "start", position: pos, data: n.data as StartNodeData };
+            return { id, type: "action", position: pos, data: n.data as ActionNodeData };
+          });
+
+          const mappedEdges: DialogueEdge[] = newEdges.map((e) => ({
+            ...e,
+            id: uid("e"),
+            source: idMap[e.source] ?? e.source,
+            target: idMap[e.target] ?? e.target,
+          }));
+
+          return {
+            ...snap(s.nodes, s.edges, s.past),
+            nodes: [...s.nodes, ...mapped],
+            edges: [...s.edges, ...mappedEdges],
+          };
+        }),
     }),
     {
       name: "dialogue-forge-graph",
