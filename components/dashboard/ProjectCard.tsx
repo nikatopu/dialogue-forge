@@ -64,7 +64,7 @@ export function ProjectCard({ project, onDelete, onDuplicate, onRename, index = 
         className={cn(
           "group relative rounded-xl border border-border/60 bg-card/70",
           "hover:border-border hover:bg-card hover:shadow-lg",
-          "transition-all duration-200 overflow-hidden",
+          "transition-all duration-200",
         )}
       >
         {/* Preview area */}

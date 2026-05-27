@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RoadmapContent } from "./content";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Roadmap | Dialogue Forge",
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function RoadmapPage() {
-  return <RoadmapContent />;
+  return (
+    <>
+      <RoadmapContent />
+      <SiteFooter />
+    </>
+  );
 }

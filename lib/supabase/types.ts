@@ -18,6 +18,7 @@ export interface Database {
           preview_image: string | null;
           mode: "local" | "cloud";
           is_template: boolean;
+          theme: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -29,6 +30,7 @@ export interface Database {
           preview_image?: string | null;
           mode?: "local" | "cloud";
           is_template?: boolean;
+          theme?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,6 +42,7 @@ export interface Database {
           preview_image?: string | null;
           mode?: "local" | "cloud";
           is_template?: boolean;
+          theme?: string | null;
           updated_at?: string;
         };
         Relationships: [];

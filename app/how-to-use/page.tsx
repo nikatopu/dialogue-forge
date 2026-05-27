@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HowToUseContent } from "./content";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "How to Use | Dialogue Forge",
@@ -35,5 +36,10 @@ export const metadata: Metadata = {
 };
 
 export default function HowToUsePage() {
-  return <HowToUseContent />;
+  return (
+    <>
+      <HowToUseContent />
+      <SiteFooter />
+    </>
+  );
 }

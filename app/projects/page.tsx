@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,11 +22,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
+import { CloudMigrationModal } from "@/components/dashboard/CloudMigrationModal";
+import { FirstLoginSheet, markMigrationDismissed, isMigrationDismissed } from "@/components/dashboard/FirstLoginSheet";
 import { SignInModal } from "@/components/auth/SignInModal";
 import { useProjectStore } from "@/store/useProjectStore";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { FREE_PLAN_CLOUD_LIMIT } from "@/lib/services/projectService";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { CloudProject } from "@/types";
 
@@ -49,12 +52,26 @@ export default function ProjectsPage() {
   const [sort, setSort] = useState<SortMode>("updated");
   const [sortAsc, setSortAsc] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
+  const [migrationOpen, setMigrationOpen] = useState(false);
+  const [firstLoginOpen, setFirstLoginOpen] = useState(false);
+
+  // Detect first sign-in with existing local content
+  const prevUserRef = useRef(user);
+  useEffect(() => {
+    const wasGuest = prevUserRef.current === null;
+    const isNow = user !== null;
+    prevUserRef.current = user;
+
+    if (wasGuest && isNow && nodes.length > 0 && !isMigrationDismissed()) {
+      setFirstLoginOpen(true);
+    }
+  }, [user, nodes.length]);
 
   useEffect(() => {
     if (user) loadProjects();
   }, [user, loadProjects]);
 
-  // Local draft from the current editor state
+  // Synthetic local draft entry
   const localDraft: CloudProject | null = useMemo(() => {
     if (nodes.length === 0) return null;
     const { projectName } = useEditorStore.getState();
@@ -62,10 +79,14 @@ export default function ProjectsPage() {
       id: "__local__",
       userId: "",
       name: projectName,
-      graph: { nodes: nodes as unknown as import("@/types").SerialNode[], edges: edges as unknown as import("@/types").SerialEdge[] },
+      graph: {
+        nodes: nodes as unknown as import("@/types").SerialNode[],
+        edges: edges as unknown as import("@/types").SerialEdge[],
+      },
       previewImage: null,
       mode: "local",
       isTemplate: false,
+      theme: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -80,19 +101,16 @@ export default function ProjectsPage() {
 
   const displayed = useMemo(() => {
     let list = allItems;
-
     if (filter === "cloud") list = list.filter((p) => p.mode === "cloud");
     if (filter === "local") list = list.filter((p) => p.mode === "local");
     if (filter === "recent") {
       const cutoff = Date.now() - 86400000 * 7;
       list = list.filter((p) => new Date(p.updatedAt).getTime() > cutoff);
     }
-
     if (search) {
       const q = search.toLowerCase();
       list = list.filter((p) => p.name.toLowerCase().includes(q));
     }
-
     list = [...list].sort((a, b) => {
       const cmp =
         sort === "name"
@@ -100,20 +118,80 @@ export default function ProjectsPage() {
           : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       return sortAsc ? -cmp : cmp;
     });
-
     return list;
   }, [allItems, filter, search, sort, sortAsc]);
 
   async function handleCreate() {
     if (!user) { setSignInOpen(true); return; }
-    if (!canCreateCloudProject()) return;
-    const project = await createProject();
-    router.push(`/projects/${project.id}`);
+    if (!canCreateCloudProject()) {
+      toast.error(`Cloud project limit reached (${cloudProjectCount}/${FREE_PLAN_CLOUD_LIMIT}).`);
+      return;
+    }
+    try {
+      const project = await createProject();
+      router.push(`/projects/${project.id}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (!navigator.onLine) {
+        toast.error("You're offline. Connect and try again.");
+      } else if (msg.toLowerCase().includes("auth")) {
+        toast.error("Session expired. Please sign in again.");
+      } else {
+        toast.error("Failed to create project. Please try again.");
+      }
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteProject(id);
+      toast.success("Project deleted.");
+    } catch {
+      toast.error("Failed to delete project.");
+    }
+  }
+
+  async function handleDuplicate(id: string) {
+    if (!canCreateCloudProject()) {
+      toast.error(`Cloud limit reached (${cloudProjectCount}/${FREE_PLAN_CLOUD_LIMIT}). Delete a project first.`);
+      return;
+    }
+    try {
+      await duplicateProject(id);
+      toast.success("Project duplicated.");
+    } catch {
+      toast.error("Failed to duplicate project.");
+    }
+  }
+
+  async function handleRename(id: string, name: string) {
+    try {
+      await renameProject(id, name);
+    } catch {
+      toast.error("Failed to rename project.");
+    }
   }
 
   function handleOpenLocal() {
     setCurrentProjectId(null);
     router.push("/");
+  }
+
+  function handleFirstLoginImport() {
+    setFirstLoginOpen(false);
+    markMigrationDismissed();
+    setMigrationOpen(true);
+  }
+
+  function handleFirstLoginChoose() {
+    setFirstLoginOpen(false);
+    markMigrationDismissed();
+    setMigrationOpen(true);
+  }
+
+  function handleFirstLoginDismiss() {
+    setFirstLoginOpen(false);
+    markMigrationDismissed();
   }
 
   const FILTERS: { id: SidebarFilter; label: string; icon: React.ElementType }[] = [
@@ -123,12 +201,18 @@ export default function ProjectsPage() {
     { id: "cloud", label: "Cloud", icon: Cloud },
   ];
 
+  const counts: Record<SidebarFilter, number> = useMemo(() => ({
+    all: allItems.length,
+    recent: allItems.filter((p) => Date.now() - new Date(p.updatedAt).getTime() < 86400000 * 7).length,
+    local: allItems.filter((p) => p.mode === "local").length,
+    cloud: allItems.filter((p) => p.mode === "cloud").length,
+  }), [allItems]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
-      {/* ── Sidebar ────────────────────────────────────────────── */}
+      {/* ── Sidebar ── */}
       <aside className="hidden md:flex flex-col w-52 shrink-0 border-r border-border bg-card/60 p-3 gap-1">
-        {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 px-2 py-2 mb-2">
+        <Link href="/" className="flex items-center gap-2 px-2 py-2 mb-2 cursor-pointer">
           <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center shrink-0">
             <Workflow className="w-3.5 h-3.5 text-primary-foreground" />
           </div>
@@ -141,14 +225,19 @@ export default function ProjectsPage() {
             type="button"
             onClick={() => setFilter(id)}
             className={cn(
-              "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors text-left",
+              "flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs transition-colors text-left cursor-pointer",
               filter === id
                 ? "bg-primary/10 text-primary font-medium"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
             )}
           >
-            <Icon className="w-3.5 h-3.5 shrink-0" />
-            {label}
+            <span className="flex items-center gap-2">
+              <Icon className="w-3.5 h-3.5 shrink-0" />
+              {label}
+            </span>
+            {counts[id] > 0 && (
+              <span className="text-[9px] tabular-nums font-medium opacity-60">{counts[id]}</span>
+            )}
           </button>
         ))}
 
@@ -157,7 +246,10 @@ export default function ProjectsPage() {
           <div className="mt-auto px-3 py-2.5 rounded-xl bg-muted/20 border border-border/40">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground">Cloud projects</span>
-              <span className="text-[10px] font-medium tabular-nums">
+              <span className={cn(
+                "text-[10px] font-medium tabular-nums",
+                cloudProjectCount >= FREE_PLAN_CLOUD_LIMIT ? "text-destructive/80" : "",
+              )}>
                 {cloudProjectCount} / {FREE_PLAN_CLOUD_LIMIT}
               </span>
             </div>
@@ -174,20 +266,19 @@ export default function ProjectsPage() {
         )}
       </aside>
 
-      {/* ── Main ───────────────────────────────────────────────── */}
+      {/* ── Main ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
         <header className="h-14 flex items-center gap-3 px-5 border-b border-border/60 shrink-0">
           <Link
             href="/"
-            className="hidden md:flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden md:flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Editor
           </Link>
           <div className="hidden md:block w-px h-4 bg-border/60" />
           <h1 className="text-sm font-semibold">Projects</h1>
-
           <div className="flex-1" />
 
           {/* Search */}
@@ -206,7 +297,7 @@ export default function ProjectsPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   onClick={() => setSearch("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                 </motion.button>
@@ -218,7 +309,7 @@ export default function ProjectsPage() {
           <button
             type="button"
             onClick={() => setSortAsc((a) => !a)}
-            className="flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+            className="flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors cursor-pointer"
           >
             {sortAsc ? <SortAsc className="w-3.5 h-3.5" /> : <SortDesc className="w-3.5 h-3.5" />}
             <span className="hidden sm:block">{sort === "updated" ? "Updated" : "Name"}</span>
@@ -227,9 +318,9 @@ export default function ProjectsPage() {
           {/* New project */}
           <Button
             size="sm"
-            className="h-8 gap-1.5 text-xs"
+            className="h-8 gap-1.5 text-xs cursor-pointer"
             onClick={handleCreate}
-            disabled={user ? !canCreateCloudProject() : false}
+            disabled={isAuthLoading}
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:block">New Project</span>
@@ -250,15 +341,23 @@ export default function ProjectsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {displayed.map((project, i) =>
                 project.id === "__local__" ? (
-                  <LocalDraftCard key="local" project={project} onOpen={handleOpenLocal} index={i} />
+                  <LocalDraftCard
+                    key="local"
+                    project={project}
+                    onOpen={handleOpenLocal}
+                    onMoveToCloud={() => setMigrationOpen(true)}
+                    index={i}
+                    isSignedIn={!!user}
+                    canUpload={canCreateCloudProject()}
+                  />
                 ) : (
                   <ProjectCard
                     key={project.id}
                     project={project}
                     index={i}
-                    onDelete={deleteProject}
-                    onDuplicate={duplicateProject}
-                    onRename={renameProject}
+                    onDelete={handleDelete}
+                    onDuplicate={handleDuplicate}
+                    onRename={handleRename}
                   />
                 ),
               )}
@@ -267,12 +366,27 @@ export default function ProjectsPage() {
         </div>
       </div>
 
+      {/* ── Modals / sheets ── */}
       <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
+
+      <CloudMigrationModal
+        open={migrationOpen}
+        onClose={() => setMigrationOpen(false)}
+        onSuccess={() => setMigrationOpen(false)}
+      />
+
+      <FirstLoginSheet
+        open={firstLoginOpen}
+        nodeCount={nodes.length}
+        onImport={handleFirstLoginImport}
+        onChoose={handleFirstLoginChoose}
+        onDismiss={handleFirstLoginDismiss}
+      />
     </div>
   );
 }
 
-/* ─── Empty states ────────────────────────────────────── */
+/* ─── Empty states ─────────────────────────────────────────── */
 
 function GuestEmptyState({
   onSignIn,
@@ -293,8 +407,8 @@ function GuestEmptyState({
         </p>
       </div>
       <div className="flex gap-2">
-        <Button onClick={onSignIn} size="sm">Sign in</Button>
-        <Button variant="outline" size="sm" onClick={onContinueLocal}>
+        <Button onClick={onSignIn} size="sm" className="cursor-pointer">Sign in</Button>
+        <Button variant="outline" size="sm" className="cursor-pointer" onClick={onContinueLocal}>
           Continue locally
         </Button>
       </div>
@@ -313,11 +427,9 @@ function EmptyState({
 }) {
   const message = search
     ? `No projects match "${search}"`
-    : filter === "cloud"
-      ? "No cloud projects yet"
-      : filter === "recent"
-        ? "No recent projects"
-        : "No projects yet";
+    : filter === "cloud" ? "No cloud projects yet"
+    : filter === "recent" ? "No recent projects"
+    : "No projects yet";
 
   return (
     <div className="flex flex-col items-center justify-center h-full min-h-64 text-center gap-4 py-16">
@@ -325,13 +437,11 @@ function EmptyState({
       <div>
         <p className="text-sm font-semibold">{message}</p>
         {!search && (
-          <p className="text-xs text-muted-foreground mt-1">
-            Create a new project to get started.
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">Create a new project to get started.</p>
         )}
       </div>
       {!search && (
-        <Button size="sm" onClick={onCreate} className="gap-1.5">
+        <Button size="sm" onClick={onCreate} className="gap-1.5 cursor-pointer">
           <Plus className="w-3.5 h-3.5" />
           New Project
         </Button>
@@ -340,24 +450,35 @@ function EmptyState({
   );
 }
 
+/* ─── Local draft card ─────────────────────────────────────── */
+
 function LocalDraftCard({
   project,
   onOpen,
+  onMoveToCloud,
   index,
+  isSignedIn,
+  canUpload,
 }: {
   project: CloudProject;
   onOpen: () => void;
+  onMoveToCloud: () => void;
   index: number;
+  isSignedIn: boolean;
+  canUpload: boolean;
 }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="group relative rounded-xl border border-border/60 bg-card/70 hover:border-border hover:bg-card hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer"
-      onClick={onOpen}
+      className="group relative rounded-xl border border-border/60 bg-card/70 hover:border-border hover:bg-card hover:shadow-lg transition-all duration-200 overflow-hidden"
     >
-      <div className="h-28 bg-gradient-to-br from-muted/30 to-muted/10 border-b border-border/40 relative overflow-hidden">
+      {/* Preview */}
+      <div
+        className="h-28 bg-gradient-to-br from-muted/30 to-muted/10 border-b border-border/40 relative overflow-hidden cursor-pointer"
+        onClick={onOpen}
+      >
         <div
           className="absolute inset-0 opacity-20"
           style={{
@@ -377,10 +498,36 @@ function LocalDraftCard({
           </span>
         </div>
       </div>
+
+      {/* Body */}
       <div className="px-3.5 py-3">
-        <p className="text-sm font-medium truncate">{project.name}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{project.graph.nodes.length} nodes · local only</p>
+        <p className="text-sm font-medium truncate cursor-pointer" onClick={onOpen}>
+          {project.name}
+        </p>
+        <p className="text-[10px] text-muted-foreground mt-0.5">
+          {project.graph.nodes.length} nodes · local only
+        </p>
       </div>
+
+      {/* Move to cloud — only when signed in */}
+      {isSignedIn && (
+        <div className="px-3.5 pb-3">
+          <button
+            type="button"
+            onClick={onMoveToCloud}
+            disabled={!canUpload}
+            className={cn(
+              "w-full flex items-center justify-center gap-1.5 h-7 rounded-lg border text-[10px] font-medium transition-colors cursor-pointer",
+              canUpload
+                ? "border-sky-500/30 text-sky-400 hover:bg-sky-500/10"
+                : "border-border/30 text-muted-foreground/40 cursor-not-allowed",
+            )}
+          >
+            <Upload className="w-3 h-3" />
+            Move to Cloud
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/Toaster";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -61,6 +62,7 @@ export default function RootLayout({
         <TooltipProvider delayDuration={400}>
           <ThemeProvider>{children}</ThemeProvider>
         </TooltipProvider>
+        <Toaster />
       </body>
     </html>
   );

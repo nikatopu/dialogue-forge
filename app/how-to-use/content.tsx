@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -43,30 +43,22 @@ type SectionId = (typeof TOC)[number]["id"];
 /* ─── Page root ─────────────────────────────────────────────── */
 
 export function HowToUseContent() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<SectionId>(TOC[0].id);
   const [tocOpen, setTocOpen] = useState(false);
 
   const scrollToSection = useCallback((id: string) => {
-    const container = containerRef.current;
     const el = document.getElementById(id);
-    if (!container || !el) return;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const target = container.scrollTop + (elRect.top - containerRect.top) - 80;
-    container.scrollTo({ top: target, behavior: "smooth" });
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: "smooth" });
     setActiveId(id as SectionId);
     setTocOpen(false);
   }, []);
 
   /* Scroll-position-based active section tracking */
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
     function update() {
-      const containerRect = container!.getBoundingClientRect();
-      const triggerY = containerRect.top + container!.clientHeight * 0.28;
+      const triggerY = window.innerHeight * 0.28;
 
       let found: SectionId = TOC[0].id;
       for (const { id } of TOC) {
@@ -77,18 +69,15 @@ export function HowToUseContent() {
       setActiveId(found);
     }
 
-    container.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("scroll", update, { passive: true });
     update();
-    return () => container.removeEventListener("scroll", update);
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
   /* scrollToSection is defined above via useCallback */
 
   return (
-    <div
-      ref={containerRef}
-      className="h-screen overflow-y-auto bg-background text-foreground scroll-smooth"
-    >
+    <div className="bg-background text-foreground scroll-smooth">
       <div className="max-w-5xl mx-auto px-6 py-12 pb-24">
         {/* Back link */}
         <Link
@@ -168,7 +157,7 @@ export function HowToUseContent() {
         </div>
 
         {/* Two-column layout */}
-        <div className="flex gap-12 items-start">
+        <div className="flex gap-12">
           {/* ── Sticky TOC sidebar (lg+) ── */}
           <aside className="hidden lg:block w-48 shrink-0">
             <div className="sticky top-8">

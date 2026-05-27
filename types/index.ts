@@ -129,6 +129,7 @@ export interface CloudProject {
   previewImage: string | null;
   mode: ProjectMode;
   isTemplate: boolean;
+  theme: string | null;
   createdAt: string;
   updatedAt: string;
 }

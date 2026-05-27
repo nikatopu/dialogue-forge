@@ -14,9 +14,13 @@ CREATE TABLE IF NOT EXISTS public.projects (
   mode          TEXT        NOT NULL DEFAULT 'cloud'
                               CHECK (mode IN ('local', 'cloud')),
   is_template   BOOLEAN     NOT NULL DEFAULT false,
+  theme         TEXT,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- ── v1.3.1 migration (run on existing databases) ──────────────────────────────
+-- ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS theme TEXT;
 
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 

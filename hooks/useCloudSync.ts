@@ -6,8 +6,9 @@ import { analyticsService } from "@/lib/analytics/analyticsService";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useProjectStore } from "@/store/useProjectStore";
+import { toast } from "@/lib/toast";
 
-const DEBOUNCE_MS = 3500;
+const DEBOUNCE_MS = 3000;
 
 /**
  * Subscribes to graph/name changes and debounce-saves to Supabase
@@ -21,10 +22,10 @@ export function useCloudSync() {
   const { currentProjectId, setAutosaveStatus } = useEditorStore();
 
   useEffect(() => {
-    // Only sync when signed in and working on a cloud project
     if (!user || !currentProjectId) return;
 
-    const projectId = currentProjectId; // capture non-null for closure
+    const projectId = currentProjectId;
+    let pendingSave = false;
 
     function scheduleSync() {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -32,12 +33,16 @@ export function useCloudSync() {
       setAutosaveStatus("saving");
 
       timerRef.current = setTimeout(async () => {
+        if (pendingSave) return; // prevent duplicate in-flight writes
+        pendingSave = true;
+
         const { nodes, edges } = useGraphStore.getState();
         const { projectName } = useEditorStore.getState();
 
         try {
           if (!navigator.onLine) {
             setAutosaveStatus("offline");
+            pendingSave = false;
             return;
           }
 
@@ -50,18 +55,25 @@ export function useCloudSync() {
           setAutosaveStatus("saved");
           analyticsService.track("project_cloud_saved");
 
-          // Reset to idle after 2s
           setTimeout(() => setAutosaveStatus("idle"), 2000);
-        } catch {
+        } catch (err) {
           setAutosaveStatus("error");
+          const msg = err instanceof Error ? err.message : "";
+          if (!navigator.onLine) {
+            toast.warning("Offline — changes will sync when reconnected.");
+          } else if (msg.toLowerCase().includes("auth") || msg.toLowerCase().includes("jwt")) {
+            toast.error("Session expired. Sign in again to continue saving.");
+          } else {
+            toast.error("Autosave failed. Check your connection.");
+          }
+        } finally {
+          pendingSave = false;
         }
       }, DEBOUNCE_MS);
     }
 
-    // Subscribe to graph changes
     const unsubGraph = useGraphStore.subscribe(scheduleSync);
 
-    // Subscribe to editor store changes and trigger sync when projectName changes
     let prevName = useEditorStore.getState().projectName;
     const unsubEditor = useEditorStore.subscribe((state) => {
       if (state.projectName !== prevName) {

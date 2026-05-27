@@ -14,6 +14,7 @@ function toCloudProject(row: {
   preview_image: string | null;
   mode: string;
   is_template: boolean;
+  theme?: string | null;
   created_at: string;
   updated_at: string;
 }): CloudProject {
@@ -29,6 +30,7 @@ function toCloudProject(row: {
     previewImage: row.preview_image,
     mode: row.mode as CloudProject["mode"],
     isTemplate: row.is_template,
+    theme: row.theme ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

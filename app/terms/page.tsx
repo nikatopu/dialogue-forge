@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Workflow } from "lucide-react";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Dialogue Forge",
@@ -230,22 +231,8 @@ export default function TermsPage() {
           </p>
         </Section>
 
-        {/* Footer links */}
-        <div className="pt-4 border-t border-border/40 flex gap-4">
-          <Link
-            href="/privacy"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            href="/"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Back to editor
-          </Link>
-        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
