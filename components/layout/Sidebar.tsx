@@ -123,7 +123,7 @@ function Section({ label, open, onToggle, badge, children }: SectionProps) {
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
             className="overflow-hidden"
           >
-            <div className="pt-1 pb-1 space-y-1 overflow-y-scroll max-h-100 w-55">
+            <div className="pt-1 pb-1 space-y-1 overflow-y-scroll h-max-content w-55">
               {children}
             </div>
           </motion.div>
@@ -239,7 +239,7 @@ export function Sidebar() {
           </div>
 
           {/* Scrollable content */}
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 h-[100%]">
             <div className="p-2 space-y-0.5">
               {/* Node Types */}
               <Section
@@ -309,21 +309,6 @@ export function Sidebar() {
               </Section>
             </div>
           </ScrollArea>
-
-          {/* Add Node button */}
-          <div className="p-2 border-t border-border shrink-0">
-            <Button
-              type="button"
-              className="w-full h-8 gap-1.5 text-xs font-medium"
-              onClick={() => {
-                const offset = nodes.length * 24;
-                addNode("character", { x: 100 + offset, y: 100 + offset });
-              }}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Node
-            </Button>
-          </div>
         </div>
       </motion.aside>
 
@@ -442,7 +427,9 @@ function TemplateActionModal({
                 <Download className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-xs font-medium">Insert into current project</p>
+                <p className="text-xs font-medium">
+                  Insert into current project
+                </p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   Append template nodes below the existing graph
                 </p>

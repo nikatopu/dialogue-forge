@@ -291,7 +291,7 @@ export function HowToUseContent() {
                 {[
                   {
                     n: "1",
-                    text: 'Drag a Character or Action node from the sidebar onto the canvas, or click "Add Node" at the bottom of the sidebar.',
+                    text: 'Drag a Character or Action node from the sidebar onto the canvas.',
                   },
                   {
                     n: "2",
