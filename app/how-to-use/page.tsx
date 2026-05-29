@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HowToUseContent } from "./content";
-import { SiteFooter } from "@/components/SiteFooter";
+import { SiteFooter } from "@/components/organisms/SiteFooter";
 
 export const metadata: Metadata = {
   title: "How to Use | Dialogue Forge",

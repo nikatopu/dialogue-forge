@@ -1,0 +1,31 @@
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  ::selection {
+    background: oklch(0.585 0.233 260 / 30%);
+  }
+}
+
+/* Mobile safe-area utility */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

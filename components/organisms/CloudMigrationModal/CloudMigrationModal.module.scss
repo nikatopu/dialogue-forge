@@ -1,0 +1,168 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: oklch(0 0 0 / 50%);
+  backdrop-filter: blur(6px);
+}
+
+.panel {
+  width: 100%;
+  max-width: 22rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  box-shadow: 0 24px 48px oklch(0 0 0 / 35%);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.875rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+}
+
+.headerIcon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklch, oklch(0.68 0.18 220) 12%, transparent);
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.headerTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.headerSub {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin: 0.125rem 0 0;
+}
+
+.body {
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.draftSummary {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+}
+
+.draftIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background-color: color-mix(in oklch, var(--muted-foreground) 10%, transparent);
+  flex-shrink: 0;
+}
+
+.draftMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.draftName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.draftSub {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+  margin: 0.125rem 0 0;
+}
+
+.limitWarning {
+  font-size: 0.75rem;
+  color: var(--destructive);
+  background-color: color-mix(in oklch, var(--destructive) 8%, transparent);
+  border: 1px solid color-mix(in oklch, var(--destructive) 20%, transparent);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.625rem;
+  margin: 0;
+}
+
+.keepLocalBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.375rem 0;
+  text-align: left;
+
+  &:hover .checkbox {
+    border-color: color-mix(in oklch, var(--primary) 60%, transparent);
+  }
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, border-color 0.15s;
+  background-color: transparent;
+}
+
+.checkboxChecked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.checkIcon {
+  width: 0.625rem;
+  height: 0.5rem;
+  stroke: var(--primary-foreground);
+  fill: none;
+}
+
+.keepLocalLabel {
+  font-size: 0.75rem;
+  color: var(--foreground);
+  user-select: none;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+}

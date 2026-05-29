@@ -1,0 +1,73 @@
+.container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  max-width: 20rem;
+}
+
+.toastSuccess {
+  border-color: color-mix(in oklch, oklch(0.72 0.18 155) 30%, transparent);
+  background-color: var(--card);
+  color: oklch(0.72 0.18 155);
+}
+
+.toastError {
+  border-color: color-mix(in oklch, var(--destructive) 40%, transparent);
+  background-color: var(--card);
+  color: var(--destructive);
+}
+
+.toastWarning {
+  border-color: color-mix(in oklch, oklch(0.72 0.18 85) 30%, transparent);
+  background-color: var(--card);
+  color: oklch(0.72 0.18 85);
+}
+
+.toastInfo {
+  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+  background-color: var(--card);
+  color: var(--primary);
+}
+
+.message {
+  flex: 1;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.dismissBtn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.15s;
+
+  &:hover { color: var(--foreground); }
+}

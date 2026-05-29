@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { RoadmapContent } from "./content";
-import { SiteFooter } from "@/components/SiteFooter";
+import { SiteFooter } from "@/components/organisms/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Roadmap | Dialogue Forge",

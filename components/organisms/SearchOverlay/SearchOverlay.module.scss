@@ -1,0 +1,135 @@
+.overlay {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 50;
+  width: 20rem;
+}
+
+.panel {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  background-color: color-mix(in oklch, var(--card) 95%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  overflow: hidden;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  }
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.results {
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.resultItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--muted) 40%, transparent);
+  }
+}
+
+.typeBadge {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+.typeBadgeCharacter {
+  background-color: color-mix(in oklch, oklch(0.52 0.255 262) 15%, transparent);
+  color: oklch(0.65 0.19 260);
+}
+
+.typeBadgeStart {
+  background-color: color-mix(in oklch, oklch(0.5 0.15 180) 15%, transparent);
+  color: oklch(0.68 0.15 180);
+}
+
+.typeBadgeAction {
+  background-color: color-mix(in oklch, oklch(0.52 0.18 155) 15%, transparent);
+  color: oklch(0.72 0.18 155);
+}
+
+.resultInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.resultName {
+  font-size: 0.75rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultSub {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  font-size: 0.75rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.hint {
+  font-size: 0.6875rem;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  text-align: center;
+  padding: 0.75rem 0;
+}

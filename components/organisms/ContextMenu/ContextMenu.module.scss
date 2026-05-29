@@ -1,0 +1,58 @@
+.menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 10rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  background-color: color-mix(in oklch, var(--card) 95%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  padding: 0.25rem 0;
+  user-select: none;
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.1s, color 0.1s;
+  color: var(--foreground);
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+}
+
+.itemDanger {
+  color: var(--destructive);
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: color-mix(in oklch, var(--border) 40%, transparent);
+  margin: 0.25rem 0.5rem;
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.shortcut {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  font-family: monospace;
+  margin-left: auto;
+}

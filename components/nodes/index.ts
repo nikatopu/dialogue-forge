@@ -1,6 +1,6 @@
-import { CharacterNode } from "./CharacterNode";
-import { ActionNode } from "./ActionNode";
-import { StartNode } from "./StartNode";
+import { CharacterNode } from "@/components/organisms/CharacterNode";
+import { ActionNode } from "@/components/organisms/ActionNode";
+import { StartNode } from "@/components/organisms/StartNode";
 
 export const nodeTypes = {
   character: CharacterNode,

@@ -1,0 +1,398 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Identity strip */
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+}
+
+.stripIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+
+.stripMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.stripName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stripType {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  text-transform: capitalize;
+}
+
+.stripActions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--foreground);
+    border-bottom-color: var(--border);
+  }
+}
+
+.tabActive {
+  color: var(--foreground);
+  border-bottom-color: var(--primary);
+}
+
+/* Body */
+.body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.bodyPad {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Field */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fieldLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+}
+
+/* Inline input */
+.inlineInput {
+  height: 1.75rem;
+  width: 100%;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  background-color: color-mix(in oklch, var(--background) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: var(--muted-foreground); }
+
+  &:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+}
+
+.inlineTextarea {
+  width: 100%;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  background-color: color-mix(in oklch, var(--background) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  resize: none;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: var(--muted-foreground); }
+
+  &:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+}
+
+.select {
+  height: 1.75rem;
+  width: 100%;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  background-color: color-mix(in oklch, var(--background) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+
+  &:focus {
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+}
+
+/* Metadata section */
+.metaBox {
+  font-size: 0.625rem;
+  font-family: monospace;
+  color: var(--muted-foreground);
+  background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  word-break: break-all;
+}
+
+.positionRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.chipLabel {
+  font-size: 0.625rem;
+  font-family: monospace;
+  color: var(--muted-foreground);
+}
+
+.chipValue {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Trigger category */
+.categoryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.categoryBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  border: 1px solid;
+  background: none;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  border-color: color-mix(in oklch, var(--border) 50%, transparent);
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: var(--border);
+    color: var(--foreground);
+  }
+}
+
+.categoryBtnActive {
+  background-color: var(--muted);
+}
+
+/* Branch / jump sections */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.addParamBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover { color: var(--foreground); }
+}
+
+.paramRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.paramSep {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+}
+
+.paramRemove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  display: flex;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.15s;
+
+  .paramRow:hover & {
+    opacity: 1;
+  }
+
+  &:hover { color: var(--destructive); }
+}
+
+.branchEdge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.branchEdgeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.branchNum {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+}
+
+.branchTarget {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.branchTargetName {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 6.25rem;
+}
+
+.removeEdgeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+
+  .branchEdge:hover & {
+    opacity: 1;
+  }
+
+  &:hover { color: var(--destructive); }
+}
+
+.emptyNote {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 45%, transparent);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.executionNote {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
+
+/* Jump pick button */
+.pickBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  border: 1px solid;
+  background: none;
+  cursor: pointer;
+  color: color-mix(in oklch, var(--foreground) 80%, transparent);
+  border-color: color-mix(in oklch, var(--border) 50%, transparent);
+  background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  transition: all 0.15s;
+
+  &:hover {
+    color: oklch(0.68 0.18 220);
+    background-color: color-mix(in oklch, oklch(0.68 0.18 220) 10%, transparent);
+    border-color: color-mix(in oklch, oklch(0.68 0.18 220) 30%, transparent);
+  }
+}
+
+.pickBtnActive {
+  background-color: color-mix(in oklch, oklch(0.68 0.18 220) 20%, transparent);
+  color: oklch(0.82 0.16 220);
+  border-color: color-mix(in oklch, oklch(0.68 0.18 220) 40%, transparent);
+}
+
+.categoryInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  margin-top: 0.375rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}

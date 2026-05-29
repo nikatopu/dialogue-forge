@@ -1,0 +1,38 @@
+.input {
+  height: 2rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--input);
+  background-color: transparent;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  &:focus-visible {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+
+  &:disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: color-mix(in oklch, var(--input) 50%, transparent);
+    opacity: 0.5;
+  }
+
+  &[aria-invalid="true"] {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+}

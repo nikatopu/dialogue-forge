@@ -1,0 +1,50 @@
+.container {
+  position: relative;
+  overflow: hidden;
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  outline: none;
+  transition:
+    color 0.15s,
+    box-shadow 0.15s;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+    outline: 1px solid var(--ring);
+  }
+}
+
+.viewport > div {
+  display: block !important;
+}
+
+.scrollbar {
+  display: flex;
+  padding: 1px;
+  user-select: none;
+  touch-action: none;
+  transition: colors 0.15s;
+
+  &[data-orientation="vertical"] {
+    width: 0.625rem;
+    height: 100%;
+    border-left: 1px solid transparent;
+  }
+
+  &[data-orientation="horizontal"] {
+    height: 0.625rem;
+    flex-direction: column;
+    border-top: 1px solid transparent;
+  }
+}
+
+.thumb {
+  position: relative;
+  flex: 1;
+  border-radius: 9999px;
+  background-color: var(--border);
+}

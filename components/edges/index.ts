@@ -1,4 +1,4 @@
-import { DialogueEdge } from "./DialogueEdge";
+import { DialogueEdge } from "@/components/organisms/DialogueEdge";
 
 export const edgeTypes = {
   dialogue: DialogueEdge,

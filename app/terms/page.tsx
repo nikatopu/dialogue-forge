@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Workflow } from "lucide-react";
-import { SiteFooter } from "@/components/SiteFooter";
+import { SiteFooter } from "@/components/organisms/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Dialogue Forge",

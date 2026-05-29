@@ -1,0 +1,87 @@
+.react-flow__controls {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 4px 20px oklch(0 0 0 / 50%) !important;
+  overflow: hidden !important;
+  gap: 0 !important;
+}
+
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--muted-foreground) !important;
+  transition: all 0.15s !important;
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--muted) !important;
+  color: var(--foreground) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.react-flow__minimap {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+}
+
+.react-flow__minimap-mask {
+  fill: oklch(0 0 0 / 50%) !important;
+}
+
+.react-flow__attribution {
+  background: transparent !important;
+  color: var(--muted-foreground) !important;
+  font-size: 9px !important;
+  opacity: 0.5;
+}
+
+.react-flow__edge-path {
+  stroke: var(--muted-foreground) !important;
+  stroke-width: 1.5 !important;
+  opacity: 0.6;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--primary) !important;
+  opacity: 1;
+}
+
+.react-flow__connection-line {
+  stroke: var(--primary) !important;
+  stroke-width: 1.5 !important;
+}
+
+.react-flow__handle {
+  background: var(--primary) !important;
+  border: 2px solid var(--background) !important;
+  width: 10px !important;
+  height: 10px !important;
+  transition: box-shadow 0.15s !important;
+}
+
+.react-flow__handle:hover {
+  box-shadow: 0 0 0 3px oklch(0.585 0.233 260 / 35%) !important;
+}
+
+.react-flow__selection,
+.react-flow__nodesselection-rect {
+  background: oklch(0.585 0.233 260 / 8%) !important;
+  border: 1px solid oklch(0.585 0.233 260 / 50%) !important;
+  border-radius: 4px !important;
+}

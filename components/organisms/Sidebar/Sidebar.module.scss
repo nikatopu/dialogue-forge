@@ -1,0 +1,448 @@
+.aside {
+  background-color: var(--card);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.asideMobile {
+  position: fixed;
+  left: 0;
+  top: 3rem;
+  bottom: 0;
+  z-index: 50;
+  width: 100%;
+  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.searchArea {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.searchWrapper {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.625rem;
+  top: 50%;
+  translate: 0 -50%;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  height: 2rem;
+  width: 100%;
+  padding: 0 1.75rem 0 2rem;
+  font-size: 0.75rem;
+  background-color: color-mix(in oklch, var(--background) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  outline: none;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+
+  &::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  &:focus {
+    background-color: color-mix(in oklch, var(--background) 70%, transparent);
+    border-color: var(--border);
+  }
+}
+
+.clearButton {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.scrollContent {
+  flex: 1;
+  height: 100%;
+}
+
+.contentPad {
+  padding: 0.5rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.sectionToggle {
+  width: 14.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.sectionLabelText {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.sectionBody {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  overflow: scroll;
+  width: 100%;
+  max-height: 20em;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-color: oklch(0 0 0 / 60%);
+  backdrop-filter: blur(4px);
+}
+
+.nodeCard {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  cursor: grab;
+  user-select: none;
+  transition: all 0.15s;
+  margin: 0.25em;
+
+  &:hover {
+    border-color: var(--border);
+    background-color: color-mix(in oklch, var(--muted) 40%, transparent);
+    box-shadow: 0 1px 3px oklch(0 0 0 / 10%);
+  }
+
+  &:active {
+    cursor: grabbing;
+    scale: 0.97;
+  }
+}
+
+.nodeIconWrap {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nodeInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.nodeName {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.nodeDesc {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  line-height: 1.2;
+  margin-top: 0.125rem;
+}
+
+.templateButton {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+}
+
+.templateRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.templateIconWrap {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.375rem;
+  background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+}
+
+.templateMeta {
+  min-width: 0;
+  flex: 1;
+}
+
+.templateName {
+  font-size: 0.75rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.templateDesc {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.templateTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding-left: 2.25rem;
+}
+
+.tag {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  border: 1px solid;
+}
+
+.emptySearch {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  padding: 0.5rem;
+}
+
+.gripIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: color-mix(in oklch, var(--muted-foreground) 20%, transparent);
+  flex-shrink: 0;
+  transition: color 0.15s;
+
+  .nodeCard:hover & {
+    color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  }
+}
+
+/* ── Template Action Modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalBackdrop {
+  position: absolute;
+  inset: 0;
+  background-color: color-mix(in oklch, var(--background) 70%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.modalPanel {
+  position: relative;
+  width: 100%;
+  max-width: 24rem;
+  margin: 0 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.modalCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  border: none;
+  background: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+
+  &:hover {
+    color: var(--foreground);
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+}
+
+.modalBody {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modalDescription {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.actionBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  background-color: var(--card);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--muted) 40%, transparent);
+    border-color: var(--border);
+  }
+}
+
+.actionBtnDestructive {
+  border-color: color-mix(in oklch, var(--destructive) 20%, transparent);
+  background-color: color-mix(in oklch, var(--destructive) 5%, transparent);
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+    border-color: color-mix(in oklch, var(--destructive) 30%, transparent);
+  }
+}
+
+.actionIconWrap {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+
+  .actionBtn:hover & {
+    background-color: color-mix(in oklch, var(--primary) 15%, transparent);
+  }
+}
+
+.actionIconWrapDestructive {
+  background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+
+  .actionBtnDestructive:hover & {
+    background-color: color-mix(in oklch, var(--destructive) 15%, transparent);
+  }
+}
+
+.actionText {
+  display: flex;
+  flex-direction: column;
+}
+
+.actionTitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.actionSubtitle {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  margin-top: 0.125rem;
+}

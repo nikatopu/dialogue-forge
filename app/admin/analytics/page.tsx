@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { RefreshCw, ArrowLeft, Loader2, ShieldAlert } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 import { createClient } from "@/lib/supabase/client";
 import { useProjectStore } from "@/store/useProjectStore";
 import { cn } from "@/lib/utils";
