@@ -1,7 +1,8 @@
 import type { ForgeNode, DialogueEdge, SerialNode, SerialEdge } from "@/types";
+import { CURRENT_VERSION } from "@/lib/migrations";
 
 export interface GraphExport {
-  version: 1;
+  version: string;
   name: string;
   exportedAt: string;
   nodes: SerialNode[];
@@ -14,7 +15,7 @@ export function serializeGraph(
   name = "Untitled Project"
 ): GraphExport {
   return {
-    version: 1,
+    version: CURRENT_VERSION,
     name,
     exportedAt: new Date().toISOString(),
     nodes: nodes.map(({ id, type, position, data }) => ({

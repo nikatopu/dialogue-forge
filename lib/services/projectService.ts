@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { CloudProject } from "@/types";
 import type { Json, ProjectInsert, ProjectUpdate } from "@/lib/supabase/types";
+import { migrateProject, CURRENT_VERSION } from "@/lib/migrations";
 
 /* ─── Helpers ─────────────────────────────────────────────── */
 
@@ -36,6 +37,23 @@ function toCloudProject(row: {
   };
 }
 
+/**
+ * Run the migration pipeline on a raw graph from the database.
+ * Returns the migrated graph and whether it was modified (needs re-saving).
+ */
+function migrateGraph(
+  projectId: string,
+  raw: unknown,
+): { nodes: CloudProject["graph"]["nodes"]; edges: CloudProject["graph"]["edges"]; version: string; wasModified: boolean } {
+  const { graph, report } = migrateProject(raw, projectId);
+  return {
+    nodes: graph.nodes as CloudProject["graph"]["nodes"],
+    edges: graph.edges as CloudProject["graph"]["edges"],
+    version: graph.version,
+    wasModified: report.wasModified,
+  };
+}
+
 /* ─── Plan limits ─────────────────────────────────────────── */
 
 export const FREE_PLAN_CLOUD_LIMIT = 5;
@@ -55,7 +73,7 @@ export const projectService = {
     return (data ?? []).map(toCloudProject);
   },
 
-  /** Get a single project by ID */
+  /** Get a single project by ID — runs migration pipeline before returning */
   async get(id: string): Promise<CloudProject | null> {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -65,7 +83,26 @@ export const projectService = {
       .single();
 
     if (error) return null;
-    return toCloudProject(data);
+
+    const project = toCloudProject(data);
+    const { nodes, edges, version, wasModified } = migrateGraph(id, data.graph);
+
+    project.graph = { version, nodes, edges };
+
+    // Silently persist the repaired/migrated graph back to the cloud
+    if (wasModified) {
+      try {
+        const supabaseInner = createClient();
+        await supabaseInner
+          .from("projects")
+          .update({ graph: project.graph as unknown as Json })
+          .eq("id", id);
+      } catch {
+        // Non-fatal — editor still gets the migrated data
+      }
+    }
+
+    return project;
   },
 
   /** Create a new project */
@@ -76,9 +113,15 @@ export const projectService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Not authenticated");
 
+    // Stamp version on new projects
+    const graph = payload.graph as Record<string, unknown> | undefined;
+    const stampedGraph = graph
+      ? { version: CURRENT_VERSION, ...graph }
+      : { version: CURRENT_VERSION, nodes: [], edges: [] };
+
     const { data, error } = await supabase
       .from("projects")
-      .insert({ ...payload, user_id: user.id })
+      .insert({ ...payload, graph: stampedGraph as unknown as Json, user_id: user.id })
       .select()
       .single();
 
@@ -100,16 +143,17 @@ export const projectService = {
     return toCloudProject(data);
   },
 
-  /** Save graph data (used by autosave) */
+  /** Save graph data (used by autosave) — always includes version */
   async saveGraph(
     id: string,
     graph: CloudProject["graph"],
     name: string,
   ): Promise<void> {
     const supabase = createClient();
+    const versionedGraph = { version: CURRENT_VERSION, ...graph };
     const { error } = await supabase
       .from("projects")
-      .update({ graph: graph as unknown as Json, name })
+      .update({ graph: versionedGraph as unknown as Json, name })
       .eq("id", id);
 
     if (error) throw error;

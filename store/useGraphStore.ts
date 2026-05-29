@@ -22,6 +22,7 @@ import type {
   SerialNode,
   SerialEdge,
 } from "@/types";
+import { migrateProject, CURRENT_VERSION } from "@/lib/migrations";
 
 function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
@@ -531,6 +532,7 @@ export const useGraphStore = create<GraphStore>()(
     {
       name: "dialogue-forge-graph",
       partialize: (s) => ({
+        _graphVersion: CURRENT_VERSION,
         nodes: s.nodes.map(({ id, type, position, data }) => ({
           id,
           type,
@@ -544,7 +546,27 @@ export const useGraphStore = create<GraphStore>()(
           type,
           data,
         })),
-      }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as unknown as any),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        const raw = state as unknown as {
+          _graphVersion?: string;
+          nodes?: SerialNode[];
+          edges?: SerialEdge[];
+        };
+        const { graph, report } = migrateProject(
+          {
+            version: raw._graphVersion,
+            nodes: raw.nodes ?? [],
+            edges: raw.edges ?? [],
+          },
+          "local-draft",
+        );
+        if (report.wasModified) {
+          useGraphStore.getState().loadGraph(graph.nodes, graph.edges);
+        }
+      },
     },
   ),
 );

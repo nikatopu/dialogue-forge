@@ -94,8 +94,10 @@ export type DialogueEdge = Edge<DialogueEdgeData>;
 /* ─── Serialisable snapshot ───────────────────────────── */
 
 export interface GraphSnapshot {
+  version?: string;
   nodes: SerialNode[];
   edges: SerialEdge[];
+  metadata?: Record<string, unknown>;
 }
 
 export interface SerialNode {
@@ -125,7 +127,7 @@ export interface CloudProject {
   id: string;
   userId: string;
   name: string;
-  graph: { nodes: SerialNode[]; edges: SerialEdge[] };
+  graph: { version?: string; nodes: SerialNode[]; edges: SerialEdge[]; metadata?: Record<string, unknown> };
   previewImage: string | null;
   mode: ProjectMode;
   isTemplate: boolean;
