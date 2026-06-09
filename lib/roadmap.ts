@@ -81,8 +81,7 @@ export const ROADMAP: RoadmapEntry[] = [
     title: "Gameplay State System",
     description:
       "Dialogue becomes gameplay-aware through variables and conditional logic.",
-    status: "in-progress",
-    progress: 0,
+    status: "completed",
     features: [
       "Variables",
       "Conditions",
@@ -91,6 +90,26 @@ export const ROADMAP: RoadmapEntry[] = [
       "State preview",
       "Edge expressions",
       "Quest flags",
+    ],
+  },
+
+  {
+    version: "v1.4.1",
+    title: "Dynamic Dialogue & Advanced Variables",
+    description:
+      "Characters can now reference variables directly in dialogue, making conversations react naturally to player choices, names, and game state.",
+    status: "in-progress",
+    progress: 0.2,
+    features: [
+      "Use variables directly in dialogue text",
+      "Player name support",
+      "Dynamic text replacement",
+      "New variable types",
+      "Advanced condition operators",
+      "Improved variable editor",
+      "Live preview of variable values",
+      "Runtime interpolation engine",
+      "Better validation",
     ],
   },
 
