@@ -5,7 +5,7 @@ import {
   Workflow, Save, Download, Play, PanelLeft, PanelRight, Pencil,
   Upload, Undo2, Redo2, Check, AlertCircle, LayoutDashboard, Search,
   Cloud, CloudOff, Loader2, User, MoreHorizontal, Map, BookOpen,
-  Keyboard, Settings, Trash2,
+  Keyboard, Settings, Trash2, SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Separator } from "@/components/atoms/Separator";
@@ -16,6 +16,7 @@ import { useProjectStore } from "@/store/useProjectStore";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { serializeGraph, downloadJson } from "@/lib/exportGraph";
 import { parseGraphJson, readFileAsText } from "@/lib/importGraph";
+import { useVariableStore } from "@/store/useVariableStore";
 import { computeAutoLayout } from "@/lib/autoLayout";
 import { ConfirmModal } from "@/components/organisms/ConfirmModal";
 import { SignInModal } from "@/components/organisms/SignInModal";
@@ -31,9 +32,10 @@ export function TopBar() {
     inspectorOpen, toggleInspector,
     projectName, setProjectName,
     autosaveStatus,
-    setPreviewOpen, setSearchOpen, setSettingsOpen,
+    setPreviewOpen, setSearchOpen, setSettingsOpen, setVariablesPanelOpen, variablesPanelOpen,
   } = useEditorStore();
   const { undo, redo, past, future, nodes, edges, loadGraph, setNodePositions } = useGraphStore();
+  const { variables, setVariables } = useVariableStore();
   const { user, isAuthLoading } = useProjectStore();
   const isMobile = useIsMobile();
   const [signInOpen, setSignInOpen] = useState(false);
@@ -45,6 +47,7 @@ export function TopBar() {
   const [pendingImport, setPendingImport] = useState<{
     nodes: Parameters<typeof loadGraph>[0];
     edges: Parameters<typeof loadGraph>[1];
+    variables?: import("@/types").ProjectVariable[];
     name?: string;
   } | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -56,19 +59,19 @@ export function TopBar() {
   }
 
   const handleExport = useCallback(() => {
-    downloadJson(serializeGraph(nodes, edges, projectName));
-  }, [nodes, edges, projectName]);
+    downloadJson(serializeGraph(nodes, edges, projectName, variables));
+  }, [nodes, edges, projectName, variables]);
 
   const handleSave = useCallback(() => {
     try {
-      downloadJson(serializeGraph(nodes, edges, projectName));
+      downloadJson(serializeGraph(nodes, edges, projectName, variables));
       setSaveFlash("saved");
     } catch {
       setSaveFlash("error");
     } finally {
       setTimeout(() => setSaveFlash("idle"), 2000);
     }
-  }, [nodes, edges, projectName]);
+  }, [nodes, edges, projectName, variables]);
 
   const handleImportFile = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,9 +83,10 @@ export function TopBar() {
         const result = parseGraphJson(text);
         if (!result.ok) { alert(`Import failed: ${result.error}`); return; }
         if (nodes.length > 0) {
-          setPendingImport({ nodes: result.nodes, edges: result.edges, name: result.name });
+          setPendingImport({ nodes: result.nodes, edges: result.edges, variables: result.variables, name: result.name });
         } else {
           loadGraph(result.nodes, result.edges);
+          setVariables(result.variables);
           if (result.name) setProjectName(result.name);
         }
       } catch {
@@ -95,6 +99,7 @@ export function TopBar() {
   function confirmImport() {
     if (!pendingImport) return;
     loadGraph(pendingImport.nodes, pendingImport.edges);
+    if (pendingImport.variables) setVariables(pendingImport.variables);
     if (pendingImport.name) setProjectName(pendingImport.name);
     setPendingImport(null);
   }
@@ -223,6 +228,21 @@ export function TopBar() {
 
         <Separator orientation="vertical" style={{ height: "1rem", margin: "0 0.25rem", opacity: 0.4 }} className={style.desktopOnly} />
 
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setVariablesPanelOpen(!variablesPanelOpen)}
+              className={cn(style.desktopOnly, variablesPanelOpen && style.varBtnActive)}
+              title="Variables"
+            >
+              <SlidersHorizontal size={14} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Variables</TooltipContent>
+        </Tooltip>
+
         <button type="button" className={style.previewBtn} onClick={() => setPreviewOpen(true)}>
           <Play size={12} style={{ fill: "currentColor" }} />
           Preview
@@ -322,7 +342,7 @@ export function TopBar() {
         title="Clear workspace?"
         message="This will permanently delete all nodes, edges, and undo history. This cannot be undone."
         confirmLabel="Delete everything"
-        onConfirm={() => { useGraphStore.getState().clearGraph(); setConfirmClear(false); }}
+        onConfirm={() => { useGraphStore.getState().clearGraph(); useVariableStore.getState().clearVariables(); setConfirmClear(false); }}
         onCancel={() => setConfirmClear(false)}
       />
     </header>

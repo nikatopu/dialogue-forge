@@ -396,3 +396,19 @@
   font-weight: 500;
   text-transform: capitalize;
 }
+
+/* Variable action preview */
+.varPreview {
+  margin-top: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: oklch(0.52 0.19 310 / 8%);
+  border: 1px solid oklch(0.52 0.19 310 / 20%);
+}
+
+.varPreviewText {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  color: oklch(0.82 0.15 310);
+  font-weight: 500;
+}

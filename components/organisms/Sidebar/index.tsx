@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/atoms/ScrollArea";
 import { Separator } from "@/components/atoms/Separator";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useVariableStore } from "@/store/useVariableStore";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { PROJECT_TEMPLATES } from "@/lib/templates";
 import cn from "classnames";
@@ -109,6 +110,7 @@ export function Sidebar() {
   const { sidebarOpen, setSidebarOpen } = useEditorStore();
   const { addNode, nodes, loadGraph, insertGraph } = useGraphStore();
   const { setProjectName } = useEditorStore();
+  const { setVariables } = useVariableStore();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({ nodes: true, templates: false });
@@ -119,18 +121,24 @@ export function Sidebar() {
 
   function handleTemplateClick(t: ProjectTemplate) {
     if (nodes.length > 0) setPendingTemplate(t);
-    else { loadGraph(t.nodes, t.edges); setProjectName(t.name); }
+    else {
+      loadGraph(t.nodes, t.edges);
+      if (t.variables) setVariables(t.variables);
+      setProjectName(t.name);
+    }
   }
 
   function handleInsert() {
     if (!pendingTemplate) return;
     insertGraph(pendingTemplate.nodes, pendingTemplate.edges);
+    // Variables are merged (not replaced) on insert so they don't clobber existing ones
     setPendingTemplate(null);
   }
 
   function handleReplace() {
     if (!pendingTemplate) return;
     loadGraph(pendingTemplate.nodes, pendingTemplate.edges);
+    if (pendingTemplate.variables) setVariables(pendingTemplate.variables);
     setProjectName(pendingTemplate.name);
     setPendingTemplate(null);
   }

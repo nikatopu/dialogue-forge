@@ -4,6 +4,9 @@ import type {
   CharacterNodeData,
   ActionNodeData,
   StartNodeData,
+  ProjectVariable,
+  ConditionGroup,
+  Condition,
 } from "@/types";
 
 export type IssueLevel = "error" | "warning" | "info";
@@ -19,7 +22,8 @@ export interface ValidationIssue {
 
 export function validateGraph(
   nodes: ForgeNode[],
-  edges: DialogueEdge[]
+  edges: DialogueEdge[],
+  variables: ProjectVariable[] = [],
 ): ValidationIssue[] {
   if (nodes.length === 0) return [];
 
@@ -29,6 +33,8 @@ export function validateGraph(
   function push(issue: Omit<ValidationIssue, "id">) {
     issues.push({ id: `v${seq++}`, ...issue });
   }
+
+  const varMap = new Map(variables.map((v) => [v.id, v]));
 
   /* ── Build edge maps ── */
   const nodeIds = new Set(nodes.map((n) => n.id));
@@ -61,7 +67,6 @@ export function validateGraph(
     const out = outDeg.get(node.id) ?? 0;
     const inc = inDeg.get(node.id) ?? 0;
 
-    /* Generic orphan check (skip Start nodes — they're inherently entry points) */
     if (node.type !== "start" && out === 0 && inc === 0 && nodes.length > 1) {
       push({
         level: "error",
@@ -132,7 +137,6 @@ export function validateGraph(
         });
       }
 
-      /* Trigger-specific checks */
       if (d.actionType === "trigger") {
         if (!d.category) {
           push({
@@ -151,6 +155,61 @@ export function validateGraph(
           });
         }
       }
+
+      /* setVariable-specific checks */
+      if (d.actionType === "setVariable") {
+        if (!d.variableAction?.variableId) {
+          push({
+            level: "warning",
+            code: "set_variable_missing",
+            message: `Set Variable node "${d.label || "Unnamed"}" has no variable selected`,
+            nodeId: node.id,
+          });
+        } else if (variables.length > 0 && !varMap.has(d.variableAction.variableId)) {
+          push({
+            level: "error",
+            code: "set_variable_unknown",
+            message: `Set Variable node "${d.label || "Unnamed"}" references a deleted variable`,
+            nodeId: node.id,
+          });
+        } else if (d.variableAction?.variableId && varMap.has(d.variableAction.variableId)) {
+          const variable = varMap.get(d.variableAction.variableId)!;
+          const op = d.variableAction.operation;
+          const val = d.variableAction.value;
+          // Type-mismatch: numeric operations on non-number variables
+          if (
+            variable.type !== "number" &&
+            (op === "add" || op === "subtract" || op === "multiply" || op === "divide")
+          ) {
+            push({
+              level: "warning",
+              code: "variable_type_mismatch",
+              message: `"${d.label || "Unnamed"}" uses "${op}" on "${variable.name}" which is not a number`,
+              nodeId: node.id,
+            });
+          }
+          // Toggle on non-boolean
+          if (variable.type !== "boolean" && op === "toggle") {
+            push({
+              level: "warning",
+              code: "variable_type_mismatch",
+              message: `"${d.label || "Unnamed"}" uses "toggle" on "${variable.name}" which is not a boolean`,
+              nodeId: node.id,
+            });
+          }
+          // Set with wrong type
+          if (op === "set" && val !== undefined) {
+            if (variable.type === "number" && typeof val === "string" && isNaN(Number(val))) {
+              push({
+                level: "warning",
+                code: "variable_type_mismatch",
+                message: `"${d.label || "Unnamed"}" sets number "${variable.name}" to a non-numeric value`,
+                nodeId: node.id,
+              });
+            }
+          }
+        }
+      }
     }
   }
 
@@ -163,6 +222,7 @@ export function validateGraph(
       .map((n) => n.id)
   );
 
+  /* ── Edge condition checks ── */
   for (const e of edges) {
     if (branchSources.has(e.source) && !e.data?.optionText?.trim()) {
       push({
@@ -173,6 +233,11 @@ export function validateGraph(
         nodeId: e.source,
       });
     }
+
+    if (e.data?.conditionGroup) {
+      const condIssues = validateConditionGroup(e.data.conditionGroup, varMap, e.id);
+      issues.push(...condIssues.map((ci) => ({ id: `v${seq++}`, ...ci })));
+    }
   }
 
   /* ── Cycle detection (DFS) ── */
@@ -182,6 +247,79 @@ export function validateGraph(
       code: "cycle_detected",
       message: "Graph contains a loop — some paths may repeat indefinitely",
     });
+  }
+
+  return issues;
+}
+
+function validateConditionGroup(
+  group: ConditionGroup,
+  varMap: Map<string, ProjectVariable>,
+  edgeId: string,
+): Omit<ValidationIssue, "id">[] {
+  if (varMap.size === 0) return []; // No variables defined yet — skip
+
+  const issues: Omit<ValidationIssue, "id">[] = [];
+
+  for (const c of group.conditions) {
+    if ("logic" in c) {
+      issues.push(...validateConditionGroup(c, varMap, edgeId));
+      continue;
+    }
+
+    const condition = c as Condition;
+    if (!condition.variableId) continue;
+
+    if (!varMap.has(condition.variableId)) {
+      issues.push({
+        level: "error",
+        code: "condition_unknown_variable",
+        message: "Condition references a deleted variable",
+        edgeId,
+      });
+      continue;
+    }
+
+    const variable = varMap.get(condition.variableId)!;
+    const op = condition.operator;
+
+    // Type-mismatch: numeric operators on string/boolean variables
+    if (
+      variable.type !== "number" &&
+      (op === ">" || op === ">=" || op === "<" || op === "<=")
+    ) {
+      issues.push({
+        level: "warning",
+        code: "condition_type_mismatch",
+        message: `Condition uses "${op}" on "${variable.name}" which is not a number`,
+        edgeId,
+      });
+    }
+
+    // String operators on non-string variables
+    if (
+      variable.type !== "string" &&
+      (op === "contains" || op === "startsWith" || op === "endsWith")
+    ) {
+      issues.push({
+        level: "warning",
+        code: "condition_type_mismatch",
+        message: `Condition uses "${op}" on "${variable.name}" which is not a string`,
+        edgeId,
+      });
+    }
+
+    // Value type mismatch for == / !=
+    if ((op === "==" || op === "!=") && condition.value !== undefined) {
+      if (variable.type === "number" && typeof condition.value === "string" && condition.value !== "" && isNaN(Number(condition.value))) {
+        issues.push({
+          level: "warning",
+          code: "condition_type_mismatch",
+          message: `Condition compares number "${variable.name}" to a non-numeric value`,
+          edgeId,
+        });
+      }
+    }
   }
 
   return issues;

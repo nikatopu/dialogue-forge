@@ -6,7 +6,51 @@ export type Theme = "default" | "ocean" | "forest" | "midnight" | "rose" | "cybe
 
 export type ForgeNodeType = "character" | "action" | "start";
 
-export type ActionType = "trigger" | "branch" | "jump" | "end" | "custom";
+export type ActionType = "trigger" | "branch" | "jump" | "end" | "custom" | "setVariable";
+
+/* ─── Variable system ─────────────────────────────────── */
+
+export type VariableType = "number" | "boolean" | "string";
+
+export interface ProjectVariable {
+  id: string;
+  name: string;
+  type: VariableType;
+  defaultValue: number | boolean | string;
+  description?: string;
+}
+
+export type ConditionOperator =
+  | "=="
+  | "!="
+  | ">"
+  | ">="
+  | "<"
+  | "<="
+  | "contains"
+  | "startsWith"
+  | "endsWith";
+
+export interface Condition {
+  variableId: string;
+  operator: ConditionOperator;
+  value: string | number | boolean;
+}
+
+export type ConditionLogic = "AND" | "OR";
+
+export interface ConditionGroup {
+  logic: ConditionLogic;
+  conditions: (Condition | ConditionGroup)[];
+}
+
+export type VariableOperation = "set" | "add" | "subtract" | "multiply" | "divide" | "toggle";
+
+export interface VariableAction {
+  variableId: string;
+  operation: VariableOperation;
+  value?: string | number | boolean;
+}
 
 export type TriggerCategory =
   | "game"
@@ -64,6 +108,8 @@ export interface ActionNodeData {
   event?: string;
   params?: Record<string, string>;
   executionMode?: TriggerExecutionMode;
+  /** setVariable-specific */
+  variableAction?: VariableAction;
   attributeSchema: AttributeDefinition[];
   attributes: Record<string, unknown>;
   [key: string]: unknown;
@@ -86,6 +132,7 @@ export interface ForgeNodeDataBase {
 export interface DialogueEdgeData extends Record<string, unknown> {
   optionText: string;
   conditions: Record<string, unknown>;
+  conditionGroup?: ConditionGroup | null;
   metadata: Record<string, unknown>;
 }
 
@@ -97,6 +144,7 @@ export interface GraphSnapshot {
   version?: string;
   nodes: SerialNode[];
   edges: SerialEdge[];
+  variables?: ProjectVariable[];
   metadata?: Record<string, unknown>;
 }
 

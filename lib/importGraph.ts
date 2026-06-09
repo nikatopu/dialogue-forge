@@ -1,10 +1,11 @@
-import type { SerialNode, SerialEdge } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
 import { migrateProject } from "@/lib/migrations";
 
 export interface ImportResult {
   ok: true;
   nodes: SerialNode[];
   edges: SerialEdge[];
+  variables: ProjectVariable[];
   name?: string;
 }
 
@@ -27,7 +28,6 @@ export function parseGraphJson(raw: string): ImportResult | ImportError {
 
   const obj = parsed as Record<string, unknown>;
 
-  // Accept any version — the migration pipeline handles everything
   if (!("nodes" in obj) && !("graph" in obj)) {
     return {
       ok: false,
@@ -35,17 +35,29 @@ export function parseGraphJson(raw: string): ImportResult | ImportError {
     };
   }
 
-  // Support both flat { version, nodes, edges } and nested { graph: { nodes, edges } }
   const graphData = "nodes" in obj ? obj : (obj.graph as Record<string, unknown>);
-  const name =
-    typeof obj.name === "string" ? obj.name : undefined;
+  const name = typeof obj.name === "string" ? obj.name : undefined;
+
+  // Extract top-level variables from the export (not inside graphData)
+  const rawVariables = Array.isArray(obj.variables)
+    ? (obj.variables as ProjectVariable[])
+    : Array.isArray((graphData as Record<string, unknown>).variables)
+    ? ((graphData as Record<string, unknown>).variables as ProjectVariable[])
+    : [];
 
   const { graph } = migrateProject(graphData);
+
+  // Prefer variables from migration result, fall back to raw extract
+  const variables: ProjectVariable[] =
+    Array.isArray(graph.variables) && graph.variables.length > 0
+      ? graph.variables
+      : rawVariables;
 
   return {
     ok: true,
     nodes: graph.nodes,
     edges: graph.edges,
+    variables,
     name,
   };
 }

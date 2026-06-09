@@ -128,6 +128,7 @@ interface GraphStore {
 
   /* Edge CRUD */
   updateEdgeLabel: (id: string, optionText: string) => void;
+  updateEdgeConditions: (id: string, conditionGroup: import("@/types").ConditionGroup | null) => void;
   removeEdge: (id: string) => void;
   setJumpTarget: (sourceId: string, targetId: string | null) => void;
 
@@ -429,6 +430,16 @@ export const useGraphStore = create<GraphStore>()(
           edges: s.edges.map((e) =>
             e.id === id
               ? ({ ...e, data: { ...e.data, optionText } } as DialogueEdge)
+              : e,
+          ),
+        })),
+
+      updateEdgeConditions: (id, conditionGroup) =>
+        set((s) => ({
+          ...snap(s.nodes, s.edges, s.past),
+          edges: s.edges.map((e) =>
+            e.id === id
+              ? ({ ...e, data: { ...e.data, conditionGroup } } as DialogueEdge)
               : e,
           ),
         })),

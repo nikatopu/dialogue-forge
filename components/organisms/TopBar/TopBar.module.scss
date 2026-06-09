@@ -301,3 +301,8 @@
 .muted {
   color: var(--muted-foreground);
 }
+
+.varBtnActive {
+  color: oklch(0.72 0.19 310);
+  background-color: oklch(0.52 0.19 310 / 12%);
+}

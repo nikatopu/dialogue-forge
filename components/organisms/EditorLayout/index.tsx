@@ -11,9 +11,11 @@ import { GraphCanvas } from "@/components/organisms/GraphCanvas";
 import { ValidationBar } from "@/components/organisms/ValidationBar";
 import { PreviewModal } from "@/components/organisms/PreviewModal";
 import { SettingsPanel } from "@/components/organisms/SettingsPanel";
+import { VariablesPanel } from "@/components/organisms/VariablesPanel";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useValidationStore } from "@/store/useValidationStore";
 import { useEditorStore } from "@/store/useEditorStore";
+import { useVariableStore } from "@/store/useVariableStore";
 import { validateGraph } from "@/lib/validate";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { useCloudSync } from "@/hooks/useCloudSync";
@@ -23,6 +25,7 @@ import style from "./EditorLayout.module.scss";
 export function EditorLayout() {
   const setIssues = useValidationStore((s) => s.setIssues);
   const { previewOpen, setPreviewOpen, selectedNodeId, setMobileInspectorOpen } = useEditorStore();
+  const variables = useVariableStore((s) => s.variables);
   const isMobile = useIsMobile();
   const { initAuth } = useProjectStore();
 
@@ -34,11 +37,11 @@ export function EditorLayout() {
 
   useEffect(() => {
     const { nodes, edges } = useGraphStore.getState();
-    setIssues(validateGraph(nodes, edges));
+    setIssues(validateGraph(nodes, edges, variables));
     return useGraphStore.subscribe((state) => {
-      setIssues(validateGraph(state.nodes, state.edges));
+      setIssues(validateGraph(state.nodes, state.edges, variables));
     });
-  }, [setIssues]);
+  }, [setIssues, variables]);
 
   useEffect(() => {
     if (isMobile && selectedNodeId) {
@@ -71,6 +74,7 @@ export function EditorLayout() {
 
       <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} />
       <SettingsPanel />
+      <VariablesPanel />
     </div>
   );
 }

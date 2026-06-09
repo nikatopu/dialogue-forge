@@ -2,21 +2,23 @@
 
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { Zap, GitBranch, SkipForward, Square, Wrench, type LucideIcon } from "lucide-react";
+import { Zap, GitBranch, SkipForward, Square, Wrench, SlidersHorizontal, type LucideIcon } from "lucide-react";
 import { Badge } from "@/components/atoms/Badge";
 import { useValidationStore } from "@/store/useValidationStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useVariableStore } from "@/store/useVariableStore";
 import { useShallow } from "zustand/react/shallow";
 import cn from "classnames";
 import type { ActionFlowNode, ActionType } from "@/types";
 import style from "./ActionNode.module.scss";
 
 const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string; color: string; bg: string; border: string }> = {
-  trigger: { icon: Zap,        label: "Trigger", color: "oklch(0.72 0.18 155)", bg: "oklch(0.52 0.18 155 / 12%)", border: "oklch(0.52 0.18 155 / 20%)" },
-  branch:  { icon: GitBranch,  label: "Branch",  color: "oklch(0.72 0.18 50)",  bg: "oklch(0.52 0.18 50 / 12%)",  border: "oklch(0.52 0.18 50 / 20%)" },
-  jump:    { icon: SkipForward,label: "Jump",    color: "oklch(0.68 0.18 220)", bg: "oklch(0.52 0.18 220 / 12%)", border: "oklch(0.52 0.18 220 / 20%)" },
-  end:     { icon: Square,     label: "End",     color: "oklch(0.72 0.22 355)", bg: "oklch(0.52 0.22 355 / 12%)", border: "oklch(0.52 0.22 355 / 20%)" },
-  custom:  { icon: Wrench,     label: "Custom",  color: "oklch(0.65 0.19 290)", bg: "oklch(0.52 0.19 290 / 12%)", border: "oklch(0.52 0.19 290 / 20%)" },
+  trigger:     { icon: Zap,              label: "Trigger",      color: "oklch(0.72 0.18 155)", bg: "oklch(0.52 0.18 155 / 12%)", border: "oklch(0.52 0.18 155 / 20%)" },
+  branch:      { icon: GitBranch,        label: "Branch",       color: "oklch(0.72 0.18 50)",  bg: "oklch(0.52 0.18 50 / 12%)",  border: "oklch(0.52 0.18 50 / 20%)" },
+  jump:        { icon: SkipForward,      label: "Jump",         color: "oklch(0.68 0.18 220)", bg: "oklch(0.52 0.18 220 / 12%)", border: "oklch(0.52 0.18 220 / 20%)" },
+  end:         { icon: Square,           label: "End",          color: "oklch(0.72 0.22 355)", bg: "oklch(0.52 0.22 355 / 12%)", border: "oklch(0.52 0.22 355 / 20%)" },
+  custom:      { icon: Wrench,           label: "Custom",       color: "oklch(0.65 0.19 290)", bg: "oklch(0.52 0.19 290 / 12%)", border: "oklch(0.52 0.19 290 / 20%)" },
+  setVariable: { icon: SlidersHorizontal,label: "Set Variable", color: "oklch(0.72 0.19 310)", bg: "oklch(0.52 0.19 310 / 12%)", border: "oklch(0.52 0.19 310 / 20%)" },
 };
 
 const EXEC_COLORS = {
@@ -32,6 +34,11 @@ function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) 
   const issueLevel = useValidationStore((s) => s.nodeLevels[id] ?? null);
   const branchEdges = useGraphStore(
     useShallow((s) => data.actionType === "branch" ? s.edges.filter((e) => e.source === id) : []),
+  );
+  const variableName = useVariableStore(
+    (s) => data.actionType === "setVariable" && data.variableAction?.variableId
+      ? (s.variables.find((v) => v.id === data.variableAction!.variableId)?.name ?? "?")
+      : null,
   );
 
   return (
@@ -79,6 +86,13 @@ function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) 
         </div>
       )}
 
+      {data.actionType === "setVariable" && data.variableAction && variableName && (
+        <div className={style.varActionSummary}>
+          <span className={style.varActionName}>{variableName}</span>
+          <span className={style.varActionOp}>{formatOp(data.variableAction.operation, data.variableAction.value)}</span>
+        </div>
+      )}
+
       {attrCount > 0 && (
         <div className={cn(style.attrSection, (data.actionType !== "branch" || branchEdges.length === 0) ? "" : "")}>
           <span className={style.attrCount}>{attrCount} attribute{attrCount !== 1 ? "s" : ""}</span>
@@ -88,6 +102,18 @@ function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) 
       <Handle type="source" position={Position.Bottom} className="w-2.5! h-2.5! -bottom-1.25!" />
     </div>
   );
+}
+
+function formatOp(op: string, value?: string | number | boolean): string {
+  switch (op) {
+    case "set":      return `= ${value ?? "…"}`;
+    case "add":      return `+= ${value ?? "…"}`;
+    case "subtract": return `-= ${value ?? "…"}`;
+    case "multiply": return `*= ${value ?? "…"}`;
+    case "divide":   return `/= ${value ?? "…"}`;
+    case "toggle":   return "toggle";
+    default:         return op;
+  }
 }
 
 export const ActionNode = memo(ActionNodeComponent);

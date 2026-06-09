@@ -251,8 +251,31 @@
 }
 
 .choiceNum { font-size: 0.625rem; font-family: monospace; color: color-mix(in oklch, var(--muted-foreground) 40%, transparent); width: 1rem; flex-shrink: 0; }
-.choiceText { flex: 1; }
+
+.choiceText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+
 .choiceEmpty { font-style: italic; color: color-mix(in oklch, var(--muted-foreground) 50%, transparent); }
+
+.choiceLockReason {
+  font-size: 0.5625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+  font-style: italic;
+}
+
+.choiceChevron { color: color-mix(in oklch, var(--muted-foreground) 30%, transparent); flex-shrink: 0; }
+.choiceLockIcon { color: color-mix(in oklch, var(--muted-foreground) 35%, transparent); flex-shrink: 0; }
+
+.choiceBtnLocked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-style: dashed;
+}
 
 /* End states */
 .endState { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; gap: 1rem; }
@@ -265,3 +288,233 @@
 .noStart { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; gap: 0.75rem; }
 
 .branchEnd { font-size: 0.75rem; color: color-mix(in oklch, var(--muted-foreground) 50%, transparent); font-style: italic; text-align: center; padding: 0.5rem 0; }
+
+/* Setup phase */
+.setupHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  background-color: color-mix(in oklch, var(--primary) 6%, transparent);
+  border: 1px solid color-mix(in oklch, var(--primary) 15%, transparent);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.setupRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.setupRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.setupVarName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.setupVarType {
+  font-size: 0.5625rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.25rem;
+  background-color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.setupInput {
+  width: 7rem;
+  flex-shrink: 0;
+  height: 1.875rem;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  text-align: right;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: color-mix(in oklch, var(--muted-foreground) 40%, transparent); }
+  &:focus { border-color: var(--primary); }
+}
+
+.setupSelect {
+  width: 7rem;
+  flex-shrink: 0;
+  height: 1.875rem;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  text-align: right;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: var(--primary); }
+}
+
+/* State panel */
+.statePanel {
+  flex-shrink: 0;
+  background-color: color-mix(in oklch, var(--muted) 25%, transparent);
+}
+
+.statePanelInner {
+  padding: 0.625rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.statePanelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stateGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.stateItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.stateItemChanged {
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+}
+
+.stateVarName {
+  font-size: 0.5625rem;
+  color: var(--muted-foreground);
+}
+
+.stateVal {
+  font-size: 0.625rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+}
+
+.stateValChanged {
+  color: var(--primary);
+}
+
+.changeLog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.changeItem {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  font-size: 0.5625rem;
+}
+
+.changeName {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.changeFrom {
+  font-family: monospace;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  text-decoration: line-through;
+}
+
+.changeArrow {
+  color: var(--muted-foreground);
+}
+
+.changeTo {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Set Variable step */
+.setVarCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  background-color: oklch(0.52 0.19 310 / 8%);
+  border: 1px solid oklch(0.52 0.19 310 / 20%);
+}
+
+.setVarLabel {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(0.72 0.19 310);
+}
+
+.setVarName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: color-mix(in oklch, var(--foreground) 80%, transparent);
+}
+
+.setVarExpr {
+  font-size: 0.6875rem;
+  margin-top: 0.25rem;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+
+  code { font-family: monospace; }
+}
+
+.setVarCurrent {
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+
+/* Hidden choices note */
+.hiddenNote {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  font-style: italic;
+  text-align: center;
+  padding: 0.25rem 0;
+}

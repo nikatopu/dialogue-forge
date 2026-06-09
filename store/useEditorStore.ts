@@ -30,6 +30,10 @@ interface EditorStore {
   currentProjectId: string | null;
   /** Cloud: autosave status indicator */
   autosaveStatus: AutosaveStatus;
+  /** Currently selected edge ID (for edge inspector) */
+  selectedEdgeId: string | null;
+  /** Whether the Variables panel overlay is open */
+  variablesPanelOpen: boolean;
 
   /* Actions */
   setSidebarOpen: (open: boolean) => void;
@@ -48,6 +52,8 @@ interface EditorStore {
   setMobileInspectorOpen: (open: boolean) => void;
   setCurrentProjectId: (id: string | null) => void;
   setAutosaveStatus: (status: AutosaveStatus) => void;
+  setSelectedEdgeId: (id: string | null) => void;
+  setVariablesPanelOpen: (open: boolean) => void;
 }
 
 export const useEditorStore = create<EditorStore>()(
@@ -67,6 +73,8 @@ export const useEditorStore = create<EditorStore>()(
       mobileInspectorOpen: false,
       currentProjectId: null,
       autosaveStatus: "idle",
+      selectedEdgeId: null,
+      variablesPanelOpen: false,
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -84,6 +92,8 @@ export const useEditorStore = create<EditorStore>()(
       setMobileInspectorOpen: (open) => set({ mobileInspectorOpen: open }),
       setCurrentProjectId: (id) => set({ currentProjectId: id }),
       setAutosaveStatus: (status) => set({ autosaveStatus: status }),
+      setSelectedEdgeId: (id) => set({ selectedEdgeId: id }),
+      setVariablesPanelOpen: (open) => set({ variablesPanelOpen: open }),
     }),
     {
       name: "dialogue-forge-ui",

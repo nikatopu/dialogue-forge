@@ -1,10 +1,11 @@
-import type { ForgeNode, DialogueEdge, SerialNode, SerialEdge } from "@/types";
+import type { ForgeNode, DialogueEdge, SerialNode, SerialEdge, ProjectVariable } from "@/types";
 import { CURRENT_VERSION } from "@/lib/migrations";
 
 export interface GraphExport {
   version: string;
   name: string;
   exportedAt: string;
+  variables: ProjectVariable[];
   nodes: SerialNode[];
   edges: SerialEdge[];
 }
@@ -12,12 +13,14 @@ export interface GraphExport {
 export function serializeGraph(
   nodes: ForgeNode[],
   edges: DialogueEdge[],
-  name = "Untitled Project"
+  name = "Untitled Project",
+  variables: ProjectVariable[] = [],
 ): GraphExport {
   return {
     version: CURRENT_VERSION,
     name,
     exportedAt: new Date().toISOString(),
+    variables,
     nodes: nodes.map(({ id, type, position, data }) => ({
       id,
       type: type as "character" | "action" | "start",
@@ -29,7 +32,7 @@ export function serializeGraph(
       source,
       target,
       type: type ?? "dialogue",
-      data: data ?? { optionText: "", conditions: {}, metadata: {} },
+      data: data ?? { optionText: "", conditions: {}, conditionGroup: null, metadata: {} },
     })),
   };
 }

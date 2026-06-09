@@ -1,4 +1,4 @@
-import type { SerialNode, SerialEdge } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
 
 export interface ProjectTemplate {
   id: string;
@@ -7,6 +7,7 @@ export interface ProjectTemplate {
   tags: string[];
   nodes: SerialNode[];
   edges: SerialEdge[];
+  variables?: ProjectVariable[];
 }
 
 export const PROJECT_TEMPLATES: ProjectTemplate[] = [
@@ -197,13 +198,27 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         },
       },
       {
-        id: "qg-quest-start",
+        id: "qg-set-quest",
         type: "action",
         position: { x: -280, y: 640 },
         data: {
+          actionType: "setVariable",
+          label: "Start Quest",
+          variableAction: { variableId: "qg-var-queststate", operation: "set", value: "started" },
+          attributeSchema: [],
+          attributes: {},
+        },
+      },
+      {
+        id: "qg-quest-start",
+        type: "action",
+        position: { x: -280, y: 800 },
+        data: {
           actionType: "trigger",
-          triggerCategory: "game",
+          category: "game",
+          event: "QuestStarted",
           label: "Quest: Wolves of Thornwood",
+          executionMode: "immediate",
           attributeSchema: [],
           attributes: {},
         },
@@ -211,7 +226,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         id: "qg-end",
         type: "action",
-        position: { x: 0, y: 640 },
+        position: { x: 0, y: 800 },
         data: {
           actionType: "end",
           label: "End Conversation",
@@ -221,16 +236,20 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       },
     ] as SerialNode[],
     edges: [
-      { id: "qg-e1", source: "qg-start", target: "qg-intro", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "qg-e2", source: "qg-intro", target: "qg-choice", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "qg-e3", source: "qg-choice", target: "qg-accept", type: "dialogue", data: { optionText: "I'll handle it.", conditions: {}, metadata: {} } },
-      { id: "qg-e4", source: "qg-choice", target: "qg-details", type: "dialogue", data: { optionText: "Tell me more.", conditions: {}, metadata: {} } },
-      { id: "qg-e5", source: "qg-choice", target: "qg-decline", type: "dialogue", data: { optionText: "I can't right now.", conditions: {}, metadata: {} } },
-      { id: "qg-e6", source: "qg-accept", target: "qg-quest-start", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "qg-e7", source: "qg-details", target: "qg-choice", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "qg-e8", source: "qg-decline", target: "qg-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "qg-e9", source: "qg-quest-start", target: "qg-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
+      { id: "qg-e1", source: "qg-start", target: "qg-intro", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e2", source: "qg-intro", target: "qg-choice", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e3", source: "qg-choice", target: "qg-accept", type: "dialogue", data: { optionText: "I'll handle it.", conditions: {}, conditionGroup: { logic: "AND", conditions: [{ variableId: "qg-var-queststate", operator: "==", value: "none" }] }, metadata: {} } },
+      { id: "qg-e4", source: "qg-choice", target: "qg-details", type: "dialogue", data: { optionText: "Tell me more.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e5", source: "qg-choice", target: "qg-decline", type: "dialogue", data: { optionText: "I can't right now.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e6", source: "qg-accept", target: "qg-set-quest", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e6b", source: "qg-set-quest", target: "qg-quest-start", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e7", source: "qg-details", target: "qg-choice", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e8", source: "qg-decline", target: "qg-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "qg-e9", source: "qg-quest-start", target: "qg-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
     ] as SerialEdge[],
+    variables: [
+      { id: "qg-var-queststate", name: "questState", type: "string", defaultValue: "none", description: "Current state of the wolf quest" },
+    ],
   },
 
   /* ── Merchant ──────────────────────────────────────────── */
@@ -281,8 +300,35 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         position: { x: -280, y: 480 },
         data: {
           actionType: "trigger",
-          triggerCategory: "ui",
+          category: "ui",
+          event: "ShowShop",
           label: "Open Shop UI",
+          executionMode: "immediate",
+          attributeSchema: [],
+          attributes: {},
+        },
+      },
+      {
+        id: "mr-deduct-gold",
+        type: "action",
+        position: { x: -280, y: 640 },
+        data: {
+          actionType: "setVariable",
+          label: "Spend Gold",
+          variableAction: { variableId: "mr-var-gold", operation: "subtract", value: 5 },
+          attributeSchema: [],
+          attributes: {},
+        },
+      },
+      {
+        id: "mr-no-gold",
+        type: "character",
+        position: { x: -520, y: 480 },
+        data: {
+          name: "Torvin the Trader",
+          dialogue: "Come back when you've got coin, friend. I don't run a charity.",
+          emotion: "neutral",
+          portrait: "",
           attributeSchema: [],
           attributes: {},
         },
@@ -316,7 +362,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         id: "mr-end",
         type: "action",
-        position: { x: 0, y: 640 },
+        position: { x: 0, y: 800 },
         data: {
           actionType: "end",
           label: "End Conversation",
@@ -326,15 +372,21 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       },
     ] as SerialNode[],
     edges: [
-      { id: "mr-e1", source: "mr-start", target: "mr-greet", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "mr-e2", source: "mr-greet", target: "mr-choice", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "mr-e3", source: "mr-choice", target: "mr-shop", type: "dialogue", data: { optionText: "Show me your wares.", conditions: {}, metadata: {} } },
-      { id: "mr-e4", source: "mr-choice", target: "mr-haggle", type: "dialogue", data: { optionText: "Can you lower the price?", conditions: {}, metadata: {} } },
-      { id: "mr-e5", source: "mr-choice", target: "mr-browse", type: "dialogue", data: { optionText: "Just browsing.", conditions: {}, metadata: {} } },
-      { id: "mr-e6", source: "mr-shop", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "mr-e7", source: "mr-haggle", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "mr-e8", source: "mr-browse", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
+      { id: "mr-e1", source: "mr-start", target: "mr-greet", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e2", source: "mr-greet", target: "mr-choice", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e3", source: "mr-choice", target: "mr-shop", type: "dialogue", data: { optionText: "Show me your wares. (5 gold)", conditions: {}, conditionGroup: { logic: "AND", conditions: [{ variableId: "mr-var-gold", operator: ">=", value: 5 }] }, metadata: {} } },
+      { id: "mr-e3b", source: "mr-choice", target: "mr-no-gold", type: "dialogue", data: { optionText: "Show me your wares. (5 gold)", conditions: {}, conditionGroup: { logic: "AND", conditions: [{ variableId: "mr-var-gold", operator: "<", value: 5 }] }, metadata: {} } },
+      { id: "mr-e4", source: "mr-choice", target: "mr-haggle", type: "dialogue", data: { optionText: "Can you lower the price?", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e5", source: "mr-choice", target: "mr-browse", type: "dialogue", data: { optionText: "Just browsing.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e6", source: "mr-shop", target: "mr-deduct-gold", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e6b", source: "mr-deduct-gold", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e6c", source: "mr-no-gold", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e7", source: "mr-haggle", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "mr-e8", source: "mr-browse", target: "mr-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
     ] as SerialEdge[],
+    variables: [
+      { id: "mr-var-gold", name: "gold", type: "number", defaultValue: 100, description: "Player's current gold amount" },
+    ],
   },
 
   /* ── Combat Encounter ──────────────────────────────────── */
@@ -443,16 +495,19 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       },
     ] as SerialNode[],
     edges: [
-      { id: "ce-e1", source: "ce-start", target: "ce-taunt", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "ce-e2", source: "ce-taunt", target: "ce-choice", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "ce-e3", source: "ce-choice", target: "ce-fight", type: "dialogue", data: { optionText: "I'll never surrender!", conditions: {}, metadata: {} } },
-      { id: "ce-e4", source: "ce-choice", target: "ce-intimidate-win", type: "dialogue", data: { optionText: "[Intimidate] Back down, or else.", conditions: {}, metadata: {} } },
-      { id: "ce-e5", source: "ce-choice", target: "ce-surrender", type: "dialogue", data: { optionText: "Fine, take it.", conditions: {}, metadata: {} } },
-      { id: "ce-e6", source: "ce-fight", target: "ce-victory", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "ce-e7", source: "ce-intimidate-win", target: "ce-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "ce-e8", source: "ce-surrender", target: "ce-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "ce-e9", source: "ce-victory", target: "ce-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
+      { id: "ce-e1", source: "ce-start", target: "ce-taunt", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e2", source: "ce-taunt", target: "ce-choice", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e3", source: "ce-choice", target: "ce-fight", type: "dialogue", data: { optionText: "I'll never surrender!", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e4", source: "ce-choice", target: "ce-intimidate-win", type: "dialogue", data: { optionText: "[Intimidate] Back down, or else.", conditions: {}, conditionGroup: { logic: "AND", conditions: [{ variableId: "ce-var-intimidation", operator: ">=", value: 5 }] }, metadata: {} } },
+      { id: "ce-e5", source: "ce-choice", target: "ce-surrender", type: "dialogue", data: { optionText: "Fine, take it.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e6", source: "ce-fight", target: "ce-victory", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e7", source: "ce-intimidate-win", target: "ce-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e8", source: "ce-surrender", target: "ce-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "ce-e9", source: "ce-victory", target: "ce-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
     ] as SerialEdge[],
+    variables: [
+      { id: "ce-var-intimidation", name: "intimidation", type: "number", defaultValue: 3, description: "Player's intimidation skill level" },
+    ],
   },
 
   /* ── Companion Dialogue ────────────────────────────────── */
@@ -541,9 +596,22 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         type: "action",
         position: { x: -120, y: 640 },
         data: {
-          actionType: "trigger",
-          triggerCategory: "game",
-          label: "Companion Bond +1",
+          actionType: "setVariable",
+          label: "Relationship +1",
+          variableAction: { variableId: "cd-var-relationship", operation: "add", value: 1 },
+          attributeSchema: [],
+          attributes: {},
+        },
+      },
+      {
+        id: "cd-bond-reply",
+        type: "character",
+        position: { x: -120, y: 800 },
+        data: {
+          name: "Lyra",
+          dialogue: "I'm glad we had this chance to talk. I feel like I understand you better now.",
+          emotion: "warm",
+          portrait: "",
           attributeSchema: [],
           attributes: {},
         },
@@ -551,7 +619,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         id: "cd-end",
         type: "action",
-        position: { x: 0, y: 800 },
+        position: { x: 0, y: 960 },
         data: {
           actionType: "end",
           label: "End Conversation",
@@ -561,16 +629,20 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       },
     ] as SerialNode[],
     edges: [
-      { id: "cd-e1", source: "cd-start", target: "cd-open", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "cd-e2", source: "cd-open", target: "cd-choice1", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "cd-e3", source: "cd-choice1", target: "cd-warm", type: "dialogue", data: { optionText: "Please, sit.", conditions: {}, metadata: {} } },
-      { id: "cd-e4", source: "cd-choice1", target: "cd-company", type: "dialogue", data: { optionText: "I could use some company.", conditions: {}, metadata: {} } },
-      { id: "cd-e5", source: "cd-choice1", target: "cd-leave", type: "dialogue", data: { optionText: "I'd rather be alone.", conditions: {}, metadata: {} } },
-      { id: "cd-e6", source: "cd-warm", target: "cd-bond", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "cd-e7", source: "cd-company", target: "cd-bond", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "cd-e8", source: "cd-leave", target: "cd-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-      { id: "cd-e9", source: "cd-bond", target: "cd-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
+      { id: "cd-e1", source: "cd-start", target: "cd-open", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e2", source: "cd-open", target: "cd-choice1", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e3", source: "cd-choice1", target: "cd-warm", type: "dialogue", data: { optionText: "Please, sit.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e4", source: "cd-choice1", target: "cd-company", type: "dialogue", data: { optionText: "I could use some company.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e5", source: "cd-choice1", target: "cd-leave", type: "dialogue", data: { optionText: "I'd rather be alone.", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e6", source: "cd-warm", target: "cd-bond", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e7", source: "cd-company", target: "cd-bond", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e8", source: "cd-leave", target: "cd-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e9", source: "cd-bond", target: "cd-bond-reply", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
+      { id: "cd-e10", source: "cd-bond-reply", target: "cd-end", type: "dialogue", data: { optionText: "", conditions: {}, conditionGroup: null, metadata: {} } },
     ] as SerialEdge[],
+    variables: [
+      { id: "cd-var-relationship", name: "relationship", type: "number", defaultValue: 0, description: "Relationship score with Lyra (increases with positive choices)" },
+    ],
   },
 
   /* ── Tutorial ──────────────────────────────────────────── */

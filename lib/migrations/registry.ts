@@ -97,4 +97,47 @@ export const migrations: Migration[] = [
       };
     },
   },
+  {
+    // No-op patch: bridge 1.3.0 → 1.3.2 (bug-fix releases, no schema change)
+    from: "1.3.0",
+    to: "1.3.2",
+    up(graph): VersionedGraph {
+      return { ...graph, version: "1.3.2" };
+    },
+  },
+  {
+    // v1.4.0: add conditionGroup field to edges (null = no conditions)
+    from: "1.3.2",
+    to: "1.4.0",
+    up(graph): VersionedGraph {
+      const g = graph as unknown as Record<string, unknown>;
+      return {
+        ...graph,
+        version: "1.4.0",
+        variables: Array.isArray(g.variables)
+          ? (g.variables as VersionedGraph["variables"])
+          : [],
+        edges: graph.edges.map((edge) => {
+          const d = (edge.data ?? {}) as Record<string, unknown>;
+          return {
+            ...edge,
+            data: {
+              optionText: typeof d.optionText === "string" ? d.optionText : "",
+              conditions:
+                d.conditions && typeof d.conditions === "object"
+                  ? (d.conditions as Record<string, unknown>)
+                  : {},
+              conditionGroup: d.conditionGroup != null
+                ? (d.conditionGroup as import("@/types").ConditionGroup)
+                : null,
+              metadata:
+                d.metadata && typeof d.metadata === "object"
+                  ? (d.metadata as Record<string, unknown>)
+                  : {},
+            },
+          };
+        }),
+      };
+    },
+  },
 ];

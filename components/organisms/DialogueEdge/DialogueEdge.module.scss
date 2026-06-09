@@ -45,3 +45,29 @@
 .labelBtnEmpty {
   opacity: 0;
 }
+
+.labelWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.condBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background-color: color-mix(in oklch, oklch(0.65 0.19 290) 15%, transparent);
+  border: 1px solid color-mix(in oklch, oklch(0.65 0.19 290) 30%, transparent);
+  color: oklch(0.72 0.17 290);
+  flex-shrink: 0;
+}
+
+.condBadgeActive {
+  background-color: oklch(0.65 0.19 290);
+  color: oklch(1 0 0 / 90%);
+  border-color: oklch(0.65 0.19 290);
+}

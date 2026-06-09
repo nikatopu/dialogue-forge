@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   User, Zap, Flag, Sliders, FileText, Trash2, Copy, GitBranch,
   SkipForward, Square, Wrench, Crosshair, Swords, Music, Hash,
-  Clapperboard, Monitor, Plus, X, type LucideIcon,
+  Clapperboard, Monitor, Plus, X, SlidersHorizontal, type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -12,22 +12,24 @@ import { Separator } from "@/components/atoms/Separator";
 import { Badge } from "@/components/atoms/Badge";
 import { AttributeEditor } from "@/components/organisms/AttributeEditor";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useVariableStore } from "@/store/useVariableStore";
 import { useShallow } from "zustand/react/shallow";
 import { useEditorStore } from "@/store/useEditorStore";
 import cn from "classnames";
 import type {
   ForgeNode, CharacterNodeData, ActionNodeData, ActionType, TriggerCategory,
-  TriggerExecutionMode, StartNodeData,
+  TriggerExecutionMode, StartNodeData, VariableOperation,
 } from "@/types";
 import { TRIGGER_EVENTS } from "@/types";
 import style from "./NodeInspector.module.scss";
 
 const ACTION_STRIP: Record<ActionType, { icon: LucideIcon; label: string; color: string; bg: string; border: string; glow: string }> = {
-  trigger: { icon: Zap,        label: "Trigger", color: "oklch(0.72 0.18 155)", bg: "oklch(0.52 0.18 155 / 15%)", border: "oklch(0.52 0.18 155 / 25%)", glow: "oklch(0.52 0.18 155 / 5%)" },
-  branch:  { icon: GitBranch,  label: "Branch",  color: "oklch(0.72 0.18 50)",  bg: "oklch(0.52 0.18 50 / 15%)",  border: "oklch(0.52 0.18 50 / 25%)",  glow: "oklch(0.52 0.18 50 / 5%)" },
-  jump:    { icon: SkipForward,label: "Jump",    color: "oklch(0.68 0.18 220)", bg: "oklch(0.52 0.18 220 / 15%)", border: "oklch(0.52 0.18 220 / 25%)", glow: "oklch(0.52 0.18 220 / 5%)" },
-  end:     { icon: Square,     label: "End",     color: "oklch(0.72 0.22 355)", bg: "oklch(0.52 0.22 355 / 15%)", border: "oklch(0.52 0.22 355 / 25%)", glow: "oklch(0.52 0.22 355 / 5%)" },
-  custom:  { icon: Wrench,     label: "Custom",  color: "oklch(0.65 0.19 290)", bg: "oklch(0.52 0.19 290 / 15%)", border: "oklch(0.52 0.19 290 / 25%)", glow: "oklch(0.52 0.19 290 / 5%)" },
+  trigger:     { icon: Zap,               label: "Trigger",      color: "oklch(0.72 0.18 155)", bg: "oklch(0.52 0.18 155 / 15%)", border: "oklch(0.52 0.18 155 / 25%)", glow: "oklch(0.52 0.18 155 / 5%)" },
+  branch:      { icon: GitBranch,         label: "Branch",       color: "oklch(0.72 0.18 50)",  bg: "oklch(0.52 0.18 50 / 15%)",  border: "oklch(0.52 0.18 50 / 25%)",  glow: "oklch(0.52 0.18 50 / 5%)" },
+  jump:        { icon: SkipForward,       label: "Jump",         color: "oklch(0.68 0.18 220)", bg: "oklch(0.52 0.18 220 / 15%)", border: "oklch(0.52 0.18 220 / 25%)", glow: "oklch(0.52 0.18 220 / 5%)" },
+  end:         { icon: Square,            label: "End",          color: "oklch(0.72 0.22 355)", bg: "oklch(0.52 0.22 355 / 15%)", border: "oklch(0.52 0.22 355 / 25%)", glow: "oklch(0.52 0.22 355 / 5%)" },
+  custom:      { icon: Wrench,            label: "Custom",       color: "oklch(0.65 0.19 290)", bg: "oklch(0.52 0.19 290 / 15%)", border: "oklch(0.52 0.19 290 / 25%)", glow: "oklch(0.52 0.19 290 / 5%)" },
+  setVariable: { icon: SlidersHorizontal, label: "Set Variable", color: "oklch(0.72 0.19 310)", bg: "oklch(0.52 0.19 310 / 15%)", border: "oklch(0.52 0.19 310 / 25%)", glow: "oklch(0.52 0.19 310 / 5%)" },
 };
 
 const TABS = [
@@ -174,7 +176,7 @@ function CharacterProperties({ nodeId, data, onUpdate }: { nodeId: string; data:
   );
 }
 
-const ACTION_TYPES: ActionType[] = ["trigger", "branch", "jump", "end", "custom"];
+const ACTION_TYPES: ActionType[] = ["trigger", "branch", "jump", "end", "custom", "setVariable"];
 
 function ActionProperties({ nodeId, data, onUpdate }: { nodeId: string; data: ActionNodeData; onUpdate: (p: Partial<ActionNodeData>) => void }) {
   return (
@@ -189,6 +191,7 @@ function ActionProperties({ nodeId, data, onUpdate }: { nodeId: string; data: Ac
       {data.actionType === "trigger" && <TriggerSection data={data} onUpdate={onUpdate} />}
       {data.actionType === "branch" && <BranchOptionsSection nodeId={nodeId} />}
       {data.actionType === "jump" && <JumpTargetSection nodeId={nodeId} />}
+      {data.actionType === "setVariable" && <VariableActionSection data={data} onUpdate={onUpdate} />}
     </>
   );
 }
@@ -388,4 +391,123 @@ function InlineTextarea({ value, placeholder, onCommit, rows = 3 }: { value: str
       className={style.inlineTextarea}
     />
   );
+}
+
+const OPERATIONS: { value: VariableOperation; label: string }[] = [
+  { value: "set",      label: "Set  (=)" },
+  { value: "add",      label: "Add  (+=" },
+  { value: "subtract", label: "Subtract (-=" },
+  { value: "multiply", label: "Multiply (*=" },
+  { value: "divide",   label: "Divide (/=" },
+  { value: "toggle",   label: "Toggle" },
+];
+
+function VariableActionSection({ data, onUpdate }: { data: ActionNodeData; onUpdate: (p: Partial<ActionNodeData>) => void }) {
+  const variables = useVariableStore((s) => s.variables);
+  const va = data.variableAction;
+
+  function setField(patch: Partial<NonNullable<ActionNodeData["variableAction"]>>) {
+    onUpdate({
+      variableAction: {
+        variableId: va?.variableId ?? "",
+        operation: va?.operation ?? "set",
+        value: va?.value,
+        ...patch,
+      },
+    });
+  }
+
+  const selectedVar = variables.find((v) => v.id === va?.variableId);
+  const isToggle = va?.operation === "toggle";
+
+  return (
+    <>
+      <Separator style={{ opacity: 0.3 }} />
+      <div className={style.field}>
+        <div className={style.sectionHeaderLeft}>
+          <SlidersHorizontal size={12} style={{ color: "oklch(0.72 0.19 310)" }} />
+          <p className={style.fieldLabel}>Variable Action</p>
+        </div>
+        {variables.length === 0 ? (
+          <p className={style.emptyNote}>No variables defined. Open the Variables panel to create some.</p>
+        ) : (
+          <>
+            <div className={style.field}>
+              <p className={style.fieldLabel}>Variable</p>
+              <select
+                value={va?.variableId ?? ""}
+                onChange={(e) => setField({ variableId: e.target.value })}
+                className={style.select}
+                aria-label="Variable to modify"
+              >
+                <option value="">— select variable —</option>
+                {variables.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} ({v.type})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={style.field}>
+              <p className={style.fieldLabel}>Operation</p>
+              <select
+                value={va?.operation ?? "set"}
+                onChange={(e) => setField({ operation: e.target.value as VariableOperation })}
+                className={style.select}
+                aria-label="Operation"
+              >
+                {OPERATIONS.map((op) => (
+                  <option key={op.value} value={op.value}>{op.label}</option>
+                ))}
+              </select>
+            </div>
+            {!isToggle && (
+              <div className={style.field}>
+                <p className={style.fieldLabel}>Value</p>
+                {selectedVar?.type === "boolean" ? (
+                  <select
+                    value={String(va?.value ?? "true")}
+                    onChange={(e) => setField({ value: e.target.value === "true" })}
+                    className={style.select}
+                    aria-label="Boolean value"
+                  >
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                  </select>
+                ) : (
+                  <InlineInput
+                    value={String(va?.value ?? "")}
+                    placeholder={selectedVar?.type === "number" ? "0" : "value"}
+                    onCommit={(v) => {
+                      const coerced = selectedVar?.type === "number" ? (isNaN(Number(v)) ? v : Number(v)) : v;
+                      setField({ value: coerced as string | number });
+                    }}
+                  />
+                )}
+              </div>
+            )}
+            {va?.variableId && va?.operation && (
+              <div className={style.varPreview}>
+                <span className={style.varPreviewText}>
+                  {selectedVar?.name ?? "?"} {formatOpPreview(va.operation, va.value)}
+                </span>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+function formatOpPreview(op: VariableOperation, value?: string | number | boolean): string {
+  switch (op) {
+    case "set":      return `= ${value ?? "…"}`;
+    case "add":      return `+= ${value ?? "…"}`;
+    case "subtract": return `-= ${value ?? "…"}`;
+    case "multiply": return `*= ${value ?? "…"}`;
+    case "divide":   return `/= ${value ?? "…"}`;
+    case "toggle":   return "= !current";
+    default:         return String(op);
+  }
 }

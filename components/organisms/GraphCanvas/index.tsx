@@ -10,7 +10,8 @@ import "@xyflow/react/dist/style.css";
 import { Network, Mouse, Sparkles, SkipForward } from "lucide-react";
 import { useGraphStore as useGraphStoreForDemo } from "@/store/useGraphStore";
 import { useEditorStore as useEditorStoreForDemo } from "@/store/useEditorStore";
-import { DEMO_NODES, DEMO_EDGES, DEMO_PROJECT_NAME } from "@/lib/demoProject";
+import { DEMO_NODES, DEMO_EDGES, DEMO_PROJECT_NAME, DEMO_VARIABLES } from "@/lib/demoProject";
+import { useVariableStore } from "@/store/useVariableStore";
 import { ConfirmModal } from "@/components/organisms/ConfirmModal";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
@@ -238,6 +239,7 @@ function FlowEditor() {
 function EmptyCanvasState() {
   const { loadGraph } = useGraphStoreForDemo();
   const { setProjectName } = useEditorStoreForDemo();
+  const { setVariables } = useVariableStore();
 
   return (
     <>
@@ -257,7 +259,7 @@ function EmptyCanvasState() {
 
       <button
         type="button"
-        onClick={() => { loadGraph(DEMO_NODES, DEMO_EDGES); setProjectName(DEMO_PROJECT_NAME); }}
+        onClick={() => { loadGraph(DEMO_NODES, DEMO_EDGES); setProjectName(DEMO_PROJECT_NAME); setVariables(DEMO_VARIABLES); }}
         className={style.demoBtn}
       >
         <Sparkles size={14} />

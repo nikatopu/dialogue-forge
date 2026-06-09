@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/atoms/ScrollArea";
 import { Badge } from "@/components/atoms/Badge";
 import { BottomSheet } from "@/components/atoms/BottomSheet";
 import { NodeInspector } from "@/components/organisms/NodeInspector";
+import { EdgeInspector } from "@/components/organisms/EdgeInspector";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useIsMobile } from "@/hooks/useBreakpoint";
@@ -20,16 +21,22 @@ const NODE_TYPE_BADGE: Record<string, string> = {
 };
 
 export function InspectorPanel() {
-  const { inspectorOpen, selectedNodeId, mobileInspectorOpen, setMobileInspectorOpen } = useEditorStore();
+  const { inspectorOpen, selectedNodeId, selectedEdgeId, mobileInspectorOpen, setMobileInspectorOpen } = useEditorStore();
   const { nodes } = useGraphStore();
   const isMobile = useIsMobile();
 
   const selectedNode = selectedNodeId ? (nodes.find((n) => n.id === selectedNodeId) ?? null) : null;
+  const showEdge = !selectedNode && !!selectedEdgeId;
 
   if (isMobile) {
     return (
       <BottomSheet open={mobileInspectorOpen} onClose={() => setMobileInspectorOpen(false)} size="full" title="Inspector">
-        {selectedNode ? <NodeInspector node={selectedNode} /> : <EmptyInspector />}
+        {selectedNode
+          ? <NodeInspector node={selectedNode} />
+          : showEdge
+          ? <EdgeInspector edgeId={selectedEdgeId!} />
+          : <EmptyInspector />
+        }
       </BottomSheet>
     );
   }
@@ -41,9 +48,11 @@ export function InspectorPanel() {
       className={style.panel}
     >
       <div className={style.inner}>
-        <InspectorHeader selectedNode={selectedNode} />
+        <InspectorHeader selectedNode={selectedNode} showEdge={showEdge} />
         {selectedNode
           ? <NodeInspector node={selectedNode} />
+          : showEdge
+          ? <EdgeInspector edgeId={selectedEdgeId!} />
           : <ScrollArea style={{ flex: 1 }}><EmptyInspector /></ScrollArea>
         }
       </div>
@@ -51,8 +60,9 @@ export function InspectorPanel() {
   );
 }
 
-function InspectorHeader({ selectedNode, onClose, showClose }: {
+function InspectorHeader({ selectedNode, showEdge, onClose, showClose }: {
   selectedNode: ForgeNode | null;
+  showEdge?: boolean;
   onClose?: () => void;
   showClose?: boolean;
 }) {
@@ -70,6 +80,15 @@ function InspectorHeader({ selectedNode, onClose, showClose }: {
             style={{ height: "1rem", padding: "0 0.375rem" }}
           >
             {selectedNode.type}
+          </Badge>
+        )}
+        {showEdge && !selectedNode && (
+          <Badge
+            variant="outline"
+            className="text-[10px]"
+            style={{ height: "1rem", padding: "0 0.375rem", color: "oklch(0.65 0.19 260)", borderColor: "oklch(0.52 0.255 262 / 30%)", backgroundColor: "oklch(0.52 0.255 262 / 10%)" }}
+          >
+            edge
           </Badge>
         )}
         {showClose && onClose && (

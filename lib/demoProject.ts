@@ -1,6 +1,30 @@
-import type { SerialNode, SerialEdge } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
 
 export const DEMO_PROJECT_NAME = "Visual Novel Example";
+
+export const DEMO_VARIABLES: ProjectVariable[] = [
+  {
+    id: "var-demo-courage",
+    name: "playerCourage",
+    type: "number",
+    defaultValue: 5,
+    description: "The hero's courage stat — gates brave dialogue options",
+  },
+  {
+    id: "var-demo-quest",
+    name: "questActive",
+    type: "boolean",
+    defaultValue: false,
+    description: "Whether the Shard of Dawn quest has been accepted",
+  },
+  {
+    id: "var-demo-faction",
+    name: "playerFaction",
+    type: "string",
+    defaultValue: "Neutral",
+    description: "The hero's current faction alignment",
+  },
+];
 
 export const DEMO_NODES: SerialNode[] = [
   /* ── Main Story entry ── */
@@ -107,9 +131,21 @@ export const DEMO_NODES: SerialNode[] = [
     },
   },
   {
+    id: "act-set-quest",
+    type: "action",
+    position: { x: -660, y: 800 },
+    data: {
+      actionType: "setVariable",
+      label: "Set Quest Active",
+      variableAction: { variableId: "var-demo-quest", operation: "set", value: true },
+      attributeSchema: [],
+      attributes: {},
+    },
+  },
+  {
     id: "act-jump-1",
     type: "action",
-    position: { x: -660, y: 880 },
+    position: { x: -660, y: 960 },
     data: {
       actionType: "jump",
       label: "Loop: Back to Start",
@@ -121,7 +157,7 @@ export const DEMO_NODES: SerialNode[] = [
   {
     id: "act-end-1",
     type: "action",
-    position: { x: -260, y: 880 },
+    position: { x: -260, y: 960 },
     data: {
       actionType: "end",
       label: "End Conversation",
@@ -246,11 +282,12 @@ export const DEMO_EDGES: SerialEdge[] = [
   { id: "e-start-hero", source: "start-main", target: "char-hero", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
   { id: "e-hero-elder", source: "char-hero", target: "char-elder", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
   { id: "e-elder-branch", source: "char-elder", target: "act-branch-1", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-  { id: "e-branch-accept", source: "act-branch-1", target: "char-accept", type: "dialogue", data: { optionText: "I'm ready. Tell me more.", conditions: {}, metadata: {} } },
+  { id: "e-branch-accept", source: "act-branch-1", target: "char-accept", type: "dialogue", data: { optionText: "I'm ready. Tell me more.", conditions: {}, conditionGroup: { logic: "AND", conditions: [{ variableId: "var-demo-courage", operator: ">=", value: 5 }] }, metadata: {} } },
   { id: "e-branch-refuse", source: "act-branch-1", target: "char-refuse", type: "dialogue", data: { optionText: "I don't need your guidance.", conditions: {}, metadata: {} } },
   { id: "e-accept-trigger", source: "char-accept", target: "act-trigger-1", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
   { id: "e-refuse-elder2", source: "char-refuse", target: "char-elder-2", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
-  { id: "e-trigger-jump", source: "act-trigger-1", target: "act-jump-1", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
+  { id: "e-trigger-setvar", source: "act-trigger-1", target: "act-set-quest", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
+  { id: "e-setvar-jump", source: "act-set-quest", target: "act-jump-1", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
   { id: "e-elder2-end", source: "char-elder-2", target: "act-end-1", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
 
   /* Combat */

@@ -1,13 +1,14 @@
-import type { SerialNode, SerialEdge } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
 
 export type ProjectVersion = string;
 
-export const CURRENT_VERSION: ProjectVersion = "1.3.2";
+export const CURRENT_VERSION: ProjectVersion = "1.4.0";
 
 export interface VersionedGraph {
   version: ProjectVersion;
   nodes: SerialNode[];
   edges: SerialEdge[];
+  variables?: ProjectVariable[];
   metadata?: Record<string, unknown>;
 }
 
