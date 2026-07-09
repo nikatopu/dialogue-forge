@@ -20,10 +20,11 @@ import {
   applyVariableAction,
 } from "@/lib/simulateVariables";
 import type { StateChange, VarState } from "@/lib/simulateVariables";
+import { interpolateText } from "@/lib/interpolation";
 import cn from "classnames";
 import type {
   ForgeNode, CharacterNodeData, ActionNodeData, StartNodeData, DialogueEdge,
-  TriggerCategory, TriggerExecutionMode, ProjectVariable,
+  TriggerCategory, TriggerExecutionMode, ProjectVariable, RuntimeState, VariableType,
 } from "@/types";
 import style from "./PreviewModal.module.scss";
 
@@ -262,7 +263,7 @@ export function PreviewModal({ open, onClose }: PreviewModalProps) {
                   : currentNode.type === "start" ? (
                     <StartStep data={currentNode.data as StartNodeData} choices={allOutgoing} lockedEdgeIds={lockedEdgeIds} lockedEdgeReasons={lockedEdgeReasons} onChoice={handleChoice} />
                   ) : currentNode.type === "character" ? (
-                    <CharacterStep node={currentNode} data={currentNode.data as CharacterNodeData} choices={allOutgoing} lockedEdgeIds={lockedEdgeIds} lockedEdgeReasons={lockedEdgeReasons} onChoice={handleChoice} />
+                    <CharacterStep node={currentNode} data={currentNode.data as CharacterNodeData} choices={allOutgoing} lockedEdgeIds={lockedEdgeIds} lockedEdgeReasons={lockedEdgeReasons} onChoice={handleChoice} varState={varState} variables={variables} />
                   ) : (
                     <ActionStep data={currentNode.data as ActionNodeData} choices={allOutgoing} lockedEdgeIds={lockedEdgeIds} lockedEdgeReasons={lockedEdgeReasons} onChoice={handleChoice} varState={varState} variables={variables} />
                   )
@@ -343,6 +344,21 @@ function SetupPhase({ variables, onStart, onSkip }: {
   );
 }
 
+/* ─── State panel helpers ─── */
+
+function formatVariableValue(value: RuntimeState[string], type: VariableType): string {
+  if (type === "list") {
+    const arr = Array.isArray(value) ? value : [];
+    return `${arr.length} ${arr.length === 1 ? "item" : "items"}`;
+  }
+  if (type === "object") {
+    const obj = typeof value === "object" && value !== null && !Array.isArray(value) ? value : {};
+    const count = Object.keys(obj).length;
+    return `${count} ${count === 1 ? "key" : "keys"}`;
+  }
+  return String(value ?? "");
+}
+
 /* ─── State panel ─── */
 
 function StatePanel({ variables, varState, changes }: {
@@ -366,7 +382,7 @@ function StatePanel({ variables, varState, changes }: {
             return (
               <div key={v.id} className={cn(style.stateItem, changed && style.stateItemChanged)}>
                 <span className={style.stateVarName}>{v.name}</span>
-                <code className={cn(style.stateVal, changed && style.stateValChanged)}>{String(val)}</code>
+                <code className={cn(style.stateVal, changed && style.stateValChanged)}>{formatVariableValue(val, v.type)}</code>
               </div>
             );
           })}
@@ -425,7 +441,11 @@ function StartStep({ data, choices, lockedEdgeIds, lockedEdgeReasons, onChoice }
   );
 }
 
-function CharacterStep({ data, choices, lockedEdgeIds, lockedEdgeReasons, onChoice }: { node: ForgeNode; data: CharacterNodeData } & ChoiceListProps) {
+function CharacterStep({ data, choices, lockedEdgeIds, lockedEdgeReasons, onChoice, varState, variables }: { node: ForgeNode; data: CharacterNodeData; varState: VarState; variables: ProjectVariable[] } & ChoiceListProps) {
+  const runtimeState: RuntimeState = Object.fromEntries(
+    variables.map((v) => [v.name, varState[v.id] ?? v.defaultValue])
+  );
+  const displayDialogue = data.dialogue ? interpolateText(data.dialogue, runtimeState) : "";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <div className={style.characterHeader}>
@@ -438,7 +458,7 @@ function CharacterStep({ data, choices, lockedEdgeIds, lockedEdgeReasons, onChoi
         </div>
       </div>
       <div className={style.dialogueBubble}>
-        {data.dialogue ? <p className={style.dialogueText}>{data.dialogue}</p> : <p className={style.dialogueEmpty}>No dialogue set.</p>}
+        {displayDialogue ? <p className={style.dialogueText}>{displayDialogue}</p> : <p className={style.dialogueEmpty}>No dialogue set.</p>}
       </div>
       <ChoiceList choices={choices} lockedEdgeIds={lockedEdgeIds} lockedEdgeReasons={lockedEdgeReasons} onChoice={onChoice} />
     </div>

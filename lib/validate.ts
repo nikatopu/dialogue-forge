@@ -7,7 +7,10 @@ import type {
   ProjectVariable,
   ConditionGroup,
   Condition,
+  VariableType,
+  ConditionOperator,
 } from "@/types";
+import { validateInterpolation } from "@/lib/interpolation";
 
 export type IssueLevel = "error" | "warning" | "info";
 
@@ -112,6 +115,28 @@ export function validateGraph(
           message: `"${d.name || "Unnamed"}" has no dialogue text`,
           nodeId: node.id,
         });
+      }
+
+      // Dialogue interpolation validation
+      if (d.dialogue) {
+        const interpIssues = validateInterpolation(d.dialogue, variables);
+        for (const issue of interpIssues) {
+          if (issue.reason === "unknown_variable") {
+            push({
+              level: "warning",
+              code: "dialogue_unknown_variable",
+              message: `Unknown variable "{${issue.token}}" in dialogue`,
+              nodeId: node.id,
+            });
+          } else if (issue.reason === "invalid_path") {
+            push({
+              level: "warning",
+              code: "dialogue_invalid_path",
+              message: `Invalid path "{${issue.token}}" in dialogue`,
+              nodeId: node.id,
+            });
+          }
+        }
       }
     }
 
@@ -252,6 +277,15 @@ export function validateGraph(
   return issues;
 }
 
+const VALID_OPERATORS_BY_TYPE: Record<VariableType, ConditionOperator[]> = {
+  number:  ["==", "!=", ">", ">=", "<", "<=", "between", "notBetween"],
+  float:   ["==", "!=", ">", ">=", "<", "<=", "between", "notBetween"],
+  boolean: ["isTrue", "isFalse"],
+  string:  ["==", "!=", "contains", "notContains", "startsWith", "endsWith", "isEmpty", "isNotEmpty"],
+  list:    ["listContains", "listNotContains", "listIsEmpty", "listIsNotEmpty", "lengthEquals", "lengthGreater", "lengthLess"],
+  object:  ["hasProperty", "notHasProperty", "propertyEquals"],
+};
+
 function validateConditionGroup(
   group: ConditionGroup,
   varMap: Map<string, ProjectVariable>,
@@ -283,28 +317,23 @@ function validateConditionGroup(
     const variable = varMap.get(condition.variableId)!;
     const op = condition.operator;
 
-    // Type-mismatch: numeric operators on string/boolean variables
-    if (
-      variable.type !== "number" &&
-      (op === ">" || op === ">=" || op === "<" || op === "<=")
-    ) {
+    // Full operator-type mismatch check using VALID_OPERATORS_BY_TYPE
+    const validOps = VALID_OPERATORS_BY_TYPE[variable.type] ?? [];
+    if (!validOps.includes(op)) {
       issues.push({
         level: "warning",
         code: "condition_type_mismatch",
-        message: `Condition uses "${op}" on "${variable.name}" which is not a number`,
+        message: `Operator "${op}" is not valid for variable type "${variable.type}"`,
         edgeId,
       });
     }
 
-    // String operators on non-string variables
-    if (
-      variable.type !== "string" &&
-      (op === "contains" || op === "startsWith" || op === "endsWith")
-    ) {
+    // between / notBetween missing value2
+    if ((op === "between" || op === "notBetween") && condition.value2 == null) {
       issues.push({
         level: "warning",
-        code: "condition_type_mismatch",
-        message: `Condition uses "${op}" on "${variable.name}" which is not a string`,
+        code: "condition_missing_value2",
+        message: `Operator "${op}" requires a second value`,
         edgeId,
       });
     }

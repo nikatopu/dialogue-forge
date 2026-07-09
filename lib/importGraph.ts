@@ -1,4 +1,4 @@
-import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable, VariableType } from "@/types";
 import { migrateProject } from "@/lib/migrations";
 
 export interface ImportResult {
@@ -12,6 +12,32 @@ export interface ImportResult {
 export interface ImportError {
   ok: false;
   error: string;
+}
+
+const KNOWN_TYPES = new Set<VariableType>(["number", "float", "boolean", "string", "list", "object"]);
+
+function coerceDefaultValue(
+  type: VariableType,
+  raw: unknown
+): ProjectVariable["defaultValue"] {
+  switch (type) {
+    case "number":
+      return typeof raw === "number" ? raw : 0;
+    case "float":
+      return typeof raw === "number" ? raw : 0.0;
+    case "boolean":
+      return typeof raw === "boolean" ? raw : false;
+    case "string":
+      return typeof raw === "string" ? raw : "";
+    case "list":
+      return Array.isArray(raw) ? (raw as string[]).filter(i => typeof i === "string") : [];
+    case "object":
+      return typeof raw === "object" && raw !== null && !Array.isArray(raw)
+        ? (raw as Record<string, unknown>)
+        : {};
+    default:
+      return "";
+  }
 }
 
 export function parseGraphJson(raw: string): ImportResult | ImportError {
@@ -48,10 +74,23 @@ export function parseGraphJson(raw: string): ImportResult | ImportError {
   const { graph } = migrateProject(graphData);
 
   // Prefer variables from migration result, fall back to raw extract
-  const variables: ProjectVariable[] =
+  const mergedVariables: ProjectVariable[] =
     Array.isArray(graph.variables) && graph.variables.length > 0
       ? graph.variables
       : rawVariables;
+
+  // Validate and coerce each variable's type and defaultValue
+  const variables: ProjectVariable[] = mergedVariables.map((v) => {
+    const rawType = v.type as string;
+    const safeType: VariableType = KNOWN_TYPES.has(rawType as VariableType)
+      ? (rawType as VariableType)
+      : "string";
+    return {
+      ...v,
+      type: safeType,
+      defaultValue: coerceDefaultValue(safeType, v.defaultValue),
+    };
+  });
 
   return {
     ok: true,

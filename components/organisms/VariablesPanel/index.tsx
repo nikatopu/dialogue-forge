@@ -5,24 +5,30 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Plus, Search, SlidersHorizontal, Hash, ToggleLeft, Type,
-  Pencil, Trash2, Check, AlertCircle,
+  Pencil, Trash2, Check, AlertCircle, List, Braces,
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { ScrollArea } from "@/components/atoms/ScrollArea";
 import { Separator } from "@/components/atoms/Separator";
+import { TypeBadge } from "@/components/atoms/TypeBadge";
 import { useVariableStore, defaultValueForType } from "@/store/useVariableStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useEditorStore } from "@/store/useEditorStore";
 import { computeVariableUsage } from "@/lib/variableUsage";
+import { renameVariableInGraph } from "@/lib/variableRename";
+import { parseVariableReferences } from "@/lib/interpolation/parseVariableReferences";
 import { useShallow } from "zustand/react/shallow";
 import cn from "classnames";
-import type { ProjectVariable, VariableType } from "@/types";
+import type { ProjectVariable, VariableType, CharacterNodeData } from "@/types";
 import style from "./VariablesPanel.module.scss";
 
 const TYPE_CONFIG: Record<VariableType, { icon: React.ElementType; label: string; color: string }> = {
   number:  { icon: Hash,        label: "Number",  color: "oklch(0.72 0.18 220)" },
+  float:   { icon: Hash,        label: "Float",   color: "oklch(0.72 0.18 240)" },
   boolean: { icon: ToggleLeft,  label: "Boolean", color: "oklch(0.72 0.18 155)" },
   string:  { icon: Type,        label: "String",  color: "oklch(0.72 0.18 50)"  },
+  list:    { icon: List,        label: "List",    color: "oklch(0.72 0.18 290)" },
+  object:  { icon: Braces,      label: "Object",  color: "oklch(0.72 0.18 30)"  },
 };
 
 interface EditingState {
@@ -31,16 +37,87 @@ interface EditingState {
   type: VariableType;
   defaultValue: string;
   description: string;
+  /** For list type: the parsed array being edited */
+  listItems: string[];
+  /** For list type: the current "add item" input value */
+  listInput: string;
+  /** For object type: the parsed entries being edited */
+  objectEntries: Array<{ key: string; value: string }>;
+  /** For object type: show raw JSON textarea */
+  objectJsonMode: boolean;
+  /** For object type: raw JSON textarea text */
+  objectJsonText: string;
 }
 
 function blankEdit(): EditingState {
-  return { id: null, name: "", type: "number", defaultValue: "0", description: "" };
+  return {
+    id: null,
+    name: "",
+    type: "number",
+    defaultValue: "0",
+    description: "",
+    listItems: [],
+    listInput: "",
+    objectEntries: [],
+    objectJsonMode: false,
+    objectJsonText: "{}",
+  };
+}
+
+function editFromVariable(v: ProjectVariable): EditingState {
+  let listItems: string[] = [];
+  let objectEntries: Array<{ key: string; value: string }> = [];
+  let objectJsonText = "{}";
+  let defaultValue = String(v.defaultValue);
+
+  if (v.type === "list") {
+    if (Array.isArray(v.defaultValue)) {
+      listItems = v.defaultValue as string[];
+    }
+    defaultValue = "";
+  } else if (v.type === "object") {
+    const obj = (v.defaultValue && typeof v.defaultValue === "object" && !Array.isArray(v.defaultValue))
+      ? v.defaultValue as Record<string, unknown>
+      : {};
+    objectEntries = Object.entries(obj).map(([key, value]) => ({ key, value: String(value) }));
+    objectJsonText = JSON.stringify(obj, null, 2);
+    defaultValue = "";
+  }
+
+  return {
+    id: v.id,
+    name: v.name,
+    type: v.type,
+    defaultValue,
+    description: v.description ?? "",
+    listItems,
+    listInput: "",
+    objectEntries,
+    objectJsonMode: false,
+    objectJsonText,
+  };
+}
+
+function computeDialogueCount(variableName: string, nodes: import("@/types").ForgeNode[]): number {
+  let count = 0;
+  for (const node of nodes) {
+    if (node.type !== "character") continue;
+    const data = node.data as CharacterNodeData;
+    const dialogue = data.dialogue ?? "";
+    const refs = parseVariableReferences(dialogue);
+    for (const ref of refs) {
+      if (ref.path[0] === variableName) count++;
+    }
+  }
+  return count;
 }
 
 export function VariablesPanel() {
   const { variablesPanelOpen, setVariablesPanelOpen } = useEditorStore();
   const { variables, addVariable, updateVariable, removeVariable } = useVariableStore();
-  const { nodes, edges } = useGraphStore(useShallow((s) => ({ nodes: s.nodes, edges: s.edges })));
+  const { nodes, edges, loadGraph } = useGraphStore(
+    useShallow((s) => ({ nodes: s.nodes, edges: s.edges, loadGraph: s.loadGraph })),
+  );
 
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -72,17 +149,57 @@ export function VariablesPanel() {
     const name = editing.name.trim();
     if (!name) return;
 
-    let defaultValue: number | boolean | string;
+    let defaultValue: number | boolean | string | string[] | Record<string, unknown>;
+
     if (editing.type === "number") {
       defaultValue = isNaN(Number(editing.defaultValue)) ? 0 : Number(editing.defaultValue);
+    } else if (editing.type === "float") {
+      defaultValue = isNaN(parseFloat(editing.defaultValue)) ? 0.0 : parseFloat(editing.defaultValue);
     } else if (editing.type === "boolean") {
       defaultValue = editing.defaultValue === "true";
+    } else if (editing.type === "list") {
+      defaultValue = editing.listItems;
+    } else if (editing.type === "object") {
+      if (editing.objectJsonMode) {
+        try {
+          defaultValue = JSON.parse(editing.objectJsonText) as Record<string, unknown>;
+        } catch {
+          defaultValue = {};
+        }
+      } else {
+        const obj: Record<string, string> = {};
+        for (const { key, value } of editing.objectEntries) {
+          if (key.trim()) obj[key.trim()] = value;
+        }
+        defaultValue = obj;
+      }
     } else {
       defaultValue = editing.defaultValue;
     }
 
     if (editing.id) {
-      updateVariable(editing.id, { name, type: editing.type, defaultValue, description: editing.description || undefined });
+      // Rename flow: if name changed, update dialogue references in graph
+      const existingVar = variables.find((v) => v.id === editing.id);
+      const oldName = existingVar?.name ?? "";
+
+      if (oldName && oldName !== name) {
+        const result = renameVariableInGraph(
+          nodes as import("@/types").SerialNode[],
+          edges as import("@/types").SerialEdge[],
+          oldName,
+          name,
+        );
+        if (result.dialogueUpdated > 0) {
+          loadGraph(result.nodes, result.edges);
+        }
+      }
+
+      updateVariable(editing.id, {
+        name,
+        type: editing.type,
+        defaultValue,
+        description: editing.description || undefined,
+      });
     } else {
       addVariable({ name, type: editing.type, defaultValue, description: editing.description || undefined });
     }
@@ -90,18 +207,76 @@ export function VariablesPanel() {
   }
 
   function startEdit(v: ProjectVariable) {
-    setEditing({
-      id: v.id,
-      name: v.name,
-      type: v.type,
-      defaultValue: String(v.defaultValue),
-      description: v.description ?? "",
-    });
+    setEditing(editFromVariable(v));
   }
 
   function handleTypeChange(type: VariableType) {
     if (!editing) return;
-    setEditing({ ...editing, type, defaultValue: String(defaultValueForType(type)) });
+    const rawDefault = defaultValueForType(type);
+    const listItems = type === "list" ? [] : [];
+    const objectEntries: Array<{ key: string; value: string }> = [];
+    setEditing({
+      ...editing,
+      type,
+      defaultValue: String(rawDefault),
+      listItems,
+      listInput: "",
+      objectEntries,
+      objectJsonMode: false,
+      objectJsonText: "{}",
+    });
+  }
+
+  // List helpers
+  function listAddItem() {
+    if (!editing) return;
+    const item = editing.listInput.trim();
+    if (!item) return;
+    setEditing({ ...editing, listItems: [...editing.listItems, item], listInput: "" });
+  }
+
+  function listRemoveItem(idx: number) {
+    if (!editing) return;
+    setEditing({ ...editing, listItems: editing.listItems.filter((_, i) => i !== idx) });
+  }
+
+  // Object helpers
+  function objectAddEntry() {
+    if (!editing) return;
+    setEditing({ ...editing, objectEntries: [...editing.objectEntries, { key: "", value: "" }] });
+  }
+
+  function objectUpdateEntry(idx: number, field: "key" | "value", val: string) {
+    if (!editing) return;
+    const updated = editing.objectEntries.map((e, i) => i === idx ? { ...e, [field]: val } : e);
+    setEditing({ ...editing, objectEntries: updated });
+  }
+
+  function objectRemoveEntry(idx: number) {
+    if (!editing) return;
+    setEditing({ ...editing, objectEntries: editing.objectEntries.filter((_, i) => i !== idx) });
+  }
+
+  function objectToggleJsonMode() {
+    if (!editing) return;
+    if (!editing.objectJsonMode) {
+      // switching to JSON mode — serialize current entries
+      const obj: Record<string, string> = {};
+      for (const { key, value } of editing.objectEntries) {
+        if (key.trim()) obj[key.trim()] = value;
+      }
+      setEditing({ ...editing, objectJsonMode: true, objectJsonText: JSON.stringify(obj, null, 2) });
+    } else {
+      // switching back to structured mode — parse JSON
+      let entries: Array<{ key: string; value: string }> = [];
+      try {
+        const parsed = JSON.parse(editing.objectJsonText) as Record<string, unknown>;
+        entries = Object.entries(parsed).map(([key, value]) => ({ key, value: String(value) }));
+      } catch {
+        entries = editing.objectEntries;
+      }
+      setEditing({ ...editing, objectJsonMode: false, objectEntries: entries });
+    }
   }
 
   if (!variablesPanelOpen) return null;
@@ -212,7 +387,7 @@ export function VariablesPanel() {
                       <div className={style.formField}>
                         <label className={style.formLabel}>Type</label>
                         <div className={style.typeGrid}>
-                          {(["number", "boolean", "string"] as VariableType[]).map((t) => {
+                          {(["number", "float", "boolean", "string", "list", "object"] as VariableType[]).map((t) => {
                             const cfg = TYPE_CONFIG[t];
                             const Icon = cfg.icon;
                             const active = editing.type === t;
@@ -234,6 +409,7 @@ export function VariablesPanel() {
 
                       <div className={style.formField}>
                         <label className={style.formLabel}>Default Value</label>
+
                         {editing.type === "boolean" ? (
                           <select
                             value={editing.defaultValue}
@@ -243,6 +419,106 @@ export function VariablesPanel() {
                             <option value="false">false</option>
                             <option value="true">true</option>
                           </select>
+                        ) : editing.type === "float" ? (
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={editing.defaultValue}
+                            onChange={(e) => setEditing({ ...editing, defaultValue: e.target.value })}
+                            placeholder="0.0"
+                            className={style.formInput}
+                          />
+                        ) : editing.type === "list" ? (
+                          <div className={style.listEditor}>
+                            {editing.listItems.map((item, idx) => (
+                              <div key={idx} className={style.listChip}>
+                                <span className={style.listChipText}>{item}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => listRemoveItem(idx)}
+                                  className={style.listChipRemove}
+                                  aria-label="Remove item"
+                                >
+                                  <X size={9} />
+                                </button>
+                              </div>
+                            ))}
+                            <div className={style.listAddRow}>
+                              <input
+                                value={editing.listInput}
+                                onChange={(e) => setEditing({ ...editing, listInput: e.target.value })}
+                                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); listAddItem(); } }}
+                                placeholder="Add item…"
+                                className={cn(style.formInput, style.listAddInput)}
+                              />
+                              <button
+                                type="button"
+                                onClick={listAddItem}
+                                className={style.listAddBtn}
+                                disabled={!editing.listInput.trim()}
+                                title="Add item"
+                              >
+                                <Plus size={11} />
+                              </button>
+                            </div>
+                          </div>
+                        ) : editing.type === "object" ? (
+                          <div className={style.objectEditor}>
+                            <button
+                              type="button"
+                              onClick={objectToggleJsonMode}
+                              className={style.objectJsonToggle}
+                            >
+                              {editing.objectJsonMode ? "Structured view" : "Advanced JSON"}
+                            </button>
+                            {editing.objectJsonMode ? (
+                              <textarea
+                                value={editing.objectJsonText}
+                                onChange={(e) => setEditing({ ...editing, objectJsonText: e.target.value })}
+                                className={style.objectJsonArea}
+                                rows={5}
+                                spellCheck={false}
+                                aria-label="Object JSON"
+                                placeholder="{}"
+                              />
+                            ) : (
+                              <>
+                                {editing.objectEntries.map((entry, idx) => (
+                                  <div key={idx} className={style.objectRow}>
+                                    <input
+                                      value={entry.key}
+                                      onChange={(e) => objectUpdateEntry(idx, "key", e.target.value)}
+                                      placeholder="key"
+                                      className={cn(style.formInput, style.objectKeyInput)}
+                                    />
+                                    <span className={style.objectColon}>:</span>
+                                    <input
+                                      value={entry.value}
+                                      onChange={(e) => objectUpdateEntry(idx, "value", e.target.value)}
+                                      placeholder="value"
+                                      className={cn(style.formInput, style.objectValueInput)}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => objectRemoveEntry(idx)}
+                                      className={style.objectRemoveBtn}
+                                      aria-label="Remove property"
+                                    >
+                                      <X size={11} />
+                                    </button>
+                                  </div>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={objectAddEntry}
+                                  className={style.objectAddBtn}
+                                >
+                                  <Plus size={11} />
+                                  Add property
+                                </button>
+                              </>
+                            )}
+                          </div>
                         ) : (
                           <input
                             value={editing.defaultValue}
@@ -303,9 +579,16 @@ export function VariablesPanel() {
                   <div className={style.list}>
                     {filtered.map((v) => {
                       const usage = computeVariableUsage(v.id, nodes, edges);
+                      const dialogueCount = computeDialogueCount(v.name, nodes);
                       const cfg = TYPE_CONFIG[v.type];
                       const Icon = cfg.icon;
                       const isDeleting = deleteConfirm === v.id;
+                      const totalUsage = usage.conditionCount + usage.actionCount + dialogueCount;
+
+                      const usageParts: string[] = [];
+                      if (dialogueCount > 0) usageParts.push(`${dialogueCount} dialogue`);
+                      if (usage.conditionCount > 0) usageParts.push(`${usage.conditionCount} condition${usage.conditionCount !== 1 ? "s" : ""}`);
+                      if (usage.actionCount > 0) usageParts.push(`${usage.actionCount} action${usage.actionCount !== 1 ? "s" : ""}`);
 
                       return (
                         <motion.div
@@ -322,17 +605,33 @@ export function VariablesPanel() {
                             </div>
                             <div className={style.varInfo}>
                               <p className={style.varName}>{v.name}</p>
-                              <p className={style.varMeta}>
-                                {cfg.label} · default: <code className={style.varDefault}>{String(v.defaultValue)}</code>
-                              </p>
+                              <div className={style.varMetaRow}>
+                                <TypeBadge type={v.type} />
+                                <span className={style.varMetaSep}>·</span>
+                                <span className={style.varMeta}>
+                                  default: <code className={style.varDefault}>
+                                    {v.type === "list"
+                                      ? `[${(v.defaultValue as string[]).join(", ")}]`
+                                      : v.type === "object"
+                                      ? JSON.stringify(v.defaultValue)
+                                      : String(v.defaultValue)}
+                                  </code>
+                                </span>
+                              </div>
                               {v.description && (
                                 <p className={style.varDesc}>{v.description}</p>
                               )}
-                              {usage.total > 0 && (
+                              {totalUsage > 0 && (
                                 <p className={style.varUsage}>
-                                  {usage.conditionCount > 0 && `${usage.conditionCount} condition${usage.conditionCount !== 1 ? "s" : ""}`}
-                                  {usage.conditionCount > 0 && usage.actionCount > 0 && " · "}
-                                  {usage.actionCount > 0 && `${usage.actionCount} action${usage.actionCount !== 1 ? "s" : ""}`}
+                                  {usageParts.join(" · ")}
+                                </p>
+                              )}
+                              {isDeleting && totalUsage > 0 && (
+                                <p className={style.varDeleteWarning}>
+                                  Used in{dialogueCount > 0 ? ` ${dialogueCount} dialogue node${dialogueCount !== 1 ? "s" : ""},` : ""}
+                                  {usage.conditionCount > 0 ? ` ${usage.conditionCount} condition${usage.conditionCount !== 1 ? "s" : ""},` : ""}
+                                  {usage.actionCount > 0 ? ` ${usage.actionCount} action${usage.actionCount !== 1 ? "s" : ""}` : ""}
+                                  .
                                 </p>
                               )}
                             </div>

@@ -5,7 +5,7 @@ import type {
   VariableAction,
 } from "@/types";
 
-export type VarState = Record<string, number | boolean | string>;
+export type VarState = Record<string, number | boolean | string | string[] | Record<string, unknown>>;
 
 export function buildInitialState(variables: ProjectVariable[]): VarState {
   const state: VarState = {};
@@ -49,7 +49,7 @@ export function applyVariableAction(action: VariableAction, state: VarState): Va
   let next: number | boolean | string;
   switch (action.operation) {
     case "set":
-      next = action.value !== undefined ? action.value as number | boolean | string : current;
+      next = action.value !== undefined ? action.value as number | boolean | string : current as number | boolean | string;
       break;
     case "add":
       next = Number(current) + Number(action.value ?? 0);
@@ -69,7 +69,7 @@ export function applyVariableAction(action: VariableAction, state: VarState): Va
       next = !current;
       break;
     default:
-      next = current;
+      next = current as number | boolean | string;
   }
 
   return { ...state, [action.variableId]: next };
@@ -78,6 +78,6 @@ export function applyVariableAction(action: VariableAction, state: VarState): Va
 export interface StateChange {
   variableId: string;
   name: string;
-  from: number | boolean | string;
-  to: number | boolean | string;
+  from: number | boolean | string | string[] | Record<string, unknown>;
+  to: number | boolean | string | string[] | Record<string, unknown>;
 }

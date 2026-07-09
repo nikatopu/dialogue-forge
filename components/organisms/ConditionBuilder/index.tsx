@@ -8,22 +8,52 @@ import style from "./ConditionBuilder.module.scss";
 
 /* Operators valid for each variable type */
 const OPERATORS_BY_TYPE: Record<VariableType, ConditionOperator[]> = {
-  number:  ["==", "!=", ">", ">=", "<", "<="],
-  boolean: ["==", "!="],
-  string:  ["==", "!=", "contains", "startsWith", "endsWith"],
+  number:  ["==", "!=", ">", ">=", "<", "<=", "between", "notBetween"],
+  float:   ["==", "!=", ">", ">=", "<", "<=", "between", "notBetween"],
+  boolean: ["isTrue", "isFalse"],
+  string:  ["==", "!=", "contains", "notContains", "startsWith", "endsWith", "isEmpty", "isNotEmpty"],
+  list:    ["listContains", "listNotContains", "listIsEmpty", "listIsNotEmpty", "lengthEquals", "lengthGreater", "lengthLess"],
+  object:  ["hasProperty", "notHasProperty", "propertyEquals"],
 };
 
 const OPERATOR_LABELS: Record<ConditionOperator, string> = {
-  "==":         "equals",
-  "!=":         "not equals",
-  ">":          "greater than",
-  ">=":         "at least",
-  "<":          "less than",
-  "<=":         "at most",
-  "contains":   "contains",
-  "startsWith": "starts with",
-  "endsWith":   "ends with",
+  "==":             "equals",
+  "!=":             "not equals",
+  ">":              "greater than",
+  ">=":             "at least",
+  "<":              "less than",
+  "<=":             "at most",
+  "between":        "between",
+  "notBetween":     "not between",
+  "contains":       "contains",
+  "notContains":    "does not contain",
+  "startsWith":     "starts with",
+  "endsWith":       "ends with",
+  "isEmpty":        "is empty",
+  "isNotEmpty":     "is not empty",
+  "isTrue":         "is true",
+  "isFalse":        "is false",
+  "listContains":   "contains",
+  "listNotContains":"does not contain",
+  "listIsEmpty":    "is empty",
+  "listIsNotEmpty": "is not empty",
+  "lengthEquals":   "length equals",
+  "lengthGreater":  "length greater than",
+  "lengthLess":     "length less than",
+  "hasProperty":    "has property",
+  "notHasProperty": "does not have property",
+  "propertyEquals": "property equals",
 };
+
+/* Operators that require no value input */
+const NO_VALUE_OPERATORS = new Set<ConditionOperator>([
+  "isEmpty", "isNotEmpty", "listIsEmpty", "listIsNotEmpty", "isTrue", "isFalse",
+]);
+
+/* Operators that require two value inputs (min + max) */
+const TWO_VALUE_OPERATORS = new Set<ConditionOperator>([
+  "between", "notBetween",
+]);
 
 interface ConditionBuilderProps {
   value: ConditionGroup | null;
@@ -164,36 +194,53 @@ export function ConditionBuilder({ value, onChange }: ConditionBuilderProps) {
                     aria-label="Operator"
                   >
                     {availableOps.map((op) => (
-                      <option key={op} value={op}>{op}</option>
+                      <option key={op} value={op}>{OPERATOR_LABELS[op] ?? op}</option>
                     ))}
                   </select>
 
-                  {/* Value input — boolean gets dropdown, others get text */}
-                  {varType === "boolean" ? (
-                    <select
-                      value={String(cond.value)}
-                      onChange={(e) => updateCondition(i, { value: e.target.value === "true" })}
-                      className={cn(style.condSelect, style.condValSelect)}
-                      aria-label="Value"
-                    >
-                      <option value="true">true</option>
-                      <option value="false">false</option>
-                    </select>
-                  ) : (
+                  {/* Value input — hidden for no-value ops, two inputs for between, single otherwise */}
+                  {!NO_VALUE_OPERATORS.has(cond.operator) && TWO_VALUE_OPERATORS.has(cond.operator) ? (
+                    <>
+                      <input
+                        type="number"
+                        value={String(cond.value)}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          updateCondition(i, { value: raw === "" ? "" : Number(raw) });
+                        }}
+                        placeholder="from"
+                        className={cn(style.condInput, style.condValInput)}
+                        aria-label="Min value"
+                      />
+                      <input
+                        type="number"
+                        value={cond.value2 !== undefined ? String(cond.value2) : ""}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          updateCondition(i, { value2: raw === "" ? undefined : Number(raw) });
+                        }}
+                        placeholder="to"
+                        className={cn(style.condInput, style.condValInput)}
+                        aria-label="Max value"
+                      />
+                    </>
+                  ) : !NO_VALUE_OPERATORS.has(cond.operator) ? (
                     <input
+                      type={varType === "number" || varType === "float" || cond.operator === "lengthEquals" || cond.operator === "lengthGreater" || cond.operator === "lengthLess" ? "number" : "text"}
                       value={String(cond.value)}
                       onChange={(e) => {
                         const raw = e.target.value;
-                        const coerced = varType === "number" && !isNaN(Number(raw)) && raw !== ""
+                        const isNumericType = varType === "number" || varType === "float";
+                        const coerced = isNumericType && !isNaN(Number(raw)) && raw !== ""
                           ? Number(raw)
                           : raw;
                         updateCondition(i, { value: coerced });
                       }}
-                      placeholder={varType === "number" ? "0" : "value"}
+                      placeholder={varType === "number" || varType === "float" ? "0" : "value"}
                       className={cn(style.condInput, style.condValInput)}
                       aria-label="Comparison value"
                     />
-                  )}
+                  ) : null}
 
                   <button
                     type="button"
@@ -213,10 +260,17 @@ export function ConditionBuilder({ value, onChange }: ConditionBuilderProps) {
             {conditions.filter((c) => c.variableId).map((c, i) => {
               const varName = variables.find((v) => v.id === c.variableId)?.name ?? c.variableId;
               const opLabel = OPERATOR_LABELS[c.operator] ?? c.operator;
+              const valueStr = NO_VALUE_OPERATORS.has(c.operator)
+                ? ""
+                : TWO_VALUE_OPERATORS.has(c.operator)
+                  ? `${String(c.value)} – ${c.value2 !== undefined ? String(c.value2) : "?"}`
+                  : String(c.value);
               return (
                 <span key={i} className={style.previewLine}>
                   {i > 0 && <span className={style.previewLogic}>{group.logic}</span>}
-                  <code className={style.previewCode}>{varName} {c.operator} {String(c.value)}</code>
+                  <code className={style.previewCode}>
+                    {varName} {opLabel}{valueStr ? ` ${valueStr}` : ""}
+                  </code>
                 </span>
               );
             })}

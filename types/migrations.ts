@@ -2,7 +2,7 @@ import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
 
 export type ProjectVersion = string;
 
-export const CURRENT_VERSION: ProjectVersion = "1.4.0";
+export const CURRENT_VERSION: ProjectVersion = "1.4.1";
 
 export interface VersionedGraph {
   version: ProjectVersion;

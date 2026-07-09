@@ -1,4 +1,4 @@
-import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable, VariableType } from "@/types";
 
 export const DEMO_PROJECT_NAME = "Visual Novel Example";
 
@@ -24,6 +24,13 @@ export const DEMO_VARIABLES: ProjectVariable[] = [
     defaultValue: "Neutral",
     description: "The hero's current faction alignment",
   },
+  {
+    id: "demo-var-player-name",
+    name: "playerName",
+    type: "string" as VariableType,
+    defaultValue: "Hero",
+    description: "The player's name",
+  },
 ];
 
 export const DEMO_NODES: SerialNode[] = [
@@ -40,7 +47,7 @@ export const DEMO_NODES: SerialNode[] = [
     position: { x: -460, y: 80 },
     data: {
       name: "Hero",
-      dialogue: "I've been wandering these ruins for hours. There must be something worth finding here.",
+      dialogue: "Welcome, {playerName}! I've been wandering these ruins for hours. There must be something worth finding here.",
       emotion: "neutral",
       portrait: "",
       attributeSchema: [

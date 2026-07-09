@@ -11,6 +11,7 @@ import { Input } from "@/components/atoms/Input";
 import { Separator } from "@/components/atoms/Separator";
 import { Badge } from "@/components/atoms/Badge";
 import { AttributeEditor } from "@/components/organisms/AttributeEditor";
+import { DialogueVariableEditor } from "@/components/organisms/DialogueVariableEditor";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useVariableStore } from "@/store/useVariableStore";
 import { useShallow } from "zustand/react/shallow";
@@ -166,10 +167,32 @@ function CharacterProperties({ nodeId, data, onUpdate }: { nodeId: string; data:
   const characterNames = useGraphStore(
     useShallow((s) => s.nodes.filter((n) => n.type === "character" && n.id !== nodeId).map((n) => (n.data as CharacterNodeData).name).filter(Boolean).filter((name, i, arr) => arr.indexOf(name) === i)),
   );
+  const [localDialogue, setLocalDialogue] = useState(data.dialogue);
+  const dialogueDirty = useRef(false);
+
+  // Sync from store when not actively editing
+  useEffect(() => {
+    if (!dialogueDirty.current) setLocalDialogue(data.dialogue);
+  }, [data.dialogue]);
+
+  function handleDialogueChange(v: string) {
+    dialogueDirty.current = true;
+    setLocalDialogue(v);
+    onUpdate({ dialogue: v });
+  }
+
   return (
     <>
       <div className={style.field}><p className={style.fieldLabel}>Name</p><InlineInput value={data.name} placeholder="Character name" suggestions={characterNames} onCommit={(v) => onUpdate({ name: v })} /></div>
-      <div className={style.field}><p className={style.fieldLabel}>Dialogue</p><InlineTextarea value={data.dialogue} placeholder="What does this character say?" onCommit={(v) => onUpdate({ dialogue: v })} rows={4} /></div>
+      <div className={style.field}>
+        <p className={style.fieldLabel}>Dialogue</p>
+        <DialogueVariableEditor
+          value={localDialogue}
+          onChange={handleDialogueChange}
+          placeholder="What does this character say?"
+          rows={4}
+        />
+      </div>
       <div className={style.field}><p className={style.fieldLabel}>Emotion</p><InlineInput value={data.emotion ?? ""} placeholder="e.g. Happy, Sad, Angry" onCommit={(v) => onUpdate({ emotion: v })} /></div>
       <div className={style.field}><p className={style.fieldLabel}>Portrait URL</p><InlineInput value={data.portrait ?? ""} placeholder="https://…" onCommit={(v) => onUpdate({ portrait: v })} /></div>
     </>

@@ -10,32 +10,39 @@ export type ActionType = "trigger" | "branch" | "jump" | "end" | "custom" | "set
 
 /* ─── Variable system ─────────────────────────────────── */
 
-export type VariableType = "number" | "boolean" | "string";
+export type VariableType = "number" | "float" | "boolean" | "string" | "list" | "object";
 
 export interface ProjectVariable {
   id: string;
   name: string;
   type: VariableType;
-  defaultValue: number | boolean | string;
+  defaultValue: number | boolean | string | string[] | Record<string, unknown>;
   description?: string;
 }
 
 export type ConditionOperator =
-  | "=="
-  | "!="
-  | ">"
-  | ">="
-  | "<"
-  | "<="
-  | "contains"
-  | "startsWith"
-  | "endsWith";
+  // number / float
+  | "==" | "!=" | ">" | ">=" | "<" | "<="
+  | "between" | "notBetween"
+  // string
+  | "contains" | "notContains" | "startsWith" | "endsWith"
+  | "isEmpty" | "isNotEmpty"
+  // boolean
+  | "isTrue" | "isFalse"
+  // list
+  | "listContains" | "listNotContains" | "listIsEmpty" | "listIsNotEmpty"
+  | "lengthEquals" | "lengthGreater" | "lengthLess"
+  // object
+  | "hasProperty" | "notHasProperty" | "propertyEquals";
 
 export interface Condition {
   variableId: string;
   operator: ConditionOperator;
   value: string | number | boolean;
+  value2?: number; // upper bound for "between" / "notBetween"
 }
+
+export type RuntimeState = Record<string, number | boolean | string | string[] | Record<string, unknown>>;
 
 export type ConditionLogic = "AND" | "OR";
 

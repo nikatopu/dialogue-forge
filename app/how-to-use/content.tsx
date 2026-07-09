@@ -34,6 +34,10 @@ const TOC = [
   { id: "selection", title: "Selection & Multi-Select" },
   { id: "shortcuts", title: "Keyboard Shortcuts" },
   { id: "saving", title: "Saving & Loading" },
+  { id: "variables", title: "Variables" },
+  { id: "interpolation", title: "Variable Interpolation" },
+  { id: "conditions", title: "Conditions" },
+  { id: "state-preview", title: "State Preview" },
   { id: "json-format", title: "The Exported JSON" },
   { id: "runtime", title: "Using the JSON in Your Game" },
 ] as const;
@@ -452,7 +456,354 @@ export function HowToUseContent() {
               </div>
             </section>
 
-            {/* 7. The Exported JSON */}
+            {/* 7. Variables */}
+            <section id="variables" aria-labelledby="heading-variables">
+              <SectionHeading
+                id="heading-variables"
+                icon={Code2}
+                title="Variables"
+              />
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                Variables define the gameplay state that your dialogue can read
+                and react to. Declare them in the{" "}
+                <strong className="text-foreground">Variables panel</strong> and
+                they become available across every node in the project.
+              </p>
+              <div className="space-y-2.5 mt-4">
+                {[
+                  {
+                    type: "number",
+                    desc: "Integer values. Use for counters, scores, health points, or any whole-number stat.",
+                  },
+                  {
+                    type: "float",
+                    desc: "Decimal numbers. Use for percentages, probabilities, or any value that needs fractional precision — e.g. a relationship score of 0.75.",
+                  },
+                  {
+                    type: "boolean",
+                    desc: "True/false flags. Use for quest completion, feature toggles, or binary state — e.g. hasMetKing: true.",
+                  },
+                  {
+                    type: "string",
+                    desc: "Text values. Use for character names, faction tags, dialogue keys, or any free-form label.",
+                  },
+                  {
+                    type: "list",
+                    desc: "An ordered array of strings. Use for inventories, unlocked skills, completed objectives, or any variable-length collection.",
+                  },
+                  {
+                    type: "object",
+                    desc: "Key-value pairs. Use for structured data like a stats block, an item with multiple properties, or a nested config bag.",
+                  },
+                ].map((row) => (
+                  <div
+                    key={row.type}
+                    className="flex gap-3 rounded-xl border border-border/50 bg-card/40 p-3.5"
+                  >
+                    <code className="text-[11px] font-mono bg-primary/10 text-primary px-2 py-0.5 rounded self-start mt-0.5 shrink-0">
+                      {row.type}
+                    </code>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {row.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 8. Variable Interpolation */}
+            <section id="interpolation" aria-labelledby="heading-interpolation">
+              <SectionHeading
+                id="heading-interpolation"
+                icon={Code2}
+                title="Variable Interpolation"
+              />
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                Reference any variable directly inside a Character node&apos;s
+                dialogue text using{" "}
+                <code className="text-[11px] bg-muted/60 px-1 rounded">
+                  {"{variableName}"}
+                </code>{" "}
+                syntax. Tokens are resolved at preview and runtime — the raw
+                text is stored as-is in the JSON.
+              </p>
+              <div className="space-y-3 mt-4">
+                <InfoRow icon={Zap} label='Type "{" to trigger autocomplete'>
+                  While editing dialogue, type an opening brace{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    {"{"}
+                  </code>{" "}
+                  to open an autocomplete dropdown listing every variable in the
+                  project. Select one to insert the full token.
+                </InfoRow>
+                <InfoRow icon={Play} label="Insert Variable button">
+                  Use the{" "}
+                  <strong className="text-foreground">Insert Variable</strong>{" "}
+                  button in the node inspector to browse and insert a variable
+                  token without typing braces manually.
+                </InfoRow>
+                <InfoRow icon={GitBranch} label="Nested paths">
+                  Object properties and list metadata are accessible with dot
+                  notation:{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    {"{stats.level}"}
+                  </code>{" "}
+                  reads the{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    level
+                  </code>{" "}
+                  key of an object variable, and{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    {"{inventory.length}"}
+                  </code>{" "}
+                  yields the number of items in a list variable.
+                </InfoRow>
+              </div>
+              <div className="mt-4 rounded-xl border border-border/40 bg-muted/20 px-4 py-4">
+                <Label>Examples</Label>
+                <CodeBlock>{`"Greetings, {playerName}. You have {inventory.length} items."
+"Your current level is {stats.level} and your speed is {stats.speed}."
+"The password is {secretCode}."`}</CodeBlock>
+              </div>
+            </section>
+
+            {/* 9. Conditions */}
+            <section id="conditions" aria-labelledby="heading-conditions">
+              <SectionHeading
+                id="heading-conditions"
+                icon={GitBranch}
+                title="Conditions"
+              />
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                Attach conditions to edges to control which paths are available
+                at runtime. An edge is only traversable when all its conditions
+                evaluate to{" "}
+                <code className="text-[11px] bg-muted/60 px-1 rounded">
+                  true
+                </code>{" "}
+                against the current variable state.
+              </p>
+              <div className="space-y-4 mt-4">
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    Number &amp; Float operators
+                  </p>
+                  <div className="rounded-xl border border-border/50 overflow-hidden">
+                    {[
+                      {
+                        op: "equals / notEquals",
+                        desc: "Exact numeric match or mismatch",
+                      },
+                      {
+                        op: "greaterThan / lessThan",
+                        desc: "Exclusive comparison",
+                      },
+                      {
+                        op: "greaterThanOrEqual / lessThanOrEqual",
+                        desc: "Inclusive comparison",
+                      },
+                      {
+                        op: "between / notBetween",
+                        desc: "Inclusive range check — e.g. gold between 10 and 50",
+                      },
+                    ].map((row, i, arr) => (
+                      <div
+                        key={row.op}
+                        className={cn(
+                          "flex items-start gap-3 px-4 py-2.5",
+                          i !== arr.length - 1 && "border-b border-border/30",
+                        )}
+                      >
+                        <code className="text-[11px] font-mono text-primary/80 shrink-0 mt-0.5">
+                          {row.op}
+                        </code>
+                        <p className="text-xs text-muted-foreground">
+                          {row.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    Boolean operators
+                  </p>
+                  <div className="rounded-xl border border-border/50 overflow-hidden">
+                    {[
+                      { op: "isTrue", desc: "Variable is true" },
+                      { op: "isFalse", desc: "Variable is false" },
+                    ].map((row, i, arr) => (
+                      <div
+                        key={row.op}
+                        className={cn(
+                          "flex items-start gap-3 px-4 py-2.5",
+                          i !== arr.length - 1 && "border-b border-border/30",
+                        )}
+                      >
+                        <code className="text-[11px] font-mono text-primary/80 shrink-0 mt-0.5">
+                          {row.op}
+                        </code>
+                        <p className="text-xs text-muted-foreground">
+                          {row.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    String operators
+                  </p>
+                  <div className="rounded-xl border border-border/50 overflow-hidden">
+                    {[
+                      { op: "equals / notEquals", desc: "Case-sensitive match" },
+                      {
+                        op: "contains / notContains",
+                        desc: "Substring presence",
+                      },
+                      { op: "startsWith / endsWith", desc: "Prefix or suffix" },
+                      {
+                        op: "isEmpty / isNotEmpty",
+                        desc: "Blank string check",
+                      },
+                    ].map((row, i, arr) => (
+                      <div
+                        key={row.op}
+                        className={cn(
+                          "flex items-start gap-3 px-4 py-2.5",
+                          i !== arr.length - 1 && "border-b border-border/30",
+                        )}
+                      >
+                        <code className="text-[11px] font-mono text-primary/80 shrink-0 mt-0.5">
+                          {row.op}
+                        </code>
+                        <p className="text-xs text-muted-foreground">
+                          {row.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    List operators
+                  </p>
+                  <div className="rounded-xl border border-border/50 overflow-hidden">
+                    {[
+                      {
+                        op: "listContains",
+                        desc: 'List includes a specific string — e.g. inventory listContains "sword"',
+                      },
+                      {
+                        op: "listIsEmpty / listIsNotEmpty",
+                        desc: "Zero-length check on the list",
+                      },
+                    ].map((row, i, arr) => (
+                      <div
+                        key={row.op}
+                        className={cn(
+                          "flex items-start gap-3 px-4 py-2.5",
+                          i !== arr.length - 1 && "border-b border-border/30",
+                        )}
+                      >
+                        <code className="text-[11px] font-mono text-primary/80 shrink-0 mt-0.5">
+                          {row.op}
+                        </code>
+                        <p className="text-xs text-muted-foreground">
+                          {row.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    Object operators
+                  </p>
+                  <div className="rounded-xl border border-border/50 overflow-hidden">
+                    {[
+                      {
+                        op: "hasProperty",
+                        desc: 'Object has a given key — e.g. playerData hasProperty "level"',
+                      },
+                      {
+                        op: "hasNoProperty",
+                        desc: "Object does not have a given key",
+                      },
+                    ].map((row, i, arr) => (
+                      <div
+                        key={row.op}
+                        className={cn(
+                          "flex items-start gap-3 px-4 py-2.5",
+                          i !== arr.length - 1 && "border-b border-border/30",
+                        )}
+                      >
+                        <code className="text-[11px] font-mono text-primary/80 shrink-0 mt-0.5">
+                          {row.op}
+                        </code>
+                        <p className="text-xs text-muted-foreground">
+                          {row.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 10. State Preview */}
+            <section id="state-preview" aria-labelledby="heading-state-preview">
+              <SectionHeading
+                id="heading-state-preview"
+                icon={Play}
+                title="State Preview"
+              />
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                The in-editor preview simulator evaluates variable interpolation
+                and conditions against a live state snapshot. You can set
+                variable overrides before running to test specific branches.
+              </p>
+              <div className="space-y-2.5 mt-4 text-sm text-muted-foreground">
+                <p>
+                  <strong className="text-foreground">number / float / boolean / string</strong>{" "}
+                  — displayed as their raw value in the state inspector.
+                </p>
+                <p>
+                  <strong className="text-foreground">list</strong> — shown as{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    N items
+                  </code>{" "}
+                  (e.g.{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    3 items
+                  </code>
+                  ) to keep the panel readable. Expand the variable to see the
+                  individual entries.
+                </p>
+                <p>
+                  <strong className="text-foreground">object</strong> — shown as{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    N keys
+                  </code>{" "}
+                  (e.g.{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    4 keys
+                  </code>
+                  ) in the collapsed view. Expand to browse individual
+                  properties.
+                </p>
+                <p>
+                  Dialogue text in the preview has all{" "}
+                  <code className="text-[11px] bg-muted/60 px-1 rounded">
+                    {"{token}"}
+                  </code>{" "}
+                  placeholders replaced with the current runtime values before
+                  display.
+                </p>
+              </div>
+            </section>
+
+            {/* 11. The Exported JSON */}
             <section id="json-format" aria-labelledby="heading-json-format">
               <SectionHeading
                 id="heading-json-format"

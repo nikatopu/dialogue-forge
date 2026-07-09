@@ -98,8 +98,7 @@ export const ROADMAP: RoadmapEntry[] = [
     title: "Dynamic Dialogue & Advanced Variables",
     description:
       "Characters can now reference variables directly in dialogue, making conversations react naturally to player choices, names, and game state.",
-    status: "in-progress",
-    progress: 0.2,
+    status: "completed",
     features: [
       "Use variables directly in dialogue text",
       "Player name support",
@@ -110,6 +109,25 @@ export const ROADMAP: RoadmapEntry[] = [
       "Live preview of variable values",
       "Runtime interpolation engine",
       "Better validation",
+    ],
+  },
+
+  {
+    version: "v1.4.2",
+    title: "Component Architecture Overhaul",
+    description:
+      "A major internal refactor focused on breaking down complex UI components, improving code organization, and creating a cleaner foundation for future features.",
+    status: "in-progress",
+    progress: 10,
+    features: [
+      "Smaller, focused UI components",
+      "Improved component organization",
+      "Cleaner separation of responsibilities",
+      "Reduced code complexity",
+      "More reusable UI building blocks",
+      "Consistent component architecture",
+      "Easier feature development",
+      "Improved long-term maintainability",
     ],
   },
 

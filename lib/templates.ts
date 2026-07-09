@@ -1,4 +1,4 @@
-import type { SerialNode, SerialEdge, ProjectVariable } from "@/types";
+import type { SerialNode, SerialEdge, ProjectVariable, VariableType } from "@/types";
 
 export interface ProjectTemplate {
   id: string;
@@ -30,7 +30,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         position: { x: 0, y: 140 },
         data: {
           name: "Innkeeper",
-          dialogue: "Welcome, traveller! Need a room for the night, or can I get you a drink?",
+          dialogue: "Welcome, {playerName}! Need a room for the night, or can I get you a drink?",
           emotion: "happy",
           portrait: "",
           attributeSchema: [],
@@ -114,6 +114,15 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       { id: "npc-e7", source: "npc-drink", target: "npc-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
       { id: "npc-e8", source: "npc-bye", target: "npc-end", type: "dialogue", data: { optionText: "", conditions: {}, metadata: {} } },
     ] as SerialEdge[],
+    variables: [
+      {
+        id: "var-npc-player-name",
+        name: "playerName",
+        type: "string" as VariableType,
+        defaultValue: "Traveler",
+        description: "The player's name",
+      },
+    ],
   },
 
   /* ── Quest Giver ───────────────────────────────────────── */
@@ -164,7 +173,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         position: { x: -280, y: 480 },
         data: {
           name: "Elder Maren",
-          dialogue: "Bless you! The wolves den in the Thornwood, east of the mill. Return when they trouble us no more.",
+          dialogue: "Bless you! You've completed {completedQuests.length} quests. The wolves den in the Thornwood, east of the mill. Return when they trouble us no more.",
           emotion: "relieved",
           portrait: "",
           attributeSchema: [],
@@ -249,6 +258,13 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     ] as SerialEdge[],
     variables: [
       { id: "qg-var-queststate", name: "questState", type: "string", defaultValue: "none", description: "Current state of the wolf quest" },
+      {
+        id: "var-questgiver-completed",
+        name: "completedQuests",
+        type: "list" as VariableType,
+        defaultValue: [],
+        description: "List of completed quest IDs",
+      },
     ],
   },
 
@@ -271,7 +287,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         position: { x: 0, y: 140 },
         data: {
           name: "Torvin the Trader",
-          dialogue: "Finest wares in the realm! Potions, scrolls, and exotic curios — all at a fair price.",
+          dialogue: "You currently have {gold} gold. See anything you like? Potions, scrolls, and exotic curios — all at a fair price.",
           emotion: "happy",
           portrait: "",
           attributeSchema: [],
@@ -529,7 +545,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         position: { x: 0, y: 140 },
         data: {
           name: "Lyra",
-          dialogue: "You've been staring at that fire for a while. Mind if I join you?",
+          dialogue: "Our bond grows stronger. Trust: {relationship}. You've been staring at that fire for a while. Mind if I join you?",
           emotion: "curious",
           portrait: "",
           attributeSchema: [],

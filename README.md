@@ -392,6 +392,85 @@ Closing and reopening the browser restores your last session exactly. Use `Ctrl 
 
 <br />
 
+## Variables & Conditions
+
+### Variable Types
+
+Declare variables in the Variables panel to represent gameplay state that your dialogue can read and react to.
+
+| Type      | Description                        | Example Default         |
+| --------- | ---------------------------------- | ----------------------- |
+| `number`  | Integer value                      | `42`                    |
+| `float`   | Decimal number                     | `3.14`                  |
+| `boolean` | True/false flag                    | `true`                  |
+| `string`  | Text value                         | `"Hero"`                |
+| `list`    | Array of strings                   | `["sword", "shield"]`   |
+| `object`  | Key-value pairs                    | `{"level": 5}`          |
+
+<br />
+
+### Dialogue Interpolation
+
+Reference variables directly in Character node dialogue using `{variableName}` syntax:
+
+- `{playerName}` — inserts the value of the `playerName` variable
+- `{stats.level}` — traverses into an object variable's `level` property
+- `{inventory.length}` — shows the number of items in a list variable
+
+Tokens are replaced at preview/runtime — the stored dialogue text stays raw.
+Type `{` in the dialogue editor to trigger autocomplete, or use the **Insert Variable** button.
+
+<br />
+
+### Conditions
+
+Attach conditions to edges to gate which paths are available. An edge is traversable only when all conditions evaluate to `true`.
+
+**Number & Float**
+
+| Operator                          | Description                            |
+| --------------------------------- | -------------------------------------- |
+| `equals` / `notEquals`            | Exact match or mismatch                |
+| `greaterThan` / `lessThan`        | Exclusive comparison                   |
+| `greaterThanOrEqual` / `lessThanOrEqual` | Inclusive comparison            |
+| `between` / `notBetween`          | Inclusive range check                  |
+
+**Boolean**
+
+| Operator  | Description          |
+| --------- | -------------------- |
+| `isTrue`  | Variable is true     |
+| `isFalse` | Variable is false    |
+
+**String**
+
+| Operator                     | Description             |
+| ---------------------------- | ----------------------- |
+| `equals` / `notEquals`       | Case-sensitive match    |
+| `contains` / `notContains`   | Substring presence      |
+| `startsWith` / `endsWith`    | Prefix or suffix        |
+| `isEmpty` / `isNotEmpty`     | Blank string check      |
+
+**List**
+
+| Operator                         | Description                              |
+| -------------------------------- | ---------------------------------------- |
+| `listContains`                   | List includes a specific string value    |
+| `listIsEmpty` / `listIsNotEmpty` | Zero-length check on the list            |
+
+**Object**
+
+| Operator         | Description                         |
+| ---------------- | ----------------------------------- |
+| `hasProperty`    | Object has a given key              |
+| `hasNoProperty`  | Object does not have a given key    |
+
+<br />
+
+---
+
+<br />
+
 ## Roadmap
 
 Dialogue Forge is growing into a full **narrative workflow platform**.

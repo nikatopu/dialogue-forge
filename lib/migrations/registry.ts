@@ -140,4 +140,31 @@ export const migrations: Migration[] = [
       };
     },
   },
+  {
+    // v1.4.1: add description field to variables, normalize edge conditions to null
+    from: "1.4.0",
+    to: "1.4.1",
+    up(graph): VersionedGraph {
+      // Ensure all variables have description field (new optional field)
+      const variables = (
+        (graph.variables ?? []) as unknown as Record<string, unknown>[]
+      ).map((v) => ({
+        ...v,
+        description: v.description ?? "",
+      })) as unknown as VersionedGraph["variables"];
+
+      // Ensure edges have conditions: null (not undefined)
+      const edges = (
+        (graph.edges ?? []) as unknown as Record<string, unknown>[]
+      ).map((e) => ({
+        ...e,
+        data: {
+          ...((e.data as Record<string, unknown>) ?? {}),
+          conditions: ((e.data as Record<string, unknown>) ?? {}).conditions ?? null,
+        },
+      })) as unknown as VersionedGraph["edges"];
+
+      return { ...graph, version: "1.4.1", variables, edges };
+    },
+  },
 ];
