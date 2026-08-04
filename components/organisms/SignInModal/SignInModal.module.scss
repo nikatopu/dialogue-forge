@@ -6,6 +6,8 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  width: 100vw;
+  height: 100vh;
 }
 
 .backdrop {
@@ -48,7 +50,9 @@
   background: transparent;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
 
   &:hover {
     color: var(--foreground);
