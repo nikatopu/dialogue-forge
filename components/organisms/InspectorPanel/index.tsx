@@ -15,9 +15,9 @@ import type { ForgeNode } from "@/types";
 import style from "./InspectorPanel.module.scss";
 
 const NODE_TYPE_BADGE: Record<string, string> = {
-  character: "text-indigo-400 border-indigo-500/30 bg-indigo-500/10",
-  action:    "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
-  start:     "text-teal-400 border-teal-500/30 bg-teal-500/10",
+  character: style.badgeIndigo,
+  action:    style.badgeGreen,
+  start:     style.badgeTeal,
 };
 
 export function InspectorPanel() {
@@ -79,18 +79,13 @@ function InspectorHeader({ selectedNode, showEdge, onClose, showClose }: {
         {selectedNode && (
           <Badge
             variant="outline"
-            className={cn("text-[10px] capitalize", NODE_TYPE_BADGE[selectedNode.type] ?? NODE_TYPE_BADGE.action)}
-            style={{ height: "1rem", padding: "0 0.375rem" }}
+            className={cn(style.typeBadge, style.typeBadgeCapitalized, NODE_TYPE_BADGE[selectedNode.type] ?? NODE_TYPE_BADGE.action)}
           >
             {selectedNode.type}
           </Badge>
         )}
         {showEdge && !selectedNode && (
-          <Badge
-            variant="outline"
-            className="text-[10px]"
-            style={{ height: "1rem", padding: "0 0.375rem", color: "oklch(0.65 0.19 260)", borderColor: "oklch(0.52 0.255 262 / 30%)", backgroundColor: "oklch(0.52 0.255 262 / 10%)" }}
-          >
+          <Badge variant="outline" className={cn(style.typeBadge, style.badgeIndigo)}>
             edge
           </Badge>
         )}

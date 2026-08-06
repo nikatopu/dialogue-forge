@@ -15,8 +15,8 @@
   border-radius: 0.75rem;
 }
 
-.startFlag { color: oklch(0.68 0.15 180); flex-shrink: 0; }
-.startStepLabel { font-size: 0.625rem; font-weight: 600; color: color-mix(in oklch, oklch(0.68 0.15 180) 80%, transparent); text-transform: uppercase; letter-spacing: 0.05em; }
+.startFlag { color: var(--accent-teal); flex-shrink: 0; }
+.startStepLabel { font-size: 0.625rem; font-weight: 600; color: color-mix(in oklch, var(--accent-teal) 80%, transparent); text-transform: uppercase; letter-spacing: 0.05em; }
 .startStepName  { font-size: 0.875rem; font-weight: 500; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
 
 /* Character step */
@@ -40,7 +40,7 @@
 }
 
 .characterAvatarImg { width: 100%; height: 100%; object-fit: cover; }
-.charUserIcon { color: oklch(0.65 0.19 260); }
+.charUserIcon { color: var(--accent-indigo); }
 .charUnnamed { font-style: italic; color: var(--muted-foreground); }
 .characterName { font-size: 0.875rem; font-weight: 600; }
 .characterEmotion { font-size: 0.625rem; color: var(--muted-foreground); text-transform: capitalize; }
@@ -66,8 +66,8 @@
   border-radius: 0.75rem;
 }
 
-.actionZap { color: oklch(0.72 0.18 155); flex-shrink: 0; }
-.actionLabel { font-size: 0.75rem; font-weight: 600; color: color-mix(in oklch, oklch(0.72 0.18 155) 80%, transparent); text-transform: uppercase; letter-spacing: 0.05em; }
+.actionZap { color: var(--accent-green); flex-shrink: 0; }
+.actionLabel { font-size: 0.75rem; font-weight: 600; color: color-mix(in oklch, var(--accent-green) 80%, transparent); text-transform: uppercase; letter-spacing: 0.05em; }
 .actionName  { font-size: 0.875rem; font-weight: 500; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
 
 /* Trigger step */
@@ -115,8 +115,8 @@
   border: 1px solid oklch(0.52 0.19 310 / 20%);
 }
 
-.setVarIcon { color: oklch(0.72 0.19 310); flex-shrink: 0; }
-.setVarLabel { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: oklch(0.72 0.19 310); }
+.setVarIcon { color: var(--accent-magenta); flex-shrink: 0; }
+.setVarLabel { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-magenta); }
 .setVarName { font-size: 0.875rem; font-weight: 500; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
 
 .setVarExpr {
@@ -131,13 +131,13 @@
 
 /* End / no-start states */
 .endState { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; gap: 1rem; }
-.endIcon { width: 3rem; height: 3rem; border-radius: 1rem; background-color: color-mix(in oklch, oklch(0.72 0.18 155) 10%, transparent); border: 1px solid color-mix(in oklch, oklch(0.72 0.18 155) 20%, transparent); display: flex; align-items: center; justify-content: center; }
-.endGlyph { color: oklch(0.72 0.18 155); }
+.endIcon { width: 3rem; height: 3rem; border-radius: 1rem; background-color: color-mix(in oklch, var(--accent-green) 10%, transparent); border: 1px solid color-mix(in oklch, var(--accent-green) 20%, transparent); display: flex; align-items: center; justify-content: center; }
+.endGlyph { color: var(--accent-green); }
 .endTitle { font-size: 0.875rem; font-weight: 600; }
 .endSub { font-size: 0.75rem; color: var(--muted-foreground); }
 .endActions { display: flex; gap: 0.5rem; }
 .restartBtn { gap: 0.375rem; }
 
 .noStart { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; gap: 0.75rem; }
-.noStartIcon { color: oklch(0.72 0.18 85 / 60%); }
+.noStartIcon { color: color-mix(in oklch, var(--accent-amber) 60%, transparent); }
 .noStartText { font-size: 0.875rem; color: var(--muted-foreground); }

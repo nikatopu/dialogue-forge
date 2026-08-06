@@ -16,7 +16,7 @@
   bottom: 0;
   z-index: 50;
   width: 100%;
-  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  box-shadow: 0 25px 50px color-mix(in oklch, var(--shadow-color) 30%, transparent);
 }
 
 .inner {

@@ -48,6 +48,20 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/*
+ * Applies the persisted theme before first paint so a light-mode user doesn't
+ * get a dark flash. Mirrors lib/applyTheme.ts — change both together. SSR
+ * renders the dark default, and this only diverges when `mode` says light.
+ */
+const THEME_INIT_SCRIPT = `(function(){try{
+var raw=localStorage.getItem("dialogue-forge-ui");if(!raw)return;
+var s=(JSON.parse(raw)||{}).state||{};
+var light=s.mode==="light";var h=document.documentElement;
+h.classList.toggle("dark",!light);h.classList.toggle("light",light);
+h.style.colorScheme=light?"light":"dark";
+if(s.theme&&s.theme!=="default")h.setAttribute("data-theme",s.theme);
+}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -56,9 +70,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
+      style={{ colorScheme: "dark" }}
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="h-full">
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <TooltipProvider delayDuration={400}>
           <ThemeProvider>{children}</ThemeProvider>
         </TooltipProvider>

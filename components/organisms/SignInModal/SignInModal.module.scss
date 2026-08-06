@@ -24,7 +24,7 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background-color: var(--card);
-  box-shadow: 0 24px 56px oklch(0 0 0 / 40%);
+  box-shadow: 0 24px 56px color-mix(in oklch, var(--shadow-color) 40%, transparent);
   overflow: hidden;
   padding: 1.5rem;
   display: flex;

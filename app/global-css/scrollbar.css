@@ -1,6 +1,6 @@
 * {
   scrollbar-width: thin;
-  scrollbar-color: oklch(1 0 0 / 10%) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -13,10 +13,10 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: oklch(1 0 0 / 10%);
+  background: var(--scrollbar-thumb);
   border-radius: 99px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: oklch(1 0 0 / 18%);
+  background: var(--scrollbar-thumb-hover);
 }

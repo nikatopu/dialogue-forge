@@ -9,11 +9,11 @@ export type Phase = "entry" | "setup" | "playing";
 export interface PreviewHistory { nodeId: string; choiceText?: string; }
 
 export const CATEGORY_CONFIG: Record<TriggerCategory, { icon: ElementType; color: string; bg: string; border: string }> = {
-  game:      { icon: Swords,       color: "oklch(0.72 0.18 155)", bg: "oklch(0.52 0.18 155 / 10%)", border: "oklch(0.52 0.18 155 / 25%)" },
-  variable:  { icon: Hash,         color: "oklch(0.65 0.19 290)", bg: "oklch(0.52 0.19 290 / 10%)", border: "oklch(0.52 0.19 290 / 25%)" },
-  audio:     { icon: Music,        color: "oklch(0.68 0.18 220)", bg: "oklch(0.52 0.18 220 / 10%)", border: "oklch(0.52 0.18 220 / 25%)" },
-  animation: { icon: Clapperboard, color: "oklch(0.72 0.18 50)",  bg: "oklch(0.52 0.18 50 / 10%)",  border: "oklch(0.52 0.18 50 / 25%)" },
-  ui:        { icon: Monitor,      color: "oklch(0.65 0.19 260)", bg: "oklch(0.52 0.255 262 / 10%)", border: "oklch(0.52 0.255 262 / 25%)" },
+  game:      { icon: Swords,       color: "var(--accent-green)", bg: "oklch(0.52 0.18 155 / 10%)", border: "oklch(0.52 0.18 155 / 25%)" },
+  variable:  { icon: Hash,         color: "var(--accent-violet)", bg: "oklch(0.52 0.19 290 / 10%)", border: "oklch(0.52 0.19 290 / 25%)" },
+  audio:     { icon: Music,        color: "var(--accent-blue)", bg: "oklch(0.52 0.18 220 / 10%)", border: "oklch(0.52 0.18 220 / 25%)" },
+  animation: { icon: Clapperboard, color: "var(--accent-orange)",  bg: "oklch(0.52 0.18 50 / 10%)",  border: "oklch(0.52 0.18 50 / 25%)" },
+  ui:        { icon: Monitor,      color: "var(--accent-indigo)", bg: "oklch(0.52 0.255 262 / 10%)", border: "oklch(0.52 0.255 262 / 25%)" },
   custom:    { icon: Wrench,       color: "var(--muted-foreground)", bg: "color-mix(in oklch, var(--muted) 30%, transparent)", border: "color-mix(in oklch, var(--border) 50%, transparent)" },
 };
 

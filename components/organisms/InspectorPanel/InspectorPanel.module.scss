@@ -57,6 +57,35 @@
   gap: 0.5rem;
 }
 
+/*
+ * Node-type badges. Colour comes from the semantic accent scale so the label
+ * stays legible against the panel in both light and dark mode.
+ */
+.typeBadge {
+  height: 1rem;
+  padding: 0 0.375rem;
+  font-size: 0.625rem;
+  color: var(--badge-accent);
+  border-color: color-mix(in oklch, var(--badge-accent) 30%, transparent);
+  background-color: color-mix(in oklch, var(--badge-accent) 12%, transparent);
+}
+
+.typeBadgeCapitalized {
+  text-transform: capitalize;
+}
+
+.badgeIndigo {
+  --badge-accent: var(--accent-indigo);
+}
+
+.badgeGreen {
+  --badge-accent: var(--accent-green);
+}
+
+.badgeTeal {
+  --badge-accent: var(--accent-teal);
+}
+
 .closeBtn {
   width: 1.5rem;
   height: 1.5rem;

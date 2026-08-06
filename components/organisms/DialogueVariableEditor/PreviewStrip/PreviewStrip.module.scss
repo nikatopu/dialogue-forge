@@ -18,8 +18,8 @@
 }
 
 .previewUnresolved {
-  color: oklch(0.70 0.18 35);
-  background: color-mix(in oklch, oklch(0.70 0.18 35) 12%, transparent);
+  color: var(--accent-orange);
+  background: color-mix(in oklch, var(--accent-orange) 12%, transparent);
   border-radius: 2px;
   padding: 0 2px;
 }

@@ -29,7 +29,7 @@ export function GraphCanvas() {
 export { SearchOverlay };
 
 function FlowEditor() {
-  const { pickingJumpFor } = useEditorStore();
+  const { pickingJumpFor, mode } = useEditorStore();
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useGraphStore();
   const {
     reactFlowWrapper, isMobile, onDragOver, onDrop, onNodeClick, onPaneClick,
@@ -71,17 +71,18 @@ function FlowEditor() {
         defaultEdgeOptions={{ type: "dialogue", animated: false }}
         connectionLineStyle={{ stroke: "oklch(0.585 0.233 260)", strokeWidth: 1.5, strokeDasharray: "5 5" }}
         className={style.flow}
+        colorMode={mode}
         proOptions={{ hideAttribution: false }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1.2} color="oklch(1 0 0 / 7%)" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1.2} color="var(--canvas-dot)" />
         <Controls showInteractive={false} />
         <MiniMap
           nodeColor={(n) =>
             n.type === "character" ? "oklch(0.585 0.233 260)"
-              : n.type === "start" ? "oklch(0.62 0.18 180)"
-              : "oklch(0.62 0.22 170)"
+              : n.type === "start" ? "var(--accent-teal)"
+              : "var(--accent-green)"
           }
-          maskColor="oklch(0 0 0 / 55%)"
+          maskColor="var(--minimap-mask)"
           pannable zoomable ariaLabel="Minimap"
         />
         {!isMobile && <CanvasTools />}

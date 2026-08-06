@@ -325,7 +325,7 @@ function LocalDraftCard({ project, onOpen, onMoveToCloud, index, isSignedIn, can
       className={style.draftCard}
     >
       <div className={style.draftPreview} onClick={onOpen}>
-        <div className={style.draftGrid} style={{ backgroundImage: "radial-gradient(oklch(1 0 0 / 15%) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+        <div className={style.draftGrid} style={{ backgroundImage: "radial-gradient(var(--grid-dot) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
         <div className={style.draftBadge}>
           <HardDrive size={10} />Local
         </div>

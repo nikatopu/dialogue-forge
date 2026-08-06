@@ -18,7 +18,7 @@ export function FirstLoginSheet({ open, nodeCount, onImport, onChoose, onDismiss
           <div className={style.panel}>
             <div className={style.header}>
               <div className={style.headerLeft}>
-                <div className={style.headerIcon}><Cloud size={14} style={{ color: "oklch(0.68 0.18 220)" }} /></div>
+                <div className={style.headerIcon}><Cloud size={14} style={{ color: "var(--accent-blue)" }} /></div>
                 <div>
                   <p className={style.title}>Local work found</p>
                   <p className={style.sub}>{nodeCount} node{nodeCount !== 1 ? "s" : ""} in your local draft</p>

@@ -11,7 +11,7 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 20px oklch(0 0 0 / 50%);
+  box-shadow: 0 4px 20px color-mix(in oklch, var(--shadow-color) 50%, transparent);
   overflow: hidden;
 }
 

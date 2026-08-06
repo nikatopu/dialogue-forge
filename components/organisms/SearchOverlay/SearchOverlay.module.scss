@@ -12,7 +12,7 @@
   border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
   background-color: color-mix(in oklch, var(--card) 95%, transparent);
   backdrop-filter: blur(16px);
-  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  box-shadow: 0 25px 50px color-mix(in oklch, var(--shadow-color) 30%, transparent);
   overflow: hidden;
 }
 
@@ -86,17 +86,17 @@
 
 .typeBadgeCharacter {
   background-color: color-mix(in oklch, oklch(0.52 0.255 262) 15%, transparent);
-  color: oklch(0.65 0.19 260);
+  color: var(--accent-indigo);
 }
 
 .typeBadgeStart {
   background-color: color-mix(in oklch, oklch(0.5 0.15 180) 15%, transparent);
-  color: oklch(0.68 0.15 180);
+  color: var(--accent-teal);
 }
 
 .typeBadgeAction {
   background-color: color-mix(in oklch, oklch(0.52 0.18 155) 15%, transparent);
-  color: oklch(0.72 0.18 155);
+  color: var(--accent-green);
 }
 
 .resultInfo {

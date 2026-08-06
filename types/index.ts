@@ -2,7 +2,11 @@ import { type Node, type Edge } from "@xyflow/react";
 
 /* ─── Primitive enums ─────────────────────────────────── */
 
+/** Colour palette. Each one ships in both `ThemeMode` variants. */
 export type Theme = "default" | "ocean" | "forest" | "midnight" | "rose" | "cyber";
+
+/** Light/dark axis, independent of the colour palette. */
+export type ThemeMode = "dark" | "light";
 
 export type ForgeNodeType = "character" | "action" | "start";
 

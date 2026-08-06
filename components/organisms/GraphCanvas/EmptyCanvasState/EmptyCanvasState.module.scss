@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px oklch(0 0 0 / 20%);
+  box-shadow: 0 4px 20px color-mix(in oklch, var(--shadow-color) 20%, transparent);
 }
 
 .emptyIconGlyph {
@@ -63,9 +63,9 @@
   line-height: 1.5;
 }
 
-.startWord { color: oklch(0.68 0.15 180); font-weight: 500; }
-.characterWord { color: oklch(0.65 0.19 260); font-weight: 500; }
-.actionWord { color: oklch(0.72 0.18 155); font-weight: 500; }
+.startWord { color: var(--accent-teal); font-weight: 500; }
+.characterWord { color: var(--accent-indigo); font-weight: 500; }
+.actionWord { color: var(--accent-green); font-weight: 500; }
 
 .demoBtn {
   margin-top: 1.25rem;

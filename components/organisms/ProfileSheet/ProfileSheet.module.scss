@@ -166,7 +166,7 @@
 .usageFill {
   height: 100%;
   border-radius: 9999px;
-  background-color: oklch(0.68 0.18 220);
+  background-color: var(--accent-blue);
   transition: width 0.3s ease;
 }
 

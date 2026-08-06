@@ -14,7 +14,7 @@
   &:hover {
     border-color: var(--border);
     background-color: color-mix(in oklch, var(--muted) 40%, transparent);
-    box-shadow: 0 1px 3px oklch(0 0 0 / 10%);
+    box-shadow: 0 1px 3px color-mix(in oklch, var(--shadow-color) 10%, transparent);
   }
 
   &:active {

@@ -3,7 +3,7 @@
 }
 
 .icon {
-  color: oklch(0.72 0.19 310);
+  color: var(--accent-magenta);
 }
 
 .varPreview {
@@ -17,6 +17,6 @@
 .varPreviewText {
   font-size: 0.6875rem;
   font-family: monospace;
-  color: oklch(0.82 0.15 310);
+  color: var(--accent-magenta-bright);
   font-weight: 500;
 }

@@ -26,7 +26,7 @@
   border-radius: 1rem 1rem 0 0;
   border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
   background-color: var(--card);
-  box-shadow: 0 25px 50px oklch(0 0 0 / 30%);
+  box-shadow: 0 25px 50px color-mix(in oklch, var(--shadow-color) 30%, transparent);
   display: flex;
   flex-direction: column;
   height: 92dvh;

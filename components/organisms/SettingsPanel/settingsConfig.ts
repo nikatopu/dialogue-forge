@@ -1,5 +1,5 @@
-import { Settings, Palette, Keyboard, User, Info } from "lucide-react";
-import type { Theme } from "@/types";
+import { Settings, Palette, Keyboard, User, Info, Moon, Sun } from "lucide-react";
+import type { Theme, ThemeMode } from "@/types";
 
 export const SHORTCUTS = [
   { keys: ["Ctrl", "Z"], label: "Undo" }, { keys: ["Ctrl", "Y"], label: "Redo" },
@@ -19,13 +19,29 @@ export const THEMES: { value: Theme; label: string; description: string }[] = [
   { value: "cyber",    label: "Cyber",    description: "Lime" },
 ];
 
-export const THEME_SWATCH_COLORS: Record<Theme, string> = {
-  default:  "oklch(0.52 0.255 262)",
-  ocean:    "oklch(0.68 0.18 220)",
-  forest:   "oklch(0.72 0.16 155)",
-  midnight: "oklch(0.68 0.22 295)",
-  rose:     "oklch(0.72 0.22 355)",
-  cyber:    "oklch(0.8 0.24 125)",
+export const MODES: { value: ThemeMode; label: string; description: string; icon: React.ComponentType<{ size?: number }> }[] = [
+  { value: "dark",  label: "Dark",  description: "Default",     icon: Moon },
+  { value: "light", label: "Light", description: "Bright rooms", icon: Sun },
+];
+
+/** Swatches mirror each palette's accent in the mode being previewed. */
+export const THEME_SWATCH_COLORS: Record<ThemeMode, Record<Theme, string>> = {
+  dark: {
+    default:  "oklch(0.585 0.233 260)",
+    ocean:    "oklch(0.68 0.18 220)",
+    forest:   "oklch(0.72 0.16 155)",
+    midnight: "oklch(0.68 0.22 295)",
+    rose:     "oklch(0.72 0.22 355)",
+    cyber:    "oklch(0.8 0.24 125)",
+  },
+  light: {
+    default:  "oklch(0.52 0.255 262)",
+    ocean:    "oklch(0.52 0.145 232)",
+    forest:   "oklch(0.48 0.125 158)",
+    midnight: "oklch(0.51 0.215 295)",
+    rose:     "oklch(0.535 0.205 358)",
+    cyber:    "oklch(0.5 0.155 132)",
+  },
 };
 
 export type SettingsSection = "general" | "appearance" | "shortcuts" | "account" | "about";

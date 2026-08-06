@@ -32,7 +32,7 @@ export const NODE_TEMPLATES: NodeTemplate[] = [
     label: "Character",
     description: "Dialogue node",
     icon: User,
-    iconColor: { color: "oklch(0.65 0.19 260)" },
+    iconColor: { color: "var(--accent-indigo)" },
     iconBg: { backgroundColor: "oklch(0.52 0.255 262 / 12%)" },
   },
   {
@@ -40,7 +40,7 @@ export const NODE_TEMPLATES: NodeTemplate[] = [
     label: "Action",
     description: "Trigger / branch / jump",
     icon: Zap,
-    iconColor: { color: "oklch(0.72 0.18 155)" },
+    iconColor: { color: "var(--accent-green)" },
     iconBg: { backgroundColor: "oklch(0.52 0.18 155 / 12%)" },
   },
   {
@@ -48,7 +48,7 @@ export const NODE_TEMPLATES: NodeTemplate[] = [
     label: "Start",
     description: "Entry point",
     icon: Flag,
-    iconColor: { color: "oklch(0.68 0.15 180)" },
+    iconColor: { color: "var(--accent-teal)" },
     iconBg: { backgroundColor: "oklch(0.5 0.15 180 / 12%)" },
   },
 ];

@@ -21,7 +21,7 @@ export function NodeStrip({ node, onDuplicate, onDelete }: NodeStripProps) {
   const glow = isStart ? "oklch(0.5 0.15 180 / 5%)" : isCharacter ? "oklch(0.52 0.255 262 / 5%)" : actionCfg!.glow;
   const iconBg = isStart ? "oklch(0.5 0.15 180 / 15%)" : isCharacter ? "oklch(0.52 0.255 262 / 15%)" : actionCfg!.bg;
   const iconBorder = isStart ? "oklch(0.5 0.15 180 / 25%)" : isCharacter ? "oklch(0.52 0.255 262 / 25%)" : actionCfg!.border;
-  const iconColor = isStart ? "oklch(0.68 0.15 180)" : isCharacter ? "oklch(0.65 0.19 260)" : actionCfg!.color;
+  const iconColor = isStart ? "var(--accent-teal)" : isCharacter ? "var(--accent-indigo)" : actionCfg!.color;
   const label = isStart ? (data as StartNodeData).name || "Entry Point" : isCharacter ? (data as CharacterNodeData).name || "Unnamed" : (data as ActionNodeData).label || "Action";
   const typeLabel = isStart ? "Start node" : isCharacter ? "Character node" : `${actionCfg!.label} node`;
   const Icon = isStart ? Flag : isCharacter ? User : actionCfg!.icon;

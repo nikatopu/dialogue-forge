@@ -17,7 +17,7 @@
 }
 
 .autosaveSaved {
-  color: oklch(0.72 0.18 155);
+  color: var(--accent-green);
 }
 
 .autosaveError {
@@ -25,7 +25,7 @@
 }
 
 .autosaveOffline {
-  color: oklch(0.72 0.18 85);
+  color: var(--accent-amber);
 }
 
 .spin {
