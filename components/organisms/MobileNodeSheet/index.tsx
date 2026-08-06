@@ -19,12 +19,12 @@ interface NodeOption {
 }
 
 const NODE_OPTIONS: NodeOption[] = [
-  { label: "Start",     description: "Entry point for a dialogue flow",  icon: Flag,      iconColor: "oklch(0.68 0.15 180)", iconBg: "oklch(0.5 0.15 180 / 15%)",  borderColor: "oklch(0.5 0.15 180 / 25%)", nodeType: "start" },
-  { label: "Character", description: "A line of spoken dialogue",         icon: User,      iconColor: "oklch(0.65 0.19 260)", iconBg: "oklch(0.52 0.255 262 / 15%)", borderColor: "oklch(0.52 0.255 262 / 25%)", nodeType: "character" },
-  { label: "Branch",    description: "Present choices to the player",     icon: GitBranch, iconColor: "oklch(0.72 0.18 50)",  iconBg: "oklch(0.52 0.18 50 / 15%)",  borderColor: "oklch(0.52 0.18 50 / 25%)", nodeType: "action", actionType: "branch" },
-  { label: "Trigger",   description: "Fire a game event",                 icon: Zap,       iconColor: "oklch(0.72 0.18 155)", iconBg: "oklch(0.52 0.18 155 / 15%)", borderColor: "oklch(0.52 0.18 155 / 25%)", nodeType: "action", actionType: "trigger" },
-  { label: "Jump",      description: "Redirect flow to another node",     icon: SkipForward,iconColor: "oklch(0.68 0.18 220)", iconBg: "oklch(0.52 0.18 220 / 15%)", borderColor: "oklch(0.52 0.18 220 / 25%)", nodeType: "action", actionType: "jump" },
-  { label: "End",       description: "Terminate this dialogue path",      icon: Square,    iconColor: "oklch(0.72 0.22 355)", iconBg: "oklch(0.52 0.22 355 / 15%)", borderColor: "oklch(0.52 0.22 355 / 25%)", nodeType: "action", actionType: "end" },
+  { label: "Start",     description: "Entry point for a dialogue flow",  icon: Flag,      iconColor: "var(--accent-teal)", iconBg: "oklch(0.5 0.15 180 / 15%)",  borderColor: "oklch(0.5 0.15 180 / 25%)", nodeType: "start" },
+  { label: "Character", description: "A line of spoken dialogue",         icon: User,      iconColor: "var(--accent-indigo)", iconBg: "oklch(0.52 0.255 262 / 15%)", borderColor: "oklch(0.52 0.255 262 / 25%)", nodeType: "character" },
+  { label: "Branch",    description: "Present choices to the player",     icon: GitBranch, iconColor: "var(--accent-orange)",  iconBg: "oklch(0.52 0.18 50 / 15%)",  borderColor: "oklch(0.52 0.18 50 / 25%)", nodeType: "action", actionType: "branch" },
+  { label: "Trigger",   description: "Fire a game event",                 icon: Zap,       iconColor: "var(--accent-green)", iconBg: "oklch(0.52 0.18 155 / 15%)", borderColor: "oklch(0.52 0.18 155 / 25%)", nodeType: "action", actionType: "trigger" },
+  { label: "Jump",      description: "Redirect flow to another node",     icon: SkipForward,iconColor: "var(--accent-blue)", iconBg: "oklch(0.52 0.18 220 / 15%)", borderColor: "oklch(0.52 0.18 220 / 25%)", nodeType: "action", actionType: "jump" },
+  { label: "End",       description: "Terminate this dialogue path",      icon: Square,    iconColor: "var(--accent-rose)", iconBg: "oklch(0.52 0.22 355 / 15%)", borderColor: "oklch(0.52 0.22 355 / 25%)", nodeType: "action", actionType: "end" },
 ];
 
 export function MobileNodeSheet() {

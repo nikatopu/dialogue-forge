@@ -58,7 +58,7 @@ export function CloudMigrationModal({ open, onClose, onSuccess }: CloudMigration
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className={style.overlay} onClick={(e) => { if (e.target === e.currentTarget && phase === "idle") onClose(); }}>
           <motion.div initial={{ opacity: 0, scale: 0.96, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 8 }} transition={{ type: "spring", stiffness: 380, damping: 28 }} className={style.panel}>
             <div className={style.header}>
-              <div className={style.headerIcon}><Upload size={16} style={{ color: "oklch(0.68 0.18 220)" }} /></div>
+              <div className={style.headerIcon}><Upload size={16} style={{ color: "var(--accent-blue)" }} /></div>
               <div>
                 <p className={style.headerTitle}>Import to Cloud</p>
                 <p className={style.headerSub}>Upload your local draft as a cloud project</p>
@@ -71,7 +71,7 @@ export function CloudMigrationModal({ open, onClose, onSuccess }: CloudMigration
                   <p className={style.draftName}>{projectName}</p>
                   <p className={style.draftSub}>{nodeCount} node{nodeCount !== 1 ? "s" : ""} · local draft</p>
                 </div>
-                <Cloud size={14} style={{ color: "oklch(0.68 0.18 220 / 70%)", flexShrink: 0 }} />
+                <Cloud size={14} style={{ color: "color-mix(in oklch, var(--accent-blue) 70%, transparent)", flexShrink: 0 }} />
               </div>
               {atLimit && <p className={style.limitWarning}>Cloud project limit reached ({cloudProjectCount}/5). Delete a project to continue.</p>}
               <button type="button" onClick={() => setKeepLocal((v) => !v)} className={style.keepLocalBtn}>

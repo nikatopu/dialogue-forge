@@ -21,7 +21,7 @@
   }
 
   ::selection {
-    background: oklch(0.585 0.233 260 / 30%);
+    background: var(--selection);
   }
 }
 

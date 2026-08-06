@@ -1,6 +1,14 @@
 "use client";
 
-import { Plus, PanelLeft, Search, Play, Layers, Settings } from "lucide-react";
+import {
+  Plus,
+  PanelLeft,
+  Search,
+  Play,
+  Layers,
+  Settings,
+  SlidersHorizontal,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useEditorStore } from "@/store/useEditorStore";
 import cn from "classnames";
@@ -26,6 +34,8 @@ export function MobileToolbar() {
     setSearchOpen,
     setSettingsOpen,
     selectedNodeId,
+    variablesPanelOpen,
+    setVariablesPanelOpen,
   } = useEditorStore();
 
   const buttons: ToolBtn[] = [
@@ -40,18 +50,24 @@ export function MobileToolbar() {
       label: "Search",
       onClick: () => setSearchOpen(!searchOpen),
     },
+    { icon: Play, label: "Preview", onClick: () => setPreviewOpen(true) },
     {
       icon: Plus,
       label: "Add",
       onClick: () => setNodeSheetOpen(true),
       primary: true,
     },
-    { icon: Play, label: "Preview", onClick: () => setPreviewOpen(true) },
     {
       icon: Layers,
       label: "Inspector",
       onClick: () => setMobileInspectorOpen(!mobileInspectorOpen),
       active: mobileInspectorOpen && !!selectedNodeId,
+    },
+    {
+      icon: SlidersHorizontal,
+      label: "Vars",
+      onClick: () => setVariablesPanelOpen(!variablesPanelOpen),
+      active: variablesPanelOpen,
     },
     { icon: Settings, label: "Settings", onClick: () => setSettingsOpen(true) },
   ];

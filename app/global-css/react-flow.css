@@ -1,8 +1,17 @@
+/*
+ * colorMode="dark" makes React Flow paint its pane #141414. Ours is a deep
+ * blue-black from --background, already painted by the canvas wrapper, so
+ * keep the pane transparent and let it show through in both modes.
+ */
+.react-flow {
+  --xy-background-color: transparent;
+}
+
 .react-flow__controls {
   background: var(--card) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius-lg) !important;
-  box-shadow: 0 4px 20px oklch(0 0 0 / 50%) !important;
+  box-shadow: 0 4px 20px color-mix(in oklch, var(--shadow-color) 50%, transparent) !important;
   overflow: hidden !important;
   gap: 0 !important;
 }
@@ -40,7 +49,7 @@
 }
 
 .react-flow__minimap-mask {
-  fill: oklch(0 0 0 / 50%) !important;
+  fill: var(--minimap-mask) !important;
 }
 
 .react-flow__attribution {

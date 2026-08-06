@@ -1,0 +1,133 @@
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.625rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  background-color: color-mix(in oklch, var(--muted) 25%, transparent);
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: var(--border);
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+}
+
+.cardDeleting {
+  border-color: color-mix(in oklch, var(--destructive) 40%, transparent);
+  background-color: color-mix(in oklch, var(--destructive) 5%, transparent);
+}
+
+.left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.typeIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.125rem;
+}
+
+.metaSep {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+}
+
+.meta {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+}
+
+.default {
+  font-family: monospace;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+}
+
+.desc {
+  font-size: 0.5625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  margin-top: 0.25rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.usage {
+  font-size: 0.5625rem;
+  color: color-mix(in oklch, var(--primary) 70%, transparent);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.deleteWarning {
+  font-size: 0.5625rem;
+  color: var(--destructive);
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  transition: all 0.15s;
+
+  &:hover {
+    background-color: var(--muted);
+    color: var(--foreground);
+  }
+}
+
+.iconBtnDestructive {
+  color: var(--destructive);
+  &:hover { background-color: color-mix(in oklch, var(--destructive) 15%, transparent); }
+}
+
+.iconBtnDestructiveHover {
+  &:hover { color: var(--destructive); }
+}

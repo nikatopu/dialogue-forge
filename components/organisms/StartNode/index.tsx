@@ -20,7 +20,7 @@ function StartNodeComponent({ id, data, selected }: NodeProps<StartFlowNode>) {
     )}>
       <div className={style.header}>
         <div className={style.iconBox}>
-          <Flag size={14} style={{ color: "oklch(0.68 0.15 180)" }} />
+          <Flag size={14} style={{ color: "var(--accent-teal)" }} />
         </div>
         <div>
           <p className={style.typeLabel}>Start</p>

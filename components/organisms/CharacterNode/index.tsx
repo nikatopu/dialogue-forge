@@ -39,7 +39,7 @@ function CharacterNodeComponent({ id, data, selected }: NodeProps<CharacterFlowN
           <div className={style.portraitCircle}>
             {data.portrait
               ? <img src={data.portrait} alt={data.name} className={style.portraitImg} />
-              : <User size={16} style={{ color: "oklch(0.65 0.19 260)" }} />
+              : <User size={16} style={{ color: "var(--accent-indigo)" }} />
             }
           </div>
           <div className={cn(

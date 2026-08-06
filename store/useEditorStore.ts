@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Theme, AutosaveStatus } from "@/types";
+import type { Theme, ThemeMode, AutosaveStatus } from "@/types";
 
 interface ContextMenuState {
   x: number;
@@ -17,6 +17,8 @@ interface EditorStore {
   selectedNodeId: string | null;
   projectName: string;
   theme: Theme;
+  /** Light/dark axis, independent of `theme`. Defaults to dark. */
+  mode: ThemeMode;
   contextMenu: ContextMenuState | null;
   previewOpen: boolean;
   searchOpen: boolean;
@@ -43,6 +45,8 @@ interface EditorStore {
   setSelectedNodeId: (id: string | null) => void;
   setProjectName: (name: string) => void;
   setTheme: (theme: Theme) => void;
+  setMode: (mode: ThemeMode) => void;
+  toggleMode: () => void;
   setContextMenu: (menu: ContextMenuState | null) => void;
   setPreviewOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
@@ -64,6 +68,7 @@ export const useEditorStore = create<EditorStore>()(
       selectedNodeId: null,
       projectName: "Untitled Project",
       theme: "default",
+      mode: "dark",
       contextMenu: null,
       previewOpen: false,
       searchOpen: false,
@@ -83,6 +88,8 @@ export const useEditorStore = create<EditorStore>()(
       setSelectedNodeId: (id) => set({ selectedNodeId: id }),
       setProjectName: (name) => set({ projectName: name }),
       setTheme: (theme) => set({ theme }),
+      setMode: (mode) => set({ mode }),
+      toggleMode: () => set((s) => ({ mode: s.mode === "dark" ? "light" : "dark" })),
       setContextMenu: (menu) => set({ contextMenu: menu }),
       setPreviewOpen: (open) => set({ previewOpen: open }),
       setSearchOpen: (open) => set({ searchOpen: open }),
@@ -97,11 +104,15 @@ export const useEditorStore = create<EditorStore>()(
     }),
     {
       name: "dialogue-forge-ui",
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const s = persisted as Record<string, unknown>;
         if (version < 2 && (s.theme === "dark" || s.theme === "light" || !s.theme)) {
           s.theme = "default";
+        }
+        // v3 split the light/dark axis out of `theme`; everything before it was dark-only.
+        if (version < 3 && s.mode !== "light") {
+          s.mode = "dark";
         }
         return s;
       },
@@ -110,6 +121,7 @@ export const useEditorStore = create<EditorStore>()(
         inspectorOpen: s.inspectorOpen,
         projectName: s.projectName,
         theme: s.theme,
+        mode: s.mode,
       }),
     }
   )

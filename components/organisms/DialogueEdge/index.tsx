@@ -59,7 +59,7 @@ function DialogueEdgeComponent({
           stroke: active
             ? "oklch(0.585 0.233 260)"
             : hasCondition
-            ? "oklch(0.65 0.19 290 / 60%)"
+            ? "color-mix(in oklch, var(--accent-violet) 60%, transparent)"
             : "oklch(1 0 0 / 25%)",
           strokeWidth: active ? 2 : 1.5,
           transition: "stroke 0.15s, stroke-width 0.15s",

@@ -1,71 +1,17 @@
 "use client";
 
-import { Plus, X, GitMerge } from "lucide-react";
+import { Plus, GitMerge } from "lucide-react";
 import { useVariableStore } from "@/store/useVariableStore";
 import cn from "classnames";
-import type { ConditionGroup, Condition, ConditionLogic, ConditionOperator, VariableType } from "@/types";
+import type { ConditionGroup, Condition, ConditionLogic } from "@/types";
+import { OPERATORS_BY_TYPE, emptyGroup, emptyCondition } from "./conditionConfig";
+import { ConditionRow } from "./ConditionRow";
+import { ConditionPreview } from "./ConditionPreview";
 import style from "./ConditionBuilder.module.scss";
-
-/* Operators valid for each variable type */
-const OPERATORS_BY_TYPE: Record<VariableType, ConditionOperator[]> = {
-  number:  ["==", "!=", ">", ">=", "<", "<=", "between", "notBetween"],
-  float:   ["==", "!=", ">", ">=", "<", "<=", "between", "notBetween"],
-  boolean: ["isTrue", "isFalse"],
-  string:  ["==", "!=", "contains", "notContains", "startsWith", "endsWith", "isEmpty", "isNotEmpty"],
-  list:    ["listContains", "listNotContains", "listIsEmpty", "listIsNotEmpty", "lengthEquals", "lengthGreater", "lengthLess"],
-  object:  ["hasProperty", "notHasProperty", "propertyEquals"],
-};
-
-const OPERATOR_LABELS: Record<ConditionOperator, string> = {
-  "==":             "equals",
-  "!=":             "not equals",
-  ">":              "greater than",
-  ">=":             "at least",
-  "<":              "less than",
-  "<=":             "at most",
-  "between":        "between",
-  "notBetween":     "not between",
-  "contains":       "contains",
-  "notContains":    "does not contain",
-  "startsWith":     "starts with",
-  "endsWith":       "ends with",
-  "isEmpty":        "is empty",
-  "isNotEmpty":     "is not empty",
-  "isTrue":         "is true",
-  "isFalse":        "is false",
-  "listContains":   "contains",
-  "listNotContains":"does not contain",
-  "listIsEmpty":    "is empty",
-  "listIsNotEmpty": "is not empty",
-  "lengthEquals":   "length equals",
-  "lengthGreater":  "length greater than",
-  "lengthLess":     "length less than",
-  "hasProperty":    "has property",
-  "notHasProperty": "does not have property",
-  "propertyEquals": "property equals",
-};
-
-/* Operators that require no value input */
-const NO_VALUE_OPERATORS = new Set<ConditionOperator>([
-  "isEmpty", "isNotEmpty", "listIsEmpty", "listIsNotEmpty", "isTrue", "isFalse",
-]);
-
-/* Operators that require two value inputs (min + max) */
-const TWO_VALUE_OPERATORS = new Set<ConditionOperator>([
-  "between", "notBetween",
-]);
 
 interface ConditionBuilderProps {
   value: ConditionGroup | null;
   onChange: (group: ConditionGroup | null) => void;
-}
-
-function emptyGroup(): ConditionGroup {
-  return { logic: "AND", conditions: [] };
-}
-
-function emptyCondition(): Condition {
-  return { variableId: "", operator: "==", value: "" };
 }
 
 export function ConditionBuilder({ value, onChange }: ConditionBuilderProps) {
@@ -82,11 +28,7 @@ export function ConditionBuilder({ value, onChange }: ConditionBuilderProps) {
 
   function removeCondition(index: number) {
     const next = group.conditions.filter((_, i) => i !== index);
-    if (next.length === 0) {
-      onChange(null);
-    } else {
-      onChange({ ...group, conditions: next });
-    }
+    onChange(next.length === 0 ? null : { ...group, conditions: next });
   }
 
   function updateCondition(index: number, patch: Partial<Condition>) {
@@ -111,10 +53,9 @@ export function ConditionBuilder({ value, onChange }: ConditionBuilderProps) {
 
   return (
     <div className={style.builder}>
-      {/* Header row */}
       <div className={style.builderHeader}>
         <div className={style.builderLeft}>
-          <GitMerge size={12} style={{ color: "var(--primary)", flexShrink: 0 }} />
+          <GitMerge size={12} className={style.builderIcon} />
           <span className={style.builderTitle}>Conditions</span>
           {conditions.length > 0 && <span className={style.builderCount}>{conditions.length}</span>}
         </div>
@@ -127,154 +68,45 @@ export function ConditionBuilder({ value, onChange }: ConditionBuilderProps) {
       </div>
 
       {variables.length === 0 && (
-        <p className={style.noVarsNote}>
-          No variables defined. Open the Variables panel to create some.
-        </p>
+        <p className={style.noVarsNote}>No variables defined. Open the Variables panel to create some.</p>
       )}
 
       {conditions.length === 0 && variables.length > 0 && (
-        <p className={style.emptyNote}>
-          No conditions. This branch is always visible.
-        </p>
+        <p className={style.emptyNote}>No conditions. This branch is always visible.</p>
       )}
 
       {conditions.length > 0 && (
         <>
-          {/* Logic toggle */}
           {conditions.length > 1 && (
             <div className={style.logicRow}>
               <span className={style.logicLabel}>Match</span>
               <div className={style.logicToggle}>
                 {(["AND", "OR"] as ConditionLogic[]).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLogic(l)}
-                    className={cn(style.logicBtn, group.logic === l && style.logicBtnActive)}
-                  >
+                  <button key={l} type="button" onClick={() => setLogic(l)} className={cn(style.logicBtn, group.logic === l && style.logicBtnActive)}>
                     {l}
                   </button>
                 ))}
               </div>
-              <span className={style.logicLabel}>
-                {group.logic === "AND" ? "all conditions" : "any condition"}
-              </span>
+              <span className={style.logicLabel}>{group.logic === "AND" ? "all conditions" : "any condition"}</span>
             </div>
           )}
 
-          {/* Condition rows */}
           <div className={style.conditionList}>
             {group.conditions.map((c, i) => {
               if ("logic" in c) return null; // nested groups not rendered (flat only)
-              const cond = c as Condition;
-              const variable = variables.find((v) => v.id === cond.variableId);
-              const varType = variable?.type ?? "string";
-              const availableOps = OPERATORS_BY_TYPE[varType];
-
               return (
-                <div key={i} className={style.conditionRow}>
-                  {/* Variable select */}
-                  <select
-                    value={cond.variableId}
-                    onChange={(e) => updateCondition(i, { variableId: e.target.value })}
-                    className={cn(style.condSelect, style.condVarSelect)}
-                    aria-label="Variable"
-                  >
-                    <option value="">variable</option>
-                    {variables.map((v) => (
-                      <option key={v.id} value={v.id}>{v.name}</option>
-                    ))}
-                  </select>
-
-                  {/* Operator select */}
-                  <select
-                    value={cond.operator}
-                    onChange={(e) => updateCondition(i, { operator: e.target.value as ConditionOperator })}
-                    className={cn(style.condSelect, style.condOpSelect)}
-                    aria-label="Operator"
-                  >
-                    {availableOps.map((op) => (
-                      <option key={op} value={op}>{OPERATOR_LABELS[op] ?? op}</option>
-                    ))}
-                  </select>
-
-                  {/* Value input — hidden for no-value ops, two inputs for between, single otherwise */}
-                  {!NO_VALUE_OPERATORS.has(cond.operator) && TWO_VALUE_OPERATORS.has(cond.operator) ? (
-                    <>
-                      <input
-                        type="number"
-                        value={String(cond.value)}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          updateCondition(i, { value: raw === "" ? "" : Number(raw) });
-                        }}
-                        placeholder="from"
-                        className={cn(style.condInput, style.condValInput)}
-                        aria-label="Min value"
-                      />
-                      <input
-                        type="number"
-                        value={cond.value2 !== undefined ? String(cond.value2) : ""}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          updateCondition(i, { value2: raw === "" ? undefined : Number(raw) });
-                        }}
-                        placeholder="to"
-                        className={cn(style.condInput, style.condValInput)}
-                        aria-label="Max value"
-                      />
-                    </>
-                  ) : !NO_VALUE_OPERATORS.has(cond.operator) ? (
-                    <input
-                      type={varType === "number" || varType === "float" || cond.operator === "lengthEquals" || cond.operator === "lengthGreater" || cond.operator === "lengthLess" ? "number" : "text"}
-                      value={String(cond.value)}
-                      onChange={(e) => {
-                        const raw = e.target.value;
-                        const isNumericType = varType === "number" || varType === "float";
-                        const coerced = isNumericType && !isNaN(Number(raw)) && raw !== ""
-                          ? Number(raw)
-                          : raw;
-                        updateCondition(i, { value: coerced });
-                      }}
-                      placeholder={varType === "number" || varType === "float" ? "0" : "value"}
-                      className={cn(style.condInput, style.condValInput)}
-                      aria-label="Comparison value"
-                    />
-                  ) : null}
-
-                  <button
-                    type="button"
-                    onClick={() => removeCondition(i)}
-                    className={style.removeBtn}
-                    title="Remove condition"
-                  >
-                    <X size={11} />
-                  </button>
-                </div>
+                <ConditionRow
+                  key={i}
+                  condition={c as Condition}
+                  variables={variables}
+                  onUpdate={(patch) => updateCondition(i, patch)}
+                  onRemove={() => removeCondition(i)}
+                />
               );
             })}
           </div>
 
-          {/* Human-readable preview */}
-          <div className={style.preview}>
-            {conditions.filter((c) => c.variableId).map((c, i) => {
-              const varName = variables.find((v) => v.id === c.variableId)?.name ?? c.variableId;
-              const opLabel = OPERATOR_LABELS[c.operator] ?? c.operator;
-              const valueStr = NO_VALUE_OPERATORS.has(c.operator)
-                ? ""
-                : TWO_VALUE_OPERATORS.has(c.operator)
-                  ? `${String(c.value)} – ${c.value2 !== undefined ? String(c.value2) : "?"}`
-                  : String(c.value);
-              return (
-                <span key={i} className={style.previewLine}>
-                  {i > 0 && <span className={style.previewLogic}>{group.logic}</span>}
-                  <code className={style.previewCode}>
-                    {varName} {opLabel}{valueStr ? ` ${valueStr}` : ""}
-                  </code>
-                </span>
-              );
-            })}
-          </div>
+          <ConditionPreview conditions={conditions} logic={group.logic} variables={variables} />
         </>
       )}
     </div>

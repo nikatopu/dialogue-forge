@@ -1,0 +1,27 @@
+/* Shared section-header primitives used across all SettingsPanel sections. */
+.sectionHeader {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.subsectionTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
+}
+
+.subsectionDesc {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}

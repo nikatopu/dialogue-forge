@@ -57,7 +57,7 @@ export function EdgeInspector({ edgeId }: EdgeInspectorProps) {
       {/* Identity strip */}
       <div className={style.strip}>
         <div className={style.stripIcon}>
-          <ArrowRight size={13} style={{ color: "oklch(0.65 0.19 260)" }} />
+          <ArrowRight size={13} style={{ color: "var(--accent-indigo)" }} />
         </div>
         <div className={style.stripMeta}>
           <p className={style.stripName}>

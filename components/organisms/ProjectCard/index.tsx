@@ -55,7 +55,7 @@ export function ProjectCard({ project, onDelete, onDuplicate, onRename, index = 
       >
         <Link href={`/projects/${project.id}`} className={style.previewLink}>
           <div className={style.preview}>
-            <div className={style.gridPattern} style={{ backgroundImage: "radial-gradient(oklch(1 0 0 / 15%) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+            <div className={style.gridPattern} style={{ backgroundImage: "radial-gradient(var(--grid-dot) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
             <div className={style.previewNodes}>
               <div className={style.previewNodesInner}>
                 {Array.from({ length: Math.min(nodeCount, 5) }).map((_, i) => (

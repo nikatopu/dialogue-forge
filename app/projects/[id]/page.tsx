@@ -62,7 +62,7 @@ export default function ProjectEditorPage() {
     return (
       <div className={style.errorScreen}>
         <div className={style.errorInner}>
-          <AlertTriangle size={32} style={{ color: "oklch(0.72 0.18 85 / 60%)" }} />
+          <AlertTriangle size={32} style={{ color: "color-mix(in oklch, var(--accent-amber) 60%, transparent)" }} />
           <div>
             <p className={style.errorTitle}>Project not found</p>
             <p className={style.errorDesc}>

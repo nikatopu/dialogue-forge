@@ -3,27 +3,27 @@
   border-radius: 0.75rem;
   border: 1px solid color-mix(in oklch, oklch(0.5 0.15 180) 40%, transparent);
   background-color: var(--card);
-  box-shadow: 0 4px 12px oklch(0 0 0 / 10%);
+  box-shadow: 0 4px 12px color-mix(in oklch, var(--shadow-color) 10%, transparent);
   transition: all 0.15s;
   user-select: none;
 
   &:hover {
     border-color: color-mix(in oklch, oklch(0.5 0.15 180) 60%, transparent);
-    box-shadow: 0 8px 24px oklch(0 0 0 / 15%);
+    box-shadow: 0 8px 24px color-mix(in oklch, var(--shadow-color) 15%, transparent);
   }
 }
 
 .nodeSelected {
-  border-color: oklch(0.68 0.15 180);
+  border-color: var(--accent-teal);
   box-shadow: 0 0 0 2px color-mix(in oklch, oklch(0.5 0.15 180) 20%, transparent);
 }
 
 .nodeError {
-  border-color: color-mix(in oklch, oklch(0.72 0.22 355) 60%, transparent);
+  border-color: color-mix(in oklch, var(--accent-rose) 60%, transparent);
 }
 
 .nodeWarning {
-  border-color: color-mix(in oklch, oklch(0.72 0.18 85) 60%, transparent);
+  border-color: color-mix(in oklch, var(--accent-amber) 60%, transparent);
 }
 
 .header {
@@ -53,7 +53,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: color-mix(in oklch, oklch(0.68 0.15 180) 80%, transparent);
+  color: color-mix(in oklch, var(--accent-teal) 80%, transparent);
 }
 
 .issueDot {
@@ -64,8 +64,8 @@
   border: 2px solid var(--card);
 }
 
-.issueDotError   { background-color: oklch(0.72 0.22 355); }
-.issueDotWarning { background-color: oklch(0.72 0.18 85); }
+.issueDotError   { background-color: var(--accent-rose); }
+.issueDotWarning { background-color: var(--accent-amber); }
 
 .body {
   padding: 0.625rem 0.75rem;

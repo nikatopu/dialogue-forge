@@ -13,18 +13,18 @@ import type { ActionFlowNode, ActionType } from "@/types";
 import style from "./ActionNode.module.scss";
 
 const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string; color: string; bg: string; border: string }> = {
-  trigger:     { icon: Zap,              label: "Trigger",      color: "oklch(0.72 0.18 155)", bg: "oklch(0.52 0.18 155 / 12%)", border: "oklch(0.52 0.18 155 / 20%)" },
-  branch:      { icon: GitBranch,        label: "Branch",       color: "oklch(0.72 0.18 50)",  bg: "oklch(0.52 0.18 50 / 12%)",  border: "oklch(0.52 0.18 50 / 20%)" },
-  jump:        { icon: SkipForward,      label: "Jump",         color: "oklch(0.68 0.18 220)", bg: "oklch(0.52 0.18 220 / 12%)", border: "oklch(0.52 0.18 220 / 20%)" },
-  end:         { icon: Square,           label: "End",          color: "oklch(0.72 0.22 355)", bg: "oklch(0.52 0.22 355 / 12%)", border: "oklch(0.52 0.22 355 / 20%)" },
-  custom:      { icon: Wrench,           label: "Custom",       color: "oklch(0.65 0.19 290)", bg: "oklch(0.52 0.19 290 / 12%)", border: "oklch(0.52 0.19 290 / 20%)" },
-  setVariable: { icon: SlidersHorizontal,label: "Set Variable", color: "oklch(0.72 0.19 310)", bg: "oklch(0.52 0.19 310 / 12%)", border: "oklch(0.52 0.19 310 / 20%)" },
+  trigger:     { icon: Zap,              label: "Trigger",      color: "var(--accent-green)", bg: "oklch(0.52 0.18 155 / 12%)", border: "oklch(0.52 0.18 155 / 20%)" },
+  branch:      { icon: GitBranch,        label: "Branch",       color: "var(--accent-orange)",  bg: "oklch(0.52 0.18 50 / 12%)",  border: "oklch(0.52 0.18 50 / 20%)" },
+  jump:        { icon: SkipForward,      label: "Jump",         color: "var(--accent-blue)", bg: "oklch(0.52 0.18 220 / 12%)", border: "oklch(0.52 0.18 220 / 20%)" },
+  end:         { icon: Square,           label: "End",          color: "var(--accent-rose)", bg: "oklch(0.52 0.22 355 / 12%)", border: "oklch(0.52 0.22 355 / 20%)" },
+  custom:      { icon: Wrench,           label: "Custom",       color: "var(--accent-violet)", bg: "oklch(0.52 0.19 290 / 12%)", border: "oklch(0.52 0.19 290 / 20%)" },
+  setVariable: { icon: SlidersHorizontal,label: "Set Variable", color: "var(--accent-magenta)", bg: "oklch(0.52 0.19 310 / 12%)", border: "oklch(0.52 0.19 310 / 20%)" },
 };
 
 const EXEC_COLORS = {
-  immediate:  { bg: "oklch(0.52 0.18 85 / 10%)", color: "oklch(0.72 0.18 85)", border: "oklch(0.52 0.18 85 / 20%)" },
-  beforeNext: { bg: "oklch(0.52 0.18 220 / 10%)", color: "oklch(0.68 0.18 220)", border: "oklch(0.52 0.18 220 / 20%)" },
-  afterNext:  { bg: "oklch(0.52 0.19 290 / 10%)", color: "oklch(0.65 0.19 290)", border: "oklch(0.52 0.19 290 / 20%)" },
+  immediate:  { bg: "oklch(0.52 0.18 85 / 10%)", color: "var(--accent-amber)", border: "oklch(0.52 0.18 85 / 20%)" },
+  beforeNext: { bg: "oklch(0.52 0.18 220 / 10%)", color: "var(--accent-blue)", border: "oklch(0.52 0.18 220 / 20%)" },
+  afterNext:  { bg: "oklch(0.52 0.19 290 / 10%)", color: "var(--accent-violet)", border: "oklch(0.52 0.19 290 / 20%)" },
 };
 
 function ActionNodeComponent({ id, data, selected }: NodeProps<ActionFlowNode>) {

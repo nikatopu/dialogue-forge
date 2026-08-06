@@ -1,0 +1,121 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  background-color: color-mix(in oklch, var(--primary) 6%, transparent);
+  border: 1px solid color-mix(in oklch, var(--primary) 15%, transparent);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.hintIcon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rowLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.varName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.varType {
+  font-size: 0.5625rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.25rem;
+  background-color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input {
+  width: 7rem;
+  flex-shrink: 0;
+  height: 1.875rem;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  text-align: right;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: color-mix(in oklch, var(--muted-foreground) 40%, transparent); }
+  &:focus { border-color: var(--primary); }
+}
+
+.select {
+  width: 7rem;
+  flex-shrink: 0;
+  height: 1.875rem;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  text-align: right;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: var(--primary); }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.actionBtn {
+  flex: 1;
+}
+
+.startBtn {
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.playIcon {
+  fill: currentColor;
+}

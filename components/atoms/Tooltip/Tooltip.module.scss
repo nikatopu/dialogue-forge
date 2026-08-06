@@ -10,7 +10,7 @@
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   color: var(--background);
-  box-shadow: 0 4px 12px oklch(0 0 0 / 20%);
+  box-shadow: 0 4px 12px color-mix(in oklch, var(--shadow-color) 20%, transparent);
 
   &[data-state="delayed-open"],
   &[data-state="open"] {

@@ -105,9 +105,9 @@
   &:hover { color: var(--foreground); }
 }
 
-.colorError   { color: oklch(0.72 0.22 355); }
-.colorWarning { color: oklch(0.72 0.18 85); }
-.colorInfo    { color: oklch(0.68 0.18 220); }
-.colorOk      { color: oklch(0.72 0.18 155); }
+.colorError   { color: var(--accent-rose); }
+.colorWarning { color: var(--accent-amber); }
+.colorInfo    { color: var(--accent-blue); }
+.colorOk      { color: var(--accent-green); }
 
 .dot { opacity: 0.4; margin: 0 0.25rem; }
