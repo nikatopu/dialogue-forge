@@ -1,0 +1,29 @@
+.moreWrapper {
+  position: relative;
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.375rem;
+  width: 13rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  box-shadow: 0 20px 40px oklch(0 0 0 / 30%);
+  overflow: hidden;
+  z-index: 100;
+  padding: 0.25rem 0;
+}
+
+.menuDivider {
+  height: 1px;
+  background-color: color-mix(in oklch, var(--border) 50%, transparent);
+  margin: 0.25rem 0;
+}

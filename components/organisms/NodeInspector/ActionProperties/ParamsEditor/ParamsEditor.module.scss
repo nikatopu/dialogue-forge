@@ -1,0 +1,54 @@
+.addParamBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover { color: var(--foreground); }
+}
+
+.paramRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.keyInput {
+  width: 33%;
+  flex-shrink: 0;
+  font-family: monospace;
+  font-size: 0.625rem;
+}
+
+.valueInput {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.625rem;
+}
+
+.paramSep {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+}
+
+.paramRemove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  display: flex;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.15s;
+
+  .paramRow:hover & {
+    opacity: 1;
+  }
+
+  &:hover { color: var(--destructive); }
+}

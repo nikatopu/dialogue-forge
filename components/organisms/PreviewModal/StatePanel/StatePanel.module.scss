@@ -1,0 +1,103 @@
+.panel {
+  flex-shrink: 0;
+  background-color: color-mix(in oklch, var(--muted) 25%, transparent);
+}
+
+.separator {
+  opacity: 0.4;
+}
+
+.inner {
+  padding: 0.625rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.itemChanged {
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+}
+
+.varName {
+  font-size: 0.5625rem;
+  color: var(--muted-foreground);
+}
+
+.val {
+  font-size: 0.625rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+}
+
+.valChanged {
+  color: var(--primary);
+}
+
+.changeLog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.changeItem {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  font-size: 0.5625rem;
+}
+
+.changeIcon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.changeName {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.changeFrom {
+  font-family: monospace;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  text-decoration: line-through;
+}
+
+.changeArrow {
+  color: var(--muted-foreground);
+}
+
+.changeTo {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--primary);
+}

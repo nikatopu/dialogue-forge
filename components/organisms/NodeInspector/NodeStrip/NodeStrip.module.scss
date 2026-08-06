@@ -1,0 +1,49 @@
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+}
+
+.stripIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+
+.stripMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.stripName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stripType {
+  font-size: 0.625rem;
+  color: var(--muted-foreground);
+  text-transform: capitalize;
+}
+
+.stripActions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.stripBtn {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+}

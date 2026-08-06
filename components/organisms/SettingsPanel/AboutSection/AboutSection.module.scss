@@ -1,0 +1,63 @@
+.aboutCard {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  background-color: color-mix(in oklch, var(--muted) 20%, transparent);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.aboutTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.aboutDesc {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin-bottom: 0.25rem;
+}
+
+.aboutVersion {
+  font-size: 0.625rem;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.linkSeparator {
+  opacity: 0.3;
+  margin: 0.25rem 0;
+}
+
+.linkItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--foreground);
+    background-color: color-mix(in oklch, var(--muted) 40%, transparent);
+  }
+}
+
+.linkLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.externalIcon {
+  opacity: 0.5;
+}

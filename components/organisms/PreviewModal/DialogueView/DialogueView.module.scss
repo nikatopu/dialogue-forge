@@ -1,0 +1,143 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Start step */
+.startStep {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background-color: oklch(0.5 0.15 180 / 8%);
+  border: 1px solid color-mix(in oklch, oklch(0.5 0.15 180) 20%, transparent);
+  border-radius: 0.75rem;
+}
+
+.startFlag { color: oklch(0.68 0.15 180); flex-shrink: 0; }
+.startStepLabel { font-size: 0.625rem; font-weight: 600; color: color-mix(in oklch, oklch(0.68 0.15 180) 80%, transparent); text-transform: uppercase; letter-spacing: 0.05em; }
+.startStepName  { font-size: 0.875rem; font-weight: 500; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
+
+/* Character step */
+.characterHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.characterAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: color-mix(in oklch, oklch(0.52 0.255 262) 15%, transparent);
+  border: 1px solid color-mix(in oklch, oklch(0.52 0.255 262) 25%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.characterAvatarImg { width: 100%; height: 100%; object-fit: cover; }
+.charUserIcon { color: oklch(0.65 0.19 260); }
+.charUnnamed { font-style: italic; color: var(--muted-foreground); }
+.characterName { font-size: 0.875rem; font-weight: 600; }
+.characterEmotion { font-size: 0.625rem; color: var(--muted-foreground); text-transform: capitalize; }
+
+.dialogueBubble {
+  background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.dialogueText { font-size: 0.875rem; line-height: 1.5; color: color-mix(in oklch, var(--foreground) 90%, transparent); }
+.dialogueEmpty { font-size: 0.875rem; font-style: italic; color: color-mix(in oklch, var(--muted-foreground) 50%, transparent); }
+
+/* Action step */
+.actionStep {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background-color: color-mix(in oklch, oklch(0.52 0.18 155) 5%, transparent);
+  border: 1px solid color-mix(in oklch, oklch(0.52 0.18 155) 20%, transparent);
+  border-radius: 0.75rem;
+}
+
+.actionZap { color: oklch(0.72 0.18 155); flex-shrink: 0; }
+.actionLabel { font-size: 0.75rem; font-weight: 600; color: color-mix(in oklch, oklch(0.72 0.18 155) 80%, transparent); text-transform: uppercase; letter-spacing: 0.05em; }
+.actionName  { font-size: 0.875rem; font-weight: 500; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
+
+/* Trigger step */
+.triggerCard {
+  border-radius: 0.75rem;
+  border: 1px solid;
+  padding: 0.75rem 1rem;
+}
+
+.triggerHeader { display: flex; align-items: center; gap: 0.5rem; }
+.triggerMeta   { flex: 1; min-width: 0; }
+.triggerLabels { display: flex; align-items: center; gap: 0.5rem; }
+.triggerTypeLabel { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: color-mix(in oklch, var(--muted-foreground) 60%, transparent); }
+.triggerName { font-size: 0.875rem; font-weight: 600; color: color-mix(in oklch, var(--foreground) 90%, transparent); }
+.triggerBadge { font-size: 0.5625rem; height: 1rem; padding: 0 0.375rem; }
+.execLabel { font-size: 0.625rem; font-weight: 500; flex-shrink: 0; }
+
+.triggerParams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding-top: 0.5rem;
+}
+
+.paramChip {
+  font-size: 0.625rem;
+  font-family: monospace;
+  background-color: color-mix(in oklch, var(--background) 40%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+}
+
+.paramValue { color: color-mix(in oklch, var(--foreground) 50%, transparent); }
+
+/* Set Variable step */
+.setVarCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  background-color: oklch(0.52 0.19 310 / 8%);
+  border: 1px solid oklch(0.52 0.19 310 / 20%);
+}
+
+.setVarIcon { color: oklch(0.72 0.19 310); flex-shrink: 0; }
+.setVarLabel { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: oklch(0.72 0.19 310); }
+.setVarName { font-size: 0.875rem; font-weight: 500; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
+
+.setVarExpr {
+  font-size: 0.6875rem;
+  margin-top: 0.25rem;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+
+  code { font-family: monospace; }
+}
+
+.setVarCurrent { font-style: italic; color: var(--muted-foreground); }
+
+/* End / no-start states */
+.endState { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; gap: 1rem; }
+.endIcon { width: 3rem; height: 3rem; border-radius: 1rem; background-color: color-mix(in oklch, oklch(0.72 0.18 155) 10%, transparent); border: 1px solid color-mix(in oklch, oklch(0.72 0.18 155) 20%, transparent); display: flex; align-items: center; justify-content: center; }
+.endGlyph { color: oklch(0.72 0.18 155); }
+.endTitle { font-size: 0.875rem; font-weight: 600; }
+.endSub { font-size: 0.75rem; color: var(--muted-foreground); }
+.endActions { display: flex; gap: 0.5rem; }
+.restartBtn { gap: 0.375rem; }
+
+.noStart { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; gap: 0.75rem; }
+.noStartIcon { color: oklch(0.72 0.18 85 / 60%); }
+.noStartText { font-size: 0.875rem; color: var(--muted-foreground); }
