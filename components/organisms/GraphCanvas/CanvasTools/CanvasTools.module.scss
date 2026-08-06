@@ -1,0 +1,44 @@
+/*
+ * Sits flush above the minimap. React Flow gives every viewport panel a 15px
+ * margin and renders the minimap at 200x150, so clearing 150px + 15px + an
+ * 8px gap parks this cluster on top of the map, right edges aligned.
+ */
+.cluster {
+  margin-bottom: calc(150px + 15px + 8px) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px oklch(0 0 0 / 50%);
+  overflow: hidden;
+}
+
+.btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

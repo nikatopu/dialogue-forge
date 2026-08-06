@@ -43,9 +43,12 @@ export function InspectorPanel() {
 
   return (
     <motion.aside
-      animate={{ width: inspectorOpen ? 300 : 0, opacity: inspectorOpen ? 1 : 0 }}
+      initial={false}
+      // Height inside the right dock; the dock itself owns the horizontal collapse.
+      animate={{ flexGrow: inspectorOpen ? 2 : 0, opacity: inspectorOpen ? 1 : 0 }}
       transition={{ type: "spring", stiffness: 320, damping: 32 }}
-      className={style.panel}
+      className={cn(style.panel, inspectorOpen && style.panelOpen)}
+      inert={!inspectorOpen}
     >
       <div className={style.inner}>
         <InspectorHeader selectedNode={selectedNode} showEdge={showEdge} />

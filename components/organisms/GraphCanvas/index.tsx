@@ -14,6 +14,7 @@ import { SearchOverlay } from "@/components/organisms/SearchOverlay";
 import cn from "classnames";
 import { useCanvasInteractions } from "./useCanvasInteractions";
 import { EmptyCanvasState } from "./EmptyCanvasState";
+import { CanvasTools } from "./CanvasTools";
 import style from "./GraphCanvas.module.scss";
 
 export function GraphCanvas() {
@@ -83,6 +84,7 @@ function FlowEditor() {
           maskColor="oklch(0 0 0 / 55%)"
           pannable zoomable ariaLabel="Minimap"
         />
+        {!isMobile && <CanvasTools />}
       </ReactFlow>
 
       {pickingJumpFor && (

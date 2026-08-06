@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import {
-  Workflow, Save, Play, PanelLeft, PanelRight, Download, Undo2, Redo2,
-  Check, AlertCircle, LayoutDashboard, Search, User, SlidersHorizontal,
+  Workflow, Save, Play, Download, Undo2, Redo2,
+  Check, AlertCircle, User,
 } from "lucide-react";
 import { Separator } from "@/components/atoms/Separator";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useProjectStore } from "@/store/useProjectStore";
-import { computeAutoLayout } from "@/lib/autoLayout";
 import { ConfirmModal } from "@/components/organisms/ConfirmModal";
 import { SignInModal } from "@/components/organisms/SignInModal";
 import { UserMenu, SignInButton } from "@/components/organisms/UserMenu";
@@ -24,12 +23,8 @@ import { AutosaveIndicator } from "./AutosaveIndicator";
 import style from "./TopBar.module.scss";
 
 export function TopBar() {
-  const {
-    sidebarOpen, toggleSidebar, inspectorOpen, toggleInspector,
-    autosaveStatus, setPreviewOpen, setSearchOpen, setSettingsOpen,
-    setVariablesPanelOpen, variablesPanelOpen,
-  } = useEditorStore();
-  const { undo, redo, past, future, nodes, edges, setNodePositions } = useGraphStore();
+  const { autosaveStatus, setPreviewOpen, setSettingsOpen } = useEditorStore();
+  const { undo, redo, past, future, nodes } = useGraphStore();
   const { user, isAuthLoading } = useProjectStore();
   const [signInOpen, setSignInOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
@@ -51,8 +46,6 @@ export function TopBar() {
           <div className={style.logo}><Workflow size={14} className={style.logoIcon} /></div>
           <span className={style.brandName}>Dialogue Forge</span>
         </div>
-        <Separator orientation="vertical" className={cn(style.vSep, style.desktopOnly)} />
-        <ToolbarButton icon={PanelLeft} iconSize={16} tooltip={sidebarOpen ? "Hide sidebar" : "Show sidebar"} onClick={toggleSidebar} className={cn(style.desktopOnly, !sidebarOpen && style.muted)} />
       </div>
 
       <div className={style.center}><ProjectNameField /></div>
@@ -62,25 +55,17 @@ export function TopBar() {
         <ToolbarButton icon={Redo2} tooltip="Redo (Ctrl+Y)" onClick={redo} disabled={future.length === 0} />
         <Separator orientation="vertical" className={cn(style.vSep, style.desktopOnly)} />
         <ToolbarButton icon={SaveIcon} tooltip={saveFlash === "saved" ? "Saved!" : "Save (Ctrl+S)"} onClick={handleSave} className={cn(style.desktopOnly, saveFlashClass)} />
-        <Separator orientation="vertical" className={cn(style.vSep, style.desktopOnly)} />
-        <ToolbarButton icon={Search} tooltip="Search nodes (Ctrl+F)" onClick={() => setSearchOpen(true)} className={style.desktopOnly} />
-        <ToolbarButton icon={LayoutDashboard} tooltip="Auto layout (Ctrl+L)" onClick={() => setNodePositions(computeAutoLayout(nodes, edges))} disabled={nodes.length === 0} className={style.desktopOnly} />
         <Separator orientation="vertical" className={cn(style.vSepWide, style.desktopOnly)} />
-        <ToolbarButton icon={SlidersHorizontal} tooltip="Variables" onClick={() => setVariablesPanelOpen(!variablesPanelOpen)} className={cn(style.desktopOnly, variablesPanelOpen && style.varBtnActive)} />
 
         <button type="button" className={style.previewBtn} onClick={() => setPreviewOpen(true)}>
           <Play size={12} className={style.previewIcon} />
           Preview
         </button>
 
-        <Separator orientation="vertical" className={cn(style.vSep, style.desktopOnly)} />
-        <ToolbarButton icon={PanelRight} iconSize={16} tooltip={inspectorOpen ? "Hide inspector" : "Show inspector"} onClick={toggleInspector} className={cn(style.desktopOnly, !inspectorOpen && style.muted)} />
-
         <MoreMenu
           onImport={() => fileInputRef.current?.click()}
           onExport={handleExport}
           onSettings={() => setSettingsOpen(true)}
-          onShortcuts={() => setSettingsOpen(true)}
           onClearWorkspace={() => setConfirmClear(true)}
           nodesCount={nodes.length}
         />

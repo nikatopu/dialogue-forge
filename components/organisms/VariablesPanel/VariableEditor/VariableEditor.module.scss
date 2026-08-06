@@ -47,8 +47,12 @@
   outline: none;
   transition: border-color 0.15s;
 
-  &::placeholder { color: color-mix(in oklch, var(--muted-foreground) 50%, transparent); }
-  &:focus { border-color: var(--primary); }
+  &::placeholder {
+    color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  }
+  &:focus {
+    border-color: var(--primary);
+  }
 }
 
 .select {
@@ -65,12 +69,15 @@
   appearance: none;
   transition: border-color 0.15s;
 
-  &:focus { border-color: var(--primary); }
+  &:focus {
+    border-color: var(--primary);
+  }
 }
 
 .typeGrid {
   display: flex;
   gap: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .typeBtn {
@@ -78,8 +85,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   gap: 0.25rem;
-  padding: 0.375rem 0;
+  padding: 0.3em 0.75em;
   border-radius: 0.375rem;
   font-size: 0.625rem;
   font-weight: 500;

@@ -2,12 +2,14 @@
   background-color: var(--card);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border);
   flex-shrink: 0;
   overflow: hidden;
+  border: 1px solid var(--border);
 }
 
+/* Desktop: the PanelRail sitting beside the sidebar owns the divider. */
 .asideMobile {
+  border-right: 1px solid var(--border);
   position: fixed;
   left: 0;
   top: 3rem;

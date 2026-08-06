@@ -12,12 +12,36 @@
   pointer-events: all;
 }
 
+/*
+ * Docked beneath the inspector in the right dock: fixed width (the dock clips
+ * it while collapsing), height driven by the animated flex-grow. A collapsed
+ * panel drops its border so it leaves no seam under the inspector.
+ */
 .panel {
+  width: 18.75rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 0;
+  min-height: 0;
+  overflow: hidden;
+  background-color: var(--card);
+  display: flex;
+  flex-direction: column;
+  border: 0 solid var(--border);
+}
+
+.panelOpen {
+  border-width: 1px;
+}
+
+/* Mobile slide-over */
+.overlayPanel {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   width: 320px;
+  max-width: 100%;
   background-color: var(--card);
   border-left: 1px solid var(--border);
   display: flex;
@@ -28,6 +52,7 @@
 
 .scroll {
   flex: 1;
+  min-height: 0;
 }
 
 /* Header */

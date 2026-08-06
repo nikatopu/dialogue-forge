@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 import cn from "classnames";
+import { PanelRail } from "@/components/atoms/PanelRail";
 import { TopBar } from "@/components/organisms/TopBar";
 import { Sidebar } from "@/components/organisms/Sidebar";
 import { InspectorPanel } from "@/components/organisms/InspectorPanel";
@@ -24,7 +26,11 @@ import style from "./EditorLayout.module.scss";
 
 export function EditorLayout() {
   const setIssues = useValidationStore((s) => s.setIssues);
-  const { previewOpen, setPreviewOpen, selectedNodeId, setMobileInspectorOpen } = useEditorStore();
+  const {
+    previewOpen, setPreviewOpen, selectedNodeId, setMobileInspectorOpen,
+    sidebarOpen, toggleSidebar, inspectorOpen, toggleInspector,
+    variablesPanelOpen, setVariablesPanelOpen,
+  } = useEditorStore();
   const variables = useVariableStore((s) => s.variables);
   const isMobile = useIsMobile();
   const { initAuth } = useProjectStore();
@@ -55,12 +61,42 @@ export function EditorLayout() {
 
       <div className={style.body}>
         <Sidebar />
+        {!isMobile && (
+          <PanelRail side="left" open={sidebarOpen} onToggle={toggleSidebar} label="Sidebar" />
+        )}
 
         <div className={cn(style.canvasWrapper, isMobile && style.mobileOffset)}>
           <GraphCanvas />
         </div>
 
-        <InspectorPanel />
+        {!isMobile && (
+          <div className={style.rightGutter}>
+            <PanelRail side="right" open={inspectorOpen} onToggle={toggleInspector} label="Inspector" />
+            <PanelRail
+              side="right"
+              open={variablesPanelOpen}
+              onToggle={() => setVariablesPanelOpen(!variablesPanelOpen)}
+              label="Variables"
+            />
+          </div>
+        )}
+
+        {isMobile ? (
+          <>
+            <InspectorPanel />
+            <VariablesPanel />
+          </>
+        ) : (
+          <motion.div
+            className={style.rightDock}
+            initial={false}
+            animate={{ width: inspectorOpen || variablesPanelOpen ? 300 : 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+          >
+            <InspectorPanel />
+            <VariablesPanel />
+          </motion.div>
+        )}
       </div>
 
       {!isMobile && <ValidationBar />}
@@ -74,7 +110,6 @@ export function EditorLayout() {
 
       <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} />
       <SettingsPanel />
-      <VariablesPanel />
     </div>
   );
 }
