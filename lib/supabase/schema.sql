@@ -44,28 +44,13 @@ CREATE POLICY "delete_own_projects"
   ON public.projects FOR DELETE
   USING (auth.uid() = user_id);
 
--- ── Analytics events ─────────────────────────────────────────────────────────
-
-CREATE TABLE IF NOT EXISTS public.analytics_events (
-  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
-  project_id UUID        REFERENCES public.projects(id) ON DELETE SET NULL,
-  event      TEXT        NOT NULL,
-  metadata   JSONB       NOT NULL DEFAULT '{}',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-ALTER TABLE public.analytics_events ENABLE ROW LEVEL SECURITY;
-
--- Users can insert their own events (anonymous events have null user_id)
-CREATE POLICY "insert_own_events"
-  ON public.analytics_events FOR INSERT
-  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
-
--- Users can read their own events
-CREATE POLICY "select_own_events"
-  ON public.analytics_events FOR SELECT
-  USING (auth.uid() = user_id);
+-- ── Analytics ────────────────────────────────────────────────────────────────
+-- Usage analytics moved to Google Analytics 4 + Microsoft Clarity; the app no
+-- longer writes to a Supabase table. The old `analytics_events` table is left
+-- in place for existing deployments. To retire it once the historical rows are
+-- no longer wanted:
+--
+--   DROP TABLE IF EXISTS public.analytics_events;
 
 -- ── updated_at trigger ────────────────────────────────────────────────────────
 
@@ -85,9 +70,3 @@ CREATE TRIGGER projects_updated_at
 
 CREATE INDEX IF NOT EXISTS projects_user_id_idx
   ON public.projects (user_id, updated_at DESC);
-
-CREATE INDEX IF NOT EXISTS analytics_events_user_id_idx
-  ON public.analytics_events (user_id, created_at DESC);
-
-CREATE INDEX IF NOT EXISTS analytics_events_event_idx
-  ON public.analytics_events (event, created_at DESC);

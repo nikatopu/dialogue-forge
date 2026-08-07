@@ -1,0 +1,14 @@
+.button {
+  font-size: 0.6875rem;
+  font-family: inherit;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--muted-foreground);
+  }
+}

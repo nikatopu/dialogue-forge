@@ -31,7 +31,7 @@
 
 <br />
 
-[**Live Demo**](https://dialogue-forge.nikatopu.dev) · [**Roadmap**](https://dialogue-forge.nikatopu.dev/roadmap) · [**How to Use**](https://dialogue-forge.nikatopu.dev/how-to-use) · [**Report a Bug**](https://github.com/nikatopu/dialogue-forge/issues)
+[**Live Demo**](https://dialogueforge.org) · [**Roadmap**](https://dialogueforge.org/roadmap) · [**How to Use**](https://dialogueforge.org/how-to-use) · [**Support**](https://dialogueforge.org/support) · [**Report a Bug**](https://github.com/nikatopu/dialogue-forge/issues)
 
 <br />
 
@@ -107,20 +107,27 @@ Each entry runs its own preview flow. All live inside one `.forge.json` file.
 
 ### Runtime Event System
 
-Trigger nodes emit structured events your game engine can act on.
+A Trigger node does exactly one thing: **emit a single named event** to your game engine, then auto-advance.
 
-**Trigger categories:**
+There is no fixed catalogue to pick from — you name the event, and Dialogue Forge passes it through untouched. Whatever your runtime already listens for is a valid event name.
 
-| Category  | Examples                                          |
-| --------- | ------------------------------------------------- |
-| Game      | `QuestStarted`, `FlagSet`, `AchievementUnlocked`  |
-| Variables | `SetGold +50`, `PlayerLevel`, `RelationshipScore` |
-| Audio     | `PlayMusic battle_theme`, `StopAmbience`          |
-| Animation | `PlayAnim wave`, `SetExpression sad`              |
-| UI        | `OpenInventory`, `ShowHUD`, `FadeIn`              |
-| Custom    | Anything your runtime handles                     |
+| Field              | Purpose                                                        |
+| ------------------ | -------------------------------------------------------------- |
+| **Event Name**     | The identifier your engine handles — `QuestStarted`, `PlayMusic` |
+| **Parameters**     | Optional flat `key=value` payload — string values, parsed by your runtime |
+| **Execution Mode** | When it fires: Immediate · Before Next · After Next             |
 
-**Execution timing:** Immediate · Before Next Node · After Next Node
+```json
+{
+  "actionType": "trigger",
+  "label": "Unlock Quest",
+  "event": "QuestStarted",
+  "params": { "questId": "shard_of_dawn" },
+  "executionMode": "afterNext"
+}
+```
+
+Anything that changes project state belongs on a **Set Variable** node instead — triggers only talk outward to your runtime.
 
 <br />
 
@@ -130,7 +137,7 @@ Test every branch without leaving Dialogue Forge.
 
 - Select any entry point and walk through the entire flow
 - Traverse all branch choices interactively
-- Inspect trigger events and execution timing
+- Inspect trigger event names, parameters, and execution timing
 - Follow Jump links across the graph
 - Switch between branches mid-preview
 
@@ -485,7 +492,7 @@ v1.9  Analytics & QA           Path analysis, validation reports, heatmaps
 v2.0  AI Narrative Assistant   Dialogue generation, tone rewriting, localization
 ```
 
-Full details at [dialogue-forge.nikatopu.dev/roadmap](https://dialogue-forge.nikatopu.dev/roadmap)
+Full details at [dialogueforge.org/roadmap](https://dialogueforge.org/roadmap)
 
 <br />
 

@@ -116,7 +116,6 @@ export const DEMO_NODES: SerialNode[] = [
     data: {
       actionType: "trigger",
       label: "Unlock Quest",
-      category: "game",
       event: "QuestStarted",
       params: { questId: "shard_of_dawn" },
       executionMode: "afterNext",
@@ -187,7 +186,6 @@ export const DEMO_NODES: SerialNode[] = [
     data: {
       actionType: "trigger",
       label: "Play Battle Music",
-      category: "audio",
       event: "PlayMusic",
       params: { track: "battle_theme", volume: "0.8" },
       executionMode: "immediate",
@@ -252,9 +250,8 @@ export const DEMO_NODES: SerialNode[] = [
     data: {
       actionType: "trigger",
       label: "Attack Animation",
-      category: "animation",
-      event: "Attack",
-      params: {},
+      event: "PlayAnimation",
+      params: { clip: "attack" },
       executionMode: "beforeNext",
       attributeSchema: [],
       attributes: {},

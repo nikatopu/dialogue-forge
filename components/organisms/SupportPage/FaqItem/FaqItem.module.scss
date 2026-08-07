@@ -1,0 +1,71 @@
+.item {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  background-color: color-mix(in oklch, var(--card) 60%, transparent);
+  overflow: hidden;
+  transition: border-color 0.2s, background-color 0.2s;
+
+  &:hover {
+    border-color: color-mix(in oklch, var(--border) 85%, transparent);
+  }
+}
+
+.itemOpen {
+  border-color: color-mix(in oklch, var(--primary) 35%, transparent);
+  background-color: color-mix(in oklch, var(--card) 90%, transparent);
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.9375rem 1.125rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--foreground);
+
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+    border-radius: 0.75rem;
+  }
+}
+
+.questionText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.chevron {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+
+.itemOpen .chevron {
+  color: var(--primary);
+}
+
+/* Height is animated on this wrapper; padding lives on the inner element so
+   the collapsed state is a true zero height. */
+.answerWrap {
+  overflow: hidden;
+}
+
+.answer {
+  padding: 0 1.125rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.answerText {
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+}

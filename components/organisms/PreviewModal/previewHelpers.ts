@@ -1,21 +1,17 @@
-import type { ElementType } from "react";
-import { Swords, Hash, Music, Clapperboard, Monitor, Wrench } from "lucide-react";
 import type {
-  ForgeNode, DialogueEdge, TriggerCategory, TriggerExecutionMode,
+  ForgeNode, DialogueEdge, TriggerExecutionMode,
   ProjectVariable, RuntimeState, VariableType, ConditionGroup,
 } from "@/types";
 
 export type Phase = "entry" | "setup" | "playing";
 export interface PreviewHistory { nodeId: string; choiceText?: string; }
 
-export const CATEGORY_CONFIG: Record<TriggerCategory, { icon: ElementType; color: string; bg: string; border: string }> = {
-  game:      { icon: Swords,       color: "var(--accent-green)", bg: "oklch(0.52 0.18 155 / 10%)", border: "oklch(0.52 0.18 155 / 25%)" },
-  variable:  { icon: Hash,         color: "var(--accent-violet)", bg: "oklch(0.52 0.19 290 / 10%)", border: "oklch(0.52 0.19 290 / 25%)" },
-  audio:     { icon: Music,        color: "var(--accent-blue)", bg: "oklch(0.52 0.18 220 / 10%)", border: "oklch(0.52 0.18 220 / 25%)" },
-  animation: { icon: Clapperboard, color: "var(--accent-orange)",  bg: "oklch(0.52 0.18 50 / 10%)",  border: "oklch(0.52 0.18 50 / 25%)" },
-  ui:        { icon: Monitor,      color: "var(--accent-indigo)", bg: "oklch(0.52 0.255 262 / 10%)", border: "oklch(0.52 0.255 262 / 25%)" },
-  custom:    { icon: Wrench,       color: "var(--muted-foreground)", bg: "color-mix(in oklch, var(--muted) 30%, transparent)", border: "color-mix(in oklch, var(--border) 50%, transparent)" },
-};
+/** Triggers are a single node kind, so they carry a single accent. */
+export const TRIGGER_ACCENT = {
+  color: "var(--accent-green)",
+  bg: "oklch(0.52 0.18 155 / 10%)",
+  border: "oklch(0.52 0.18 155 / 25%)",
+} as const;
 
 export const EXECUTION_LABELS: Record<TriggerExecutionMode, string> = {
   immediate: "Immediate", beforeNext: "Before Next", afterNext: "After Next",

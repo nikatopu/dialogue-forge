@@ -63,14 +63,10 @@ export interface VariableAction {
   value?: string | number | boolean;
 }
 
-export type TriggerCategory =
-  | "game"
-  | "variable"
-  | "audio"
-  | "animation"
-  | "ui"
-  | "custom";
-
+/**
+ * When a trigger fires relative to the node it is attached to.
+ * A trigger has exactly one job: emit `event` (plus `params`) at this moment.
+ */
 export type TriggerExecutionMode = "immediate" | "beforeNext" | "afterNext";
 
 export type AttributeType =
@@ -114,10 +110,11 @@ export interface ActionNodeData {
   actionType: ActionType;
   label: string;
   jumpTarget?: string;
-  /** Trigger-specific */
-  category?: TriggerCategory;
+  /** Trigger-specific — the custom event name emitted to the host runtime */
   event?: string;
+  /** Trigger-specific — flat string payload passed alongside the event */
   params?: Record<string, string>;
+  /** Trigger-specific — when the event fires */
   executionMode?: TriggerExecutionMode;
   /** setVariable-specific */
   variableAction?: VariableAction;
@@ -174,8 +171,6 @@ export interface SerialEdge {
   data: DialogueEdgeData;
 }
 
-/* ─── Trigger event catalogue ─────────────────────────── */
-
 /* ─── Project / Cloud types ───────────────────────────── */
 
 export type ProjectMode = "local" | "cloud";
@@ -206,14 +201,3 @@ export interface AuthUser {
 /* ─── Template metadata (extended) ───────────────────── */
 
 export type TemplateDifficulty = "beginner" | "intermediate" | "advanced";
-
-/* ─── Trigger event catalogue ─────────────────────────── */
-
-export const TRIGGER_EVENTS: Record<TriggerCategory, string[]> = {
-  game: ["QuestStarted", "QuestCompleted", "EnemyKilled", "CutsceneStart"],
-  variable: ["SetVariable", "AddGold", "TrustIncrease"],
-  audio: ["PlayMusic", "StopMusic", "PlaySFX"],
-  animation: ["Idle", "Attack", "Wave", "Sit"],
-  ui: ["OpenInventory", "ShowShop", "TutorialPopup", "ShowEscape"],
-  custom: [],
-};

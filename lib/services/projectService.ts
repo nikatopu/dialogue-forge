@@ -115,9 +115,11 @@ export const projectService = {
 
     // Stamp version on new projects
     const graph = payload.graph as Record<string, unknown> | undefined;
+    // `version` goes last so a stale version on the incoming graph cannot
+    // survive the stamp.
     const stampedGraph = graph
-      ? { version: CURRENT_VERSION, ...graph }
-      : { version: CURRENT_VERSION, nodes: [], edges: [] };
+      ? { ...graph, version: CURRENT_VERSION }
+      : { nodes: [], edges: [], version: CURRENT_VERSION };
 
     const { data, error } = await supabase
       .from("projects")
@@ -150,7 +152,7 @@ export const projectService = {
     name: string,
   ): Promise<void> {
     const supabase = createClient();
-    const versionedGraph = { version: CURRENT_VERSION, ...graph };
+    const versionedGraph = { ...graph, version: CURRENT_VERSION };
     const { error } = await supabase
       .from("projects")
       .update({ graph: versionedGraph as unknown as Json, name })

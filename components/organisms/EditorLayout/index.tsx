@@ -27,8 +27,8 @@ import style from "./EditorLayout.module.scss";
 export function EditorLayout() {
   const setIssues = useValidationStore((s) => s.setIssues);
   const {
-    previewOpen, setPreviewOpen, selectedNodeId, setMobileInspectorOpen,
-    sidebarOpen, toggleSidebar, inspectorOpen, toggleInspector,
+    previewOpen, setPreviewOpen, selectedNodeId, selectedEdgeId, setMobileInspectorOpen,
+    sidebarOpen, toggleSidebar, inspectorOpen, toggleInspector, setInspectorOpen,
     variablesPanelOpen, setVariablesPanelOpen,
   } = useEditorStore();
   const variables = useVariableStore((s) => s.variables);
@@ -54,6 +54,17 @@ export function EditorLayout() {
       setMobileInspectorOpen(true);
     }
   }, [isMobile, selectedNodeId, setMobileInspectorOpen]);
+
+  /*
+   * Desktop: picking something to inspect pulls the inspector open.
+   * Keyed only on the selection — adding `inspectorOpen` to the deps would
+   * fight the user, snapping the panel back open the moment they closed it
+   * with a node still selected.
+   */
+  useEffect(() => {
+    if (isMobile) return;
+    if (selectedNodeId || selectedEdgeId) setInspectorOpen(true);
+  }, [isMobile, selectedNodeId, selectedEdgeId, setInspectorOpen]);
 
   return (
     <div className={style.container}>

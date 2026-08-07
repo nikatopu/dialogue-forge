@@ -4,6 +4,8 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/atoms/Tooltip";
 import { ThemeProvider } from "@/components/organisms/ThemeProvider";
 import { Toaster } from "@/components/organisms/Toaster";
+import { CookieConsent } from "@/components/organisms/CookieConsent";
+import { AnalyticsScripts } from "@/components/organisms/AnalyticsScripts";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -15,7 +17,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/**
+ * Canonical origin. Relative URLs in metadata (OG images, alternates) resolve
+ * against this, so it must match the live domain. Override per-environment
+ * with NEXT_PUBLIC_SITE_URL for preview deployments.
+ */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dialogueforge.org";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
   title: {
     default: "Dialogue Forge — Visual Dialogue Tree Editor",
     template: "%s | Dialogue Forge",
@@ -38,6 +49,8 @@ export const metadata: Metadata = {
       "Visual node-based editor for branching dialogue. Design conversations as a graph and export structured JSON for any game engine.",
     type: "website",
     siteName: "Dialogue Forge",
+    url: SITE_URL,
+    locale: "en_US",
   },
   twitter: {
     card: "summary",
@@ -80,6 +93,8 @@ export default function RootLayout({
           <ThemeProvider>{children}</ThemeProvider>
         </TooltipProvider>
         <Toaster />
+        <CookieConsent />
+        <AnalyticsScripts />
       </body>
     </html>
   );

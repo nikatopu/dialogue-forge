@@ -9,7 +9,7 @@ import type {
   ForgeNode, CharacterNodeData, ActionNodeData, StartNodeData,
   ProjectVariable, RuntimeState,
 } from "@/types";
-import { CATEGORY_CONFIG, EXECUTION_LABELS, formatOpSymbol } from "../previewHelpers";
+import { TRIGGER_ACCENT, EXECUTION_LABELS, formatOpSymbol } from "../previewHelpers";
 import { ChoiceList, type ChoiceListProps } from "./ChoiceList";
 import style from "./DialogueView.module.scss";
 
@@ -121,22 +121,23 @@ function SetVariableStep({ data, varState, variables, choiceProps }: {
 }
 
 function TriggerStep({ data, choiceProps }: { data: ActionNodeData; choiceProps: ChoiceListProps }) {
-  const category = data.category ?? "custom";
-  const cfg = CATEGORY_CONFIG[category] ?? CATEGORY_CONFIG.custom;
-  const Icon = cfg.icon;
+  const cfg = TRIGGER_ACCENT;
+  const eventName = data.event?.trim() || data.label?.trim() || "Unnamed event";
   const params = data.params ?? {};
   const hasParams = Object.keys(params).length > 0;
   return (
     <div className={style.stack}>
       <div className={style.triggerCard} style={{ backgroundColor: cfg.bg, borderColor: cfg.border }}>
         <div className={style.triggerHeader}>
-          <Icon size={16} style={{ color: cfg.color, flexShrink: 0 }} />
+          <Zap size={16} style={{ color: cfg.color, flexShrink: 0 }} />
           <div className={style.triggerMeta}>
             <div className={style.triggerLabels}>
               <p className={style.triggerTypeLabel}>TRIGGER</p>
-              <Badge variant="outline" className={style.triggerBadge} style={{ color: cfg.color, borderColor: cfg.border }}>{category}</Badge>
+              {data.label?.trim() && data.event?.trim() && (
+                <Badge variant="outline" className={style.triggerBadge} style={{ color: cfg.color, borderColor: cfg.border }}>{data.label}</Badge>
+              )}
             </div>
-            <p className={style.triggerName}>{data.event || data.label || "Trigger"}</p>
+            <p className={style.triggerName}>{eventName}</p>
           </div>
           <span className={style.execLabel} style={{ color: cfg.color }}>{EXECUTION_LABELS[data.executionMode ?? "immediate"]}</span>
         </div>
