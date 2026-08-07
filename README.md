@@ -31,7 +31,7 @@
 
 <br />
 
-[**Live Demo**](https://dialogue-forge.nikatopu.dev) · [**Roadmap**](https://dialogue-forge.nikatopu.dev/roadmap) · [**How to Use**](https://dialogue-forge.nikatopu.dev/how-to-use) · [**Report a Bug**](https://github.com/nikatopu/dialogue-forge/issues)
+[**Live Demo**](https://dialogueforge.org) · [**Roadmap**](https://dialogueforge.org/roadmap) · [**How to Use**](https://dialogueforge.org/how-to-use) · [**Support**](https://dialogueforge.org/support) · [**Report a Bug**](https://github.com/nikatopu/dialogue-forge/issues)
 
 <br />
 
@@ -492,7 +492,7 @@ v1.9  Analytics & QA           Path analysis, validation reports, heatmaps
 v2.0  AI Narrative Assistant   Dialogue generation, tone rewriting, localization
 ```
 
-Full details at [dialogue-forge.nikatopu.dev/roadmap](https://dialogue-forge.nikatopu.dev/roadmap)
+Full details at [dialogueforge.org/roadmap](https://dialogueforge.org/roadmap)
 
 <br />
 
