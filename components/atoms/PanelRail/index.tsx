@@ -3,7 +3,11 @@
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import cn from "classnames";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/Tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/Tooltip";
 import style from "./PanelRail.module.scss";
 
 type PanelRailProps = {
@@ -17,14 +21,26 @@ type PanelRailProps = {
   children?: ReactNode;
 };
 
-export function PanelRail({ side, open, onToggle, label, children }: PanelRailProps) {
+export function PanelRail({
+  side,
+  open,
+  onToggle,
+  label,
+  children,
+}: PanelRailProps) {
   // Chevron always points the way the panel will move: outward to collapse, inward to open.
   const pointsRight = side === "left" ? !open : open;
   const Chevron = pointsRight ? ChevronRight : ChevronLeft;
   const action = `${open ? "Hide" : "Show"} ${label.toLowerCase()}`;
 
   return (
-    <div className={cn(style.rail, side === "left" ? style.left : style.right)}>
+    <div
+      className={cn(
+        style.rail,
+        side === "left" ? style.left : style.right,
+        open && style.open,
+      )}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -40,7 +56,9 @@ export function PanelRail({ side, open, onToggle, label, children }: PanelRailPr
           </button>
         </TooltipTrigger>
 
-        <TooltipContent side={side === "left" ? "right" : "left"}>{action}</TooltipContent>
+        <TooltipContent side={side === "left" ? "right" : "left"}>
+          {action}
+        </TooltipContent>
       </Tooltip>
 
       {children && <div className={style.extras}>{children}</div>}
