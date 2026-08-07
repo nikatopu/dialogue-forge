@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, GitBranch, Globe, Workflow } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -10,7 +11,10 @@ export function SignInModal({ open, onClose }: { open: boolean; onClose: () => v
   const { signInWithGoogle, signInWithGitHub, isAuthLoading } = useProjectStore();
   async function handleGoogle() { await signInWithGoogle(); onClose(); }
   async function handleGitHub() { await signInWithGitHub(); onClose(); }
-  return (
+  /* Portalled for the same reason as BottomSheet — TopBar renders this inside a
+     backdrop-filtered <header>, which would otherwise contain the fixed overlay. */
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className={style.overlay}>
@@ -30,6 +34,7 @@ export function SignInModal({ open, onClose }: { open: boolean; onClose: () => v
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

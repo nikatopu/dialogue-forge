@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import cn from "classnames";
@@ -30,10 +31,16 @@ export function BottomSheet({
   size = "auto",
   className,
 }: BottomSheetProps) {
-  return (
+  /* Portalled to <body>: the sheet is position:fixed, and any ancestor with a
+     transform/filter/backdrop-filter (e.g. the TopBar header) would otherwise
+     become its containing block and anchor it to that element instead of the
+     viewport. */
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
-        <>
+        <div className={style.container}>
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
@@ -46,9 +53,9 @@ export function BottomSheet({
 
           <motion.div
             key="sheet"
-            initial={{ y: "100%" }}
+            initial={{ y: "200%" }}
             animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+            exit={{ y: "200%" }}
             transition={{ type: "spring", stiffness: 380, damping: 36 }}
             className={cn(style.sheet, SIZE_CLASS[size], className)}
           >
@@ -70,12 +77,11 @@ export function BottomSheet({
               </div>
             )}
 
-            <div className={style.content}>
-              {children}
-            </div>
+            <div className={style.content}>{children}</div>
           </motion.div>
-        </>
+        </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

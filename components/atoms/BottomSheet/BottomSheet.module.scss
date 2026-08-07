@@ -1,23 +1,35 @@
+.container {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  z-index: 90;
+  top: 0;
+  left: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .backdrop {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 40;
+  z-index: 90;
   background-color: oklch(0 0 0 / 60%);
   backdrop-filter: blur(4px);
 }
 
 .sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
   right: 0;
-  z-index: 50;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   background-color: var(--card);
   border-top: 1px solid var(--border);
   border-radius: 1rem 1rem 0 0;
-  box-shadow: 0 -8px 40px color-mix(in oklch, var(--shadow-color) 30%, transparent);
+  box-shadow: 0 -8px 40px
+    color-mix(in oklch, var(--shadow-color) 30%, transparent);
   overflow: hidden;
 }
 
@@ -46,7 +58,11 @@
   width: 2.5rem;
   height: 0.25rem;
   border-radius: 9999px;
-  background-color: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
+  background-color: color-mix(
+    in oklch,
+    var(--muted-foreground) 25%,
+    transparent
+  );
 }
 
 .header {
@@ -74,7 +90,9 @@
   background: transparent;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
 
   &:hover {
     color: var(--foreground);
