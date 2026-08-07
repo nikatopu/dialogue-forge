@@ -117,8 +117,7 @@ export const ROADMAP: RoadmapEntry[] = [
     title: "Component Architecture Overhaul",
     description:
       "A major internal refactor focused on breaking down complex UI components, improving code organization, and creating a cleaner foundation for future features. Trigger nodes are simplified down to a single, clear job.",
-    status: "in-progress",
-    progress: 10,
+    status: "completed",
     features: [
       "Smaller, focused UI components",
       "Improved component organization",

@@ -13,7 +13,7 @@ export function AboutSection() {
       <div className={style.aboutCard}>
         <p className={style.aboutTitle}>Dialogue Forge</p>
         <p className={style.aboutDesc}>A visual branching dialogue editor for games and interactive fiction. Build node-based conversation graphs and export structured JSON for any engine.</p>
-        <p className={style.aboutVersion}>Version 1.3</p>
+        <p className={style.aboutVersion}>Version 1.4.2</p>
       </div>
       <div className={style.linkList}>
         <a href="/support" target="_blank" rel="noopener noreferrer" className={style.linkItem}>

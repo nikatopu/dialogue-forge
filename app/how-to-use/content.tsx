@@ -295,7 +295,7 @@ export function HowToUseContent() {
                 {[
                   {
                     n: "1",
-                    text: 'Drag a Character or Action node from the sidebar onto the canvas.',
+                    text: "Drag a Character or Action node from the sidebar onto the canvas.",
                   },
                   {
                     n: "2",
@@ -656,7 +656,10 @@ export function HowToUseContent() {
                   </p>
                   <div className="rounded-xl border border-border/50 overflow-hidden">
                     {[
-                      { op: "equals / notEquals", desc: "Case-sensitive match" },
+                      {
+                        op: "equals / notEquals",
+                        desc: "Case-sensitive match",
+                      },
                       {
                         op: "contains / notContains",
                         desc: "Substring presence",
@@ -765,7 +768,9 @@ export function HowToUseContent() {
               </p>
               <div className="space-y-2.5 mt-4 text-sm text-muted-foreground">
                 <p>
-                  <strong className="text-foreground">number / float / boolean / string</strong>{" "}
+                  <strong className="text-foreground">
+                    number / float / boolean / string
+                  </strong>{" "}
                   — displayed as their raw value in the state inspector.
                 </p>
                 <p>
@@ -815,7 +820,7 @@ export function HowToUseContent() {
                 top-level shape:
               </p>
               <CodeBlock>{`{
-  "version": 1,
+  "version": 1.4.2,
   "name": "My Dialogue",
   "exportedAt": "2025-01-01T00:00:00.000Z",
   "nodes": [ ...node objects... ],
@@ -857,8 +862,8 @@ export function HowToUseContent() {
 }`}</CodeBlock>
 
               <p className="text-sm text-muted-foreground mt-6 mb-3">
-                A <strong className="text-foreground">trigger node</strong> — one
-                node, one event:
+                A <strong className="text-foreground">trigger node</strong> —
+                one node, one event:
               </p>
               <CodeBlock>{`{
   "id": "act-ghi789",
