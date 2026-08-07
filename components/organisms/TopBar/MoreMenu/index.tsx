@@ -7,6 +7,7 @@ import {
   Download,
   Map,
   BookOpen,
+  LifeBuoy,
   Settings,
   Keyboard,
   Trash2,
@@ -93,6 +94,12 @@ export function MoreMenu({
             icon={BookOpen}
             label="How to use"
             href="/how-to-use"
+            onClick={() => setOpen(false)}
+          />
+          <MenuItem
+            icon={LifeBuoy}
+            label="Support"
+            href="/support"
             onClick={() => setOpen(false)}
           />
           <div className={style.menuDivider} />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Map, BookOpen, ExternalLink } from "lucide-react";
+import { Map, BookOpen, LifeBuoy, ExternalLink } from "lucide-react";
 import { Separator } from "@/components/atoms/Separator";
 import sections from "../sections.module.scss";
 import style from "./AboutSection.module.scss";
@@ -16,6 +16,10 @@ export function AboutSection() {
         <p className={style.aboutVersion}>Version 1.3</p>
       </div>
       <div className={style.linkList}>
+        <a href="/support" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
+          <div className={style.linkLeft}><LifeBuoy size={14} />Support &amp; FAQ</div>
+          <ExternalLink size={12} className={style.externalIcon} />
+        </a>
         <a href="/roadmap" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
           <div className={style.linkLeft}><Map size={14} />Roadmap</div>
           <ExternalLink size={12} className={style.externalIcon} />
