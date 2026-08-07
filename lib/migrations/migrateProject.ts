@@ -26,6 +26,9 @@ function normalizeRaw(raw: unknown): VersionedGraph {
     version: detectVersion(g),
     nodes: Array.isArray(g.nodes) ? (g.nodes as VersionedGraph["nodes"]) : [],
     edges: Array.isArray(g.edges) ? (g.edges as VersionedGraph["edges"]) : [],
+    variables: Array.isArray(g.variables)
+      ? (g.variables as VersionedGraph["variables"])
+      : [],
     metadata:
       g.metadata && typeof g.metadata === "object"
         ? (g.metadata as Record<string, unknown>)

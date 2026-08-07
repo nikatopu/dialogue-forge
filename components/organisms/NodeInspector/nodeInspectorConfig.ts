@@ -1,10 +1,10 @@
 import {
   Zap, GitBranch, SkipForward, Square, Wrench, SlidersHorizontal,
-  FileText, Sliders, Swords, Music, Hash, Clapperboard, Monitor,
+  FileText, Sliders,
   type LucideIcon,
 } from "lucide-react";
 import type {
-  ActionType, TriggerCategory, TriggerExecutionMode, VariableOperation,
+  ActionType, TriggerExecutionMode, VariableOperation,
 } from "@/types";
 
 export const ACTION_STRIP: Record<ActionType, { icon: LucideIcon; label: string; color: string; bg: string; border: string; glow: string }> = {
@@ -24,10 +24,12 @@ export type TabId = (typeof TABS)[number]["id"];
 
 export const ACTION_TYPES: ActionType[] = ["trigger", "branch", "jump", "end", "custom", "setVariable"];
 
-export const CATEGORY_ICONS: Record<TriggerCategory, LucideIcon> = { game: Swords, variable: Hash, audio: Music, animation: Clapperboard, ui: Monitor, custom: Wrench };
-export const CATEGORY_COLORS: Record<TriggerCategory, string> = { game: "var(--accent-green)", variable: "var(--accent-violet)", audio: "var(--accent-blue)", animation: "var(--accent-orange)", ui: "var(--accent-indigo)", custom: "var(--accent-neutral)" };
 export const EXECUTION_DESCRIPTIONS: Record<TriggerExecutionMode, string> = { immediate: "Fires at the moment this node is reached", beforeNext: "Fires before the next dialogue line plays", afterNext: "Fires after the next dialogue line plays" };
-export const ALL_CATEGORIES: TriggerCategory[] = ["game", "variable", "audio", "animation", "ui", "custom"];
+export const EXECUTION_MODES: { value: TriggerExecutionMode; label: string }[] = [
+  { value: "immediate",  label: "Immediate" },
+  { value: "beforeNext", label: "Before Next" },
+  { value: "afterNext",  label: "After Next" },
+];
 
 export const OPERATIONS: { value: VariableOperation; label: string }[] = [
   { value: "set",      label: "Set  (=)" },

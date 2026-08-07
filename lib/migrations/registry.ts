@@ -37,7 +37,9 @@ export const migrations: Migration[] = [
     },
   },
   {
-    // Migrate old trigger action nodes: add category, event, executionMode
+    // Migrate old trigger action nodes: add event + executionMode.
+    // (This step also used to seed a `category`; that field was retired in
+    // v1.5.0, so it is no longer written here.)
     from: "1.1.0",
     to: "1.2.0",
     up(graph): VersionedGraph {
@@ -47,12 +49,11 @@ export const migrations: Migration[] = [
         nodes: graph.nodes.map((node): SerialNode => {
           if (node.type === "action") {
             const d = node.data as Record<string, unknown>;
-            if (d.actionType === "trigger" && !d.category) {
+            if (d.actionType === "trigger" && !d.executionMode) {
               return {
                 ...node,
                 data: {
                   ...d,
-                  category: "custom",
                   event:
                     typeof d.event === "string"
                       ? d.event
@@ -165,6 +166,51 @@ export const migrations: Migration[] = [
       })) as unknown as VersionedGraph["edges"];
 
       return { ...graph, version: "1.4.1", variables, edges };
+    },
+  },
+  {
+    // v1.4.2: triggers lose their category. A trigger now has one job — emit a
+    // single named event — so `category` / `triggerCategory` are dropped and any
+    // trigger without an event name inherits its label as the event name.
+    from: "1.4.1",
+    to: "1.4.2",
+    up(graph): VersionedGraph {
+      return {
+        ...graph,
+        version: "1.4.2",
+        nodes: graph.nodes.map((node): SerialNode => {
+          if (node.type !== "action") return node;
+
+          const d = node.data as Record<string, unknown>;
+          if (d.actionType !== "trigger") return node;
+
+          // `triggerCategory` is a legacy alias that shipped in some templates.
+          const rest: Record<string, unknown> = { ...d };
+          delete rest.category;
+          delete rest.triggerCategory;
+
+          const event =
+            typeof d.event === "string" && d.event.trim() !== ""
+              ? d.event
+              : typeof d.label === "string"
+                ? d.label
+                : "";
+
+          return {
+            ...node,
+            data: {
+              ...rest,
+              event,
+              params:
+                d.params && typeof d.params === "object"
+                  ? (d.params as Record<string, string>)
+                  : {},
+              executionMode:
+                typeof d.executionMode === "string" ? d.executionMode : "immediate",
+            },
+          } as SerialNode;
+        }),
+      };
     },
   },
 ];

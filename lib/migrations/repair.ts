@@ -1,15 +1,15 @@
-import type { SerialNode, SerialEdge, TriggerCategory, TriggerExecutionMode } from "@/types";
+import type {
+  SerialNode, SerialEdge, ActionType, TriggerExecutionMode, VariableAction,
+  ConditionGroup,
+} from "@/types";
 import type { VersionedGraph, MigrationReport } from "@/types/migrations";
 
-const VALID_TRIGGER_CATEGORIES = new Set<string>([
-  "game", "variable", "audio", "animation", "ui", "custom",
-]);
 const VALID_EXECUTION_MODES = new Set<string>([
   "immediate", "beforeNext", "afterNext",
 ]);
 
 const VALID_NODE_TYPES = ["character", "action", "start"] as const;
-const VALID_ACTION_TYPES = ["trigger", "branch", "jump", "end", "custom"] as const;
+const VALID_ACTION_TYPES = ["trigger", "branch", "jump", "end", "custom", "setVariable"] as const;
 
 export function repairGraph(
   graph: VersionedGraph,
@@ -88,6 +88,10 @@ export function repairGraph(
           d.conditions && typeof d.conditions === "object"
             ? (d.conditions as Record<string, unknown>)
             : {},
+        conditionGroup:
+          d.conditionGroup && typeof d.conditionGroup === "object"
+            ? (d.conditionGroup as ConditionGroup)
+            : null,
         metadata:
           d.metadata && typeof d.metadata === "object"
             ? (d.metadata as Record<string, unknown>)
@@ -133,17 +137,11 @@ function repairNodeData(node: SerialNode, repairs: string[]): SerialNode["data"]
     if (!validActionType) {
       repairs.push(`Repaired action node ${node.id}: invalid actionType, defaulted to "custom"`);
     }
-    const actionType = validActionType
-      ? (d.actionType as "trigger" | "branch" | "jump" | "end" | "custom")
-      : "custom";
+    const actionType = validActionType ? (d.actionType as ActionType) : "custom";
     return {
       actionType,
       label: typeof d.label === "string" ? d.label : "",
       jumpTarget: typeof d.jumpTarget === "string" ? d.jumpTarget : undefined,
-      category:
-        typeof d.category === "string" && VALID_TRIGGER_CATEGORIES.has(d.category)
-          ? (d.category as TriggerCategory)
-          : undefined,
       event: typeof d.event === "string" ? d.event : undefined,
       params:
         d.params && typeof d.params === "object"
@@ -152,6 +150,10 @@ function repairNodeData(node: SerialNode, repairs: string[]): SerialNode["data"]
       executionMode:
         typeof d.executionMode === "string" && VALID_EXECUTION_MODES.has(d.executionMode)
           ? (d.executionMode as TriggerExecutionMode)
+          : undefined,
+      variableAction:
+        d.variableAction && typeof d.variableAction === "object"
+          ? (d.variableAction as VariableAction)
           : undefined,
       attributeSchema: Array.isArray(d.attributeSchema) ? d.attributeSchema : [],
       attributes:

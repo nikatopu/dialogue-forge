@@ -37,7 +37,7 @@ export const ROADMAP: RoadmapEntry[] = [
     features: [
       "Start nodes",
       "Multiple dialogue entry points",
-      "Trigger categories",
+      "Custom trigger events",
       "Chained event execution",
       "Jump workflows",
       "Production templates",
@@ -116,7 +116,7 @@ export const ROADMAP: RoadmapEntry[] = [
     version: "v1.4.2",
     title: "Component Architecture Overhaul",
     description:
-      "A major internal refactor focused on breaking down complex UI components, improving code organization, and creating a cleaner foundation for future features.",
+      "A major internal refactor focused on breaking down complex UI components, improving code organization, and creating a cleaner foundation for future features. Trigger nodes are simplified down to a single, clear job.",
     status: "in-progress",
     progress: 10,
     features: [
@@ -126,6 +126,8 @@ export const ROADMAP: RoadmapEntry[] = [
       "Reduced code complexity",
       "More reusable UI building blocks",
       "Consistent component architecture",
+      "Triggers fire one custom event",
+      "Trigger categories retired in favour of variables",
       "Easier feature development",
       "Improved long-term maintainability",
     ],

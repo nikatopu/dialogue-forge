@@ -267,7 +267,7 @@ export function HowToUseContent() {
                   color="emerald"
                   icon={Zap}
                   title="Trigger"
-                  desc="Fires a game event and auto-advances. Use it to unlock quests, set flags, or award items. Attach a Flag Name attribute to name the event."
+                  desc="Emits one named event to your game engine, then auto-advances. In the inspector, set an Event Name (e.g. QuestStarted), choose when it fires — immediately, before, or after the next line — and use Parameters › Add to attach key=value pairs to the event. Parameter values are exported as strings, so your runtime parses them."
                 />
                 <NodeCard
                   color="emerald"
@@ -849,8 +849,27 @@ export function HowToUseContent() {
   "type": "action",
   "position": { "x": 240, "y": 0 },
   "data": {
-    "actionType": "branch",   // "branch" | "trigger" | "jump" | "end"
+    "actionType": "branch",   // "branch" | "trigger" | "jump" | "end" | "setVariable"
     "label": "Player Choice",
+    "attributeSchema": [],
+    "attributes": {}
+  }
+}`}</CodeBlock>
+
+              <p className="text-sm text-muted-foreground mt-6 mb-3">
+                A <strong className="text-foreground">trigger node</strong> — one
+                node, one event:
+              </p>
+              <CodeBlock>{`{
+  "id": "act-ghi789",
+  "type": "action",
+  "position": { "x": 240, "y": 160 },
+  "data": {
+    "actionType": "trigger",
+    "label": "Unlock Quest",          // editor-facing name
+    "event": "QuestStarted",          // what your engine receives
+    "params": { "questId": "shard_of_dawn" },
+    "executionMode": "afterNext",     // "immediate" | "beforeNext" | "afterNext"
     "attributeSchema": [],
     "attributes": {}
   }
@@ -892,8 +911,14 @@ export function HowToUseContent() {
   dialogue?: string;
   emotion?: string;
   portrait?: string;
-  actionType?: "branch" | "trigger" | "jump" | "end";
+  actionType?: "branch" | "trigger" | "jump" | "end" | "setVariable";
   label?: string;
+  /** Trigger only — the single event name emitted to your engine */
+  event?: string;
+  /** Trigger only — flat payload sent with the event */
+  params?: Record<string, string>;
+  /** Trigger only — "immediate" | "beforeNext" | "afterNext" */
+  executionMode?: string;
   attributes?: Record<string, unknown>;
 }
 
@@ -982,7 +1007,8 @@ while (!runner.isEnded) {
     runner.advance(playerChoice);
 
   } else if (node.data.actionType === "trigger") {
-    fireGameEvent(node.data.label!);    // ← your event system here
+    // A trigger emits exactly one named event, with an optional payload.
+    fireGameEvent(node.data.event!, node.data.params ?? {});
     runner.advance();
 
   } else if (node.data.actionType === "jump") {

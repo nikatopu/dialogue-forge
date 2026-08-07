@@ -162,23 +162,14 @@ export function validateGraph(
         });
       }
 
-      if (d.actionType === "trigger") {
-        if (!d.category) {
-          push({
-            level: "warning",
-            code: "trigger_missing_category",
-            message: `Trigger "${d.label || "Unnamed"}" has no category`,
-            nodeId: node.id,
-          });
-        }
-        if (!d.event?.trim()) {
-          push({
-            level: "warning",
-            code: "trigger_missing_event",
-            message: `Trigger "${d.label || "Unnamed"}" has no event`,
-            nodeId: node.id,
-          });
-        }
+      /* A trigger's only job is to emit one named event. */
+      if (d.actionType === "trigger" && !d.event?.trim()) {
+        push({
+          level: "warning",
+          code: "trigger_missing_event",
+          message: `Trigger "${d.label || "Unnamed"}" has no event name`,
+          nodeId: node.id,
+        });
       }
 
       /* setVariable-specific checks */

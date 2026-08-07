@@ -2,45 +2,41 @@
   opacity: 0.3;
 }
 
-.categoryGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
-.categoryBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
+.hint {
   font-size: 0.625rem;
-  font-weight: 500;
-  border: 1px solid;
-  background: none;
-  cursor: pointer;
-  color: var(--muted-foreground);
-  border-color: color-mix(in oklch, var(--border) 50%, transparent);
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: var(--border);
-    color: var(--foreground);
-  }
+  color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  line-height: 1.5;
+  margin-top: 0.25rem;
 }
 
-.categoryBtnActive {
-  background-color: var(--muted);
-}
-
-.categoryInfo {
+.signature {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.625rem;
-  margin-top: 0.375rem;
-  font-weight: 500;
-  text-transform: capitalize;
+  padding: 0.3125rem 0.5rem;
+  border-radius: var(--radius-md);
+  background-color: oklch(0.52 0.18 155 / 10%);
+  border: 1px solid oklch(0.52 0.18 155 / 20%);
+  overflow: hidden;
+}
+
+.signatureIcon {
+  flex-shrink: 0;
+  color: var(--accent-green);
+}
+
+.signatureCode {
+  font-size: 0.6875rem;
+  font-family: var(--font-mono, monospace);
+  color: var(--accent-green);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.signatureEmpty {
+  font-style: italic;
+  opacity: 0.55;
 }
 
 .executionNote {

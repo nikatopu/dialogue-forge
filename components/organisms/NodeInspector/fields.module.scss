@@ -36,7 +36,8 @@
 .select {
   height: 1.75rem;
   width: 100%;
-  padding: 0 0.5rem;
+  /* Extra right padding leaves room for the caret drawn below. */
+  padding: 0 1.625rem 0 0.5rem;
   font-size: 0.75rem;
   background-color: color-mix(in oklch, var(--background) 40%, transparent);
   border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
@@ -45,6 +46,21 @@
   appearance: none;
   cursor: pointer;
   outline: none;
+
+  /* Native arrow is suppressed by `appearance: none` — draw a themed caret
+     from two diagonal gradients so it tracks light/dark mode. */
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 0.875rem) calc(50% + 1px),
+    calc(100% - 0.5625rem) calc(50% + 1px);
+  background-size: 0.3125rem 0.3125rem;
+  background-repeat: no-repeat;
+
+  &:hover {
+    border-color: color-mix(in oklch, var(--border) 90%, transparent);
+  }
 
   &:focus {
     box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent);
