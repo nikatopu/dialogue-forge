@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = "May 25, 2026";
+const LAST_UPDATED = "August 7, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -85,18 +85,27 @@ export default function PrivacyPage() {
             </p>
           </Subsection>
 
-          <Subsection title="Usage analytics">
+          <Subsection title="Usage analytics (only with your consent)">
             <p>
-              When you use Dialogue Forge (signed in or not), we collect
-              anonymous usage events such as:
+              Analytics run <strong>only if you accept cookies</strong> when
+              asked. Decline, or ignore the banner, and no analytics script is
+              loaded at all — nothing is requested, set, or sent. You can change
+              your mind at any time via <strong>Cookie preferences</strong> in
+              the footer.
             </p>
+            <p>If you do accept, we collect:</p>
             <ul>
               <li>
                 Feature interactions (template loaded, preview started, export
                 triggered)
               </li>
-              <li>Session context (mobile or desktop)</li>
+              <li>Page views, session context (mobile or desktop), and device
+                and browser type</li>
               <li>Project lifecycle events (created, deleted, duplicated)</li>
+              <li>
+                Anonymised session recordings and heatmaps showing how the
+                interface is used — clicks, scrolling, and cursor movement
+              </li>
             </ul>
             <p>
               <strong>We never collect:</strong> dialogue content, character
@@ -182,6 +191,30 @@ export default function PrivacyPage() {
                 GitHub Privacy Statement
               </a>
             </li>
+            <li>
+              <strong>Google Analytics</strong> — usage analytics. Loaded only
+              after you accept cookies.{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
+              >
+                Google Privacy Policy
+              </a>
+            </li>
+            <li>
+              <strong>Microsoft Clarity</strong> — anonymised session replay and
+              heatmaps. Loaded only after you accept cookies.{" "}
+              <a
+                href="https://privacy.microsoft.com/privacystatement"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
+              >
+                Microsoft Privacy Statement
+              </a>
+            </li>
           </ul>
         </Section>
 
@@ -218,8 +251,18 @@ export default function PrivacyPage() {
               loads. These are essential for authentication and cannot be
               disabled while using cloud features.
             </li>
+            <li>
+              Analytics cookies set by Google Analytics and Microsoft Clarity —{" "}
+              <strong>only if you accept them</strong>. Your choice is
+              remembered in{" "}
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                localStorage
+              </code>{" "}
+              and can be changed at any time via{" "}
+              <strong>Cookie preferences</strong> in the footer.
+            </li>
           </ul>
-          <p>We do not use tracking or advertising cookies.</p>
+          <p>We do not use advertising cookies, and we do not sell your data.</p>
         </Section>
 
         <Section title="Children">

@@ -47,32 +47,6 @@ export interface Database {
         };
         Relationships: [];
       };
-      analytics_events: {
-        Row: {
-          id: string;
-          user_id: string | null;
-          project_id: string | null;
-          event: string;
-          metadata: Json;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id?: string | null;
-          project_id?: string | null;
-          event: string;
-          metadata?: Json;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string | null;
-          project_id?: string | null;
-          event?: string;
-          metadata?: Json;
-        };
-        Relationships: [];
-      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

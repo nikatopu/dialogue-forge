@@ -3,14 +3,16 @@
 /**
  * Internal analytics abstraction for Dialogue Forge.
  *
- * Architecture supports future adapters (PostHog, Plausible, Mixpanel) —
- * swap out the `adapters` array without touching call sites.
+ * Events are forwarded to Google Analytics 4. Microsoft Clarity runs alongside
+ * for session replay and heatmaps but needs no call sites — it instruments the
+ * page on its own.
  *
- * Privacy: NO PII, NO dialogue content, NO graph data stored.
+ * Both scripts only load once the visitor accepts cookies, so every method
+ * here is a no-op until then (`window.gtag` simply does not exist yet).
+ *
+ * Privacy: NO PII, NO dialogue content, NO graph data sent.
  * Only usage events with minimal metadata.
  */
-
-import { createClient } from "@/lib/supabase/client";
 
 /* ─── Event catalogue ─────────────────────────────────────── */
 
@@ -47,38 +49,50 @@ export type AnalyticsEvent =
 
 export type EventMetadata = Record<string, string | number | boolean | null>;
 
+type GtagFn = (...args: unknown[]) => void;
+
+declare global {
+  interface Window {
+    gtag?: GtagFn;
+    dataLayer?: unknown[];
+  }
+}
+
 /* ─── Adapter interface ───────────────────────────────────── */
 
 interface AnalyticsAdapter {
-  track(event: AnalyticsEvent, metadata?: EventMetadata): void | Promise<void>;
-  page(path: string): void | Promise<void>;
+  track(event: AnalyticsEvent, metadata?: EventMetadata): void;
+  page(path: string): void;
+  identify(userId: string | null): void;
 }
 
-/* ─── Supabase adapter ───────────────────────────────────── */
+/* ─── Google Analytics adapter ───────────────────────────── */
 
-class SupabaseAdapter implements AnalyticsAdapter {
-  private userId: string | null = null;
+class GoogleAnalyticsAdapter implements AnalyticsAdapter {
   private projectId: string | null = null;
 
-  setUser(id: string | null) { this.userId = id; }
   setProject(id: string | null) { this.projectId = id; }
 
-  async track(event: AnalyticsEvent, metadata: EventMetadata = {}) {
-    try {
-      const supabase = createClient();
-      await supabase.from("analytics_events").insert({
-        user_id: this.userId,
-        project_id: this.projectId,
-        event,
-        metadata,
-      });
-    } catch {
-      // Analytics failures are silent — never break the app
-    }
+  private get gtag(): GtagFn | null {
+    if (typeof window === "undefined") return null;
+    return window.gtag ?? null;
   }
 
-  page(_path: string) {
-    // No page-view tracking in Supabase adapter
+  track(event: AnalyticsEvent, metadata: EventMetadata = {}) {
+    // GA4 caps custom event names at 40 chars; ours are all well under.
+    this.gtag?.("event", event, {
+      ...metadata,
+      ...(this.projectId ? { project_id: this.projectId } : {}),
+    });
+  }
+
+  page(path: string) {
+    this.gtag?.("event", "page_view", { page_path: path });
+  }
+
+  identify(userId: string | null) {
+    // A Supabase UUID is an opaque identifier, not PII in GA's sense.
+    this.gtag?.("set", { user_id: userId ?? undefined });
   }
 }
 
@@ -95,32 +109,26 @@ class ConsoleAdapter implements AnalyticsAdapter {
       console.debug("[analytics:page]", path);
     }
   }
+  identify(userId: string | null) {
+    if (process.env.NODE_ENV === "development") {
+      console.debug("[analytics:identify]", userId);
+    }
+  }
 }
-
-/* ─── Future PostHog adapter stub ────────────────────────── */
-// class PostHogAdapter implements AnalyticsAdapter {
-//   track(event: AnalyticsEvent, metadata?: EventMetadata) {
-//     posthog.capture(event, metadata);
-//   }
-//   page(path: string) { posthog.capture("$pageview", { path }); }
-// }
 
 /* ─── Service singleton ──────────────────────────────────── */
 
-const supabaseAdapter = new SupabaseAdapter();
+const gaAdapter = new GoogleAnalyticsAdapter();
 
-const adapters: AnalyticsAdapter[] = [
-  supabaseAdapter,
-  new ConsoleAdapter(),
-];
+const adapters: AnalyticsAdapter[] = [gaAdapter, new ConsoleAdapter()];
 
 export const analyticsService = {
   setUser(id: string | null) {
-    supabaseAdapter.setUser(id);
+    adapters.forEach((a) => a.identify(id));
   },
 
   setProject(id: string | null) {
-    supabaseAdapter.setProject(id);
+    gaAdapter.setProject(id);
   },
 
   track(event: AnalyticsEvent, metadata?: EventMetadata) {

@@ -4,6 +4,8 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/atoms/Tooltip";
 import { ThemeProvider } from "@/components/organisms/ThemeProvider";
 import { Toaster } from "@/components/organisms/Toaster";
+import { CookieConsent } from "@/components/organisms/CookieConsent";
+import { AnalyticsScripts } from "@/components/organisms/AnalyticsScripts";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -91,6 +93,8 @@ export default function RootLayout({
           <ThemeProvider>{children}</ThemeProvider>
         </TooltipProvider>
         <Toaster />
+        <CookieConsent />
+        <AnalyticsScripts />
       </body>
     </html>
   );

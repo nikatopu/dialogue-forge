@@ -26,14 +26,27 @@
 
 .nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.625rem;
+
+  @media (min-width: 640px) {
+    gap: 0.75rem;
+  }
 }
 
+/* Shared by the <a> links and the cookie-preferences <button>, hence the
+   button resets. */
 .link {
   font-size: 0.6875rem;
+  font-family: inherit;
   color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
   text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   transition: color 0.15s;
 
   &:hover {
