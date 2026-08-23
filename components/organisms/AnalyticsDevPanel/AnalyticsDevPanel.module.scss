@@ -1,0 +1,306 @@
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--accent-amber) 40%, transparent);
+  background-color: color-mix(in oklch, var(--accent-amber) 12%, transparent);
+  color: var(--accent-amber);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 1.875rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background-color: var(--muted);
+    color: var(--foreground);
+  }
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.counter {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 999px;
+  background-color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--foreground);
+}
+
+/* Transport facts */
+.facts {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in oklch, var(--card) 60%, transparent);
+}
+
+.fact {
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 10rem 1fr;
+    align-items: baseline;
+  }
+}
+
+.factLabel {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.8125rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ok {
+  background-color: color-mix(in oklch, var(--accent-green) 15%, transparent);
+  color: var(--accent-green);
+}
+
+.warn {
+  background-color: color-mix(in oklch, var(--accent-amber) 15%, transparent);
+  color: var(--accent-amber);
+}
+
+.idle {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.muted {
+  color: var(--muted-foreground);
+}
+
+.hint {
+  margin: 0.625rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+/* Funnel checklist */
+.steps {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklch, var(--card) 40%, transparent);
+}
+
+.stepDone {
+  border-color: color-mix(in oklch, var(--accent-green) 40%, transparent);
+  background-color: color-mix(in oklch, var(--accent-green) 7%, transparent);
+
+  .stepIcon {
+    background-color: var(--accent-green);
+    color: var(--background);
+  }
+}
+
+.stepIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.0625rem;
+  border-radius: 50%;
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.stepBody {
+  min-width: 0;
+}
+
+.stepEvent {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.stepHow {
+  margin: 0.1875rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+/* Event log */
+.empty {
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.log {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--border);
+}
+
+.logRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.625rem;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--background);
+  font-size: 0.75rem;
+}
+
+.logTime {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.logEvent {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.logProps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--muted-foreground);
+}
+
+.prop {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+
+  strong {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+}
+
+.logSink {
+  margin-left: auto;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}

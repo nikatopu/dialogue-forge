@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEditorStore } from "@/store/useEditorStore";
+import { useGraphStore } from "@/store/useGraphStore";
+import { track } from "@/lib/analytics";
 import cn from "classnames";
 import style from "./MobileToolbar.module.scss";
 
@@ -50,7 +52,17 @@ export function MobileToolbar() {
       label: "Search",
       onClick: () => setSearchOpen(!searchOpen),
     },
-    { icon: Play, label: "Preview", onClick: () => setPreviewOpen(true) },
+    {
+      icon: Play,
+      label: "Preview",
+      onClick: () => {
+        track("preview_run", {
+          surface: "mobile",
+          node_count: useGraphStore.getState().nodes.length,
+        });
+        setPreviewOpen(true);
+      },
+    },
     {
       icon: Plus,
       label: "Add",

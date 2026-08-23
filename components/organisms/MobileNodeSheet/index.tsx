@@ -4,6 +4,7 @@ import { Flag, User, GitBranch, Zap, SkipForward, Square } from "lucide-react";
 import { BottomSheet } from "@/components/atoms/BottomSheet";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { trackNodeAdded } from "@/lib/analytics/funnel";
 import type { ForgeNodeType, ActionType } from "@/types";
 import style from "./MobileNodeSheet.module.scss";
 
@@ -40,6 +41,11 @@ export function MobileNodeSheet() {
     );
     setSelectedNodeId(id);
     setNodeSheetOpen(false);
+    trackNodeAdded({
+      nodeType: opt.nodeType,
+      previousNodeCount: nodes.length,
+      projectId: useEditorStore.getState().currentProjectId,
+    });
   }
 
   return (

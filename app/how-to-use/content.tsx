@@ -85,7 +85,7 @@ export function HowToUseContent() {
       <div className="max-w-5xl mx-auto px-6 py-12 pb-24">
         {/* Back link */}
         <Link
-          href="/"
+          href="/editor"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10 group"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -1105,7 +1105,7 @@ while (!runner.isEnded) {
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-border/30 text-center">
           <Link
-            href="/"
+            href="/editor"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />

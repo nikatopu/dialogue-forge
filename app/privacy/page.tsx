@@ -27,7 +27,7 @@ export default function PrivacyPage() {
         </Link>
         <div className="w-px h-4 bg-border/60 hidden sm:block" />
         <Link
-          href="/"
+          href="/editor"
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
@@ -85,13 +85,40 @@ export default function PrivacyPage() {
             </p>
           </Subsection>
 
+          <Subsection title="Cookieless product analytics (PostHog)">
+            <p>
+              We use <strong>PostHog</strong>, hosted in the EU, to count how far
+              people get through the product — landing on the site, opening the
+              editor, adding a first node, creating a branch, running a preview,
+              exporting. It runs <strong>without cookies</strong>: nothing is
+              written to <code>document.cookie</code>, so it is not covered by the
+              cookie banner and runs by default.
+            </p>
+            <p>
+              <strong>If your browser sends Do Not Track or Global Privacy
+              Control, it does not run at all</strong> — the script is never even
+              downloaded. You are identified only by a random ID generated in your
+              browser and stored in local storage; clearing your site data resets
+              it. Your IP address is discarded rather than stored, and no
+              geolocation is derived from it.
+            </p>
+            <p>
+              Each event carries only counts and fixed labels — how many nodes are
+              on the canvas, which export format, whether a visit is a return
+              visit. If you arrive from a marketing link, its campaign parameters
+              (<code>utm_source</code> and friends) are recorded against that
+              anonymous ID so we can tell which channels bring people who actually
+              use the editor.
+            </p>
+          </Subsection>
+
           <Subsection title="Usage analytics (only with your consent)">
             <p>
-              Analytics run <strong>only if you accept cookies</strong> when
-              asked. Decline, or ignore the banner, and no analytics script is
-              loaded at all — nothing is requested, set, or sent. You can change
-              your mind at any time via <strong>Cookie preferences</strong> in
-              the footer.
+              Google Analytics and Microsoft Clarity run{" "}
+              <strong>only if you accept cookies</strong> when asked. Decline, or
+              ignore the banner, and neither script is loaded at all — nothing is
+              requested, set, or sent. You can change your mind at any time via{" "}
+              <strong>Cookie preferences</strong> in the footer.
             </p>
             <p>If you do accept, we collect:</p>
             <ul>
@@ -189,6 +216,19 @@ export default function PrivacyPage() {
                 className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
               >
                 GitHub Privacy Statement
+              </a>
+            </li>
+            <li>
+              <strong>PostHog (EU)</strong> — cookieless product analytics. Runs
+              without cookies and is skipped entirely if your browser sends Do
+              Not Track or Global Privacy Control.{" "}
+              <a
+                href="https://posthog.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
+              >
+                PostHog Privacy Policy
               </a>
             </li>
             <li>

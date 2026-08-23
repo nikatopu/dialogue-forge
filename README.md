@@ -249,6 +249,7 @@ Animation      Framer Motion      Panel transitions, presence animations
 Validation     Zod                Runtime schema validation
 Icons          Lucide             Consistent icon set
 Auth / DB      Supabase           Auth, Postgres, realtime, storage
+Analytics      PostHog (EU)       Cookieless activation funnel, DNT-aware
 ```
 
 <br />
@@ -268,11 +269,15 @@ npm install
 npm run dev
 ```
 
-**2. Open the editor**
+**2. Open the app**
 
 ```
-http://localhost:3000
+http://localhost:3000            Landing page
+http://localhost:3000/editor     The editor
+http://localhost:3000/dev/analytics   Event capture view (dev only)
 ```
+
+Returning users can skip the landing page entirely via **Settings → General → Skip the landing page**; `/?stay=1` reaches it again either way.
 
 **3. Pick a template or start blank**
 
@@ -346,8 +351,10 @@ lib/supabase/schema.sql
 ```
 dialogue-forge/
 ├── app/
-│   ├── page.tsx              # Editor entry
+│   ├── page.tsx              # Marketing landing page
+│   ├── editor/               # The editor itself
 │   ├── projects/             # Cloud project dashboard
+│   ├── dev/analytics/        # Event capture view (development only)
 │   ├── roadmap/              # Public roadmap
 │   ├── how-to-use/           # Documentation
 │   ├── auth/                 # Auth callback
@@ -369,6 +376,8 @@ dialogue-forge/
 │   └── useProjectStore.ts    # Cloud projects, auth user
 │
 └── lib/
+    ├── analytics.ts          # Typed activation-funnel wrapper (track)
+    ├── analytics/            # Identity, attribution, transport, dev capture
     ├── supabase/             # Client, server, schema, types
     ├── templates.ts          # Built-in template definitions
     ├── exportGraph.ts        # Serialization + JSON download
@@ -387,11 +396,90 @@ dialogue-forge/
 Dialogue Forge autosaves to the browser on every change.
 
 ```
-dialogue-forge-graph    →  All nodes and edges
-dialogue-forge-ui       →  Theme, sidebar state, project name
+dialogue-forge-graph          →  All nodes and edges
+dialogue-forge-ui             →  Theme, sidebar state, project name
+dialogue-forge-launch-mode    →  Whether / opens the landing page or the editor
+dialogue-forge-aid            →  Random anonymous analytics ID
+dialogue-forge-attribution    →  First-touch UTM parameters
+dialogue-forge-visits         →  Visit timestamps behind return_visit
+dialogue-forge-analytics-*    →  Which funnel milestones have fired
 ```
 
 Closing and reopening the browser restores your last session exactly. Use `Ctrl + S` to export a portable `.forge.json` backup.
+
+<br />
+
+---
+
+<br />
+
+## Product Analytics
+
+Dialogue Forge tracks a single **activation funnel** — how far a new visitor gets, from landing on the site to exporting a file they can use. It is deliberately small: eight events, no page-by-page tracking, and nothing that could carry a person's writing.
+
+### How it works
+
+[PostHog](https://posthog.com) (EU-hosted) is the sink, wrapped by a typed façade at [`lib/analytics.ts`](lib/analytics.ts). Product code only ever calls `track()`:
+
+```ts
+import { track } from "@/lib/analytics";
+
+track("export_clicked", { engine: "json", trigger: "menu", node_count: 12 });
+```
+
+Event names come from the `AnalyticsEventName` union and props are typed per event, so an unknown event name or a misspelled prop is a compile error rather than a silent gap in a dashboard.
+
+This runs **alongside** the older consent-gated Google Analytics / Clarity setup in [`lib/analytics/analyticsService.ts`](lib/analytics/analyticsService.ts), which still owns its own broader event catalogue. The two are independent; new funnel work belongs in `lib/analytics.ts`.
+
+### Privacy properties
+
+| Property | How it is enforced |
+| --- | --- |
+| **Cookieless** | PostHog runs with `persistence: "localStorage"`. Nothing is written to `document.cookie`, so the cookie banner does not gate it. |
+| **Do-Not-Track honoured** | DNT and Global Privacy Control are both checked before the SDK is imported. If either is set, the script is never downloaded. |
+| **Production only** | The transport requires `NEXT_PUBLIC_ANALYTICS_KEY` **and** a production build. Set `NEXT_PUBLIC_ANALYTICS_DEBUG=1` to override locally. |
+| **No PII** | Props are typed as counts and fixed enums, then sanitised again at runtime: keys matching `email`, `name`, `dialogue`, `text`, `content`, … are dropped, as are non-primitives and strings over 64 characters. |
+| **No IP, no geo** | `$ip` is nulled in a `before_send` hook and sits in the `property_denylist`. |
+| **No autocapture** | Autocapture, session recording, surveys and automatic pageviews are all off — autocapture in particular would collect the text of clicked elements, which here is the user's dialogue. |
+| **Anonymous identity** | A random UUID in `localStorage` (`dialogue-forge-aid`). No `identify()` call is ever made, so the profile is never linked to an account. |
+
+### The eight events
+
+| Event | Fires when | Where | Props |
+| --- | --- | --- | --- |
+| `landing_view` | The marketing page at `/` mounts. | [`LandingPage/useLandingTracking.ts`](components/organisms/LandingPage/useLandingTracking.ts) | `referrer_host?` — host of the referring site, omitted for direct traffic<br />`skipped_to_editor` — whether this visitor is being redirected straight to `/editor` |
+| `demo_loaded` | The editor is reached for the first time in a session, from `/editor` or a cloud project. Once per session. | [`EditorLayout/useActivationTracking.ts`](components/organisms/EditorLayout/useActivationTracking.ts) | `surface` — `"local"` or `"cloud"`<br />`node_count` — nodes already on the canvas |
+| `project_created` | A new, non-demo graph is started. Loading the demo project never fires it. | Cloud: [`store/useProjectStore.ts`](store/useProjectStore.ts) · Import: [`TopBar/useTopBarActions.ts`](components/organisms/TopBar/useTopBarActions.ts) · Local: [`lib/analytics/funnel.ts`](lib/analytics/funnel.ts) | `source` — `"cloud"`, `"local"` or `"import"` |
+| `first_node_added` | The visitor's very first node, on any project. Once per visitor, ever. | [`lib/analytics/funnel.ts`](lib/analytics/funnel.ts), called from the canvas drop handler and the mobile node sheet | `node_type` — `"character"`, `"action"` or `"start"` |
+| `first_branch_created` | A Branch action node first has **two or more** outgoing edges. Derived from the graph, so a drag, a paste, an undo or an import all count. Once per visitor, ever. | [`EditorLayout/useActivationTracking.ts`](components/organisms/EditorLayout/useActivationTracking.ts) via `widestBranch()` | `outgoing_edges` — choices on the branch when it qualified |
+| `preview_run` | The in-editor preview is opened. | [`TopBar`](components/organisms/TopBar/index.tsx) and [`MobileToolbar`](components/organisms/MobileToolbar/index.tsx) | `surface` — `"toolbar"` or `"mobile"`<br />`node_count` |
+| `export_clicked` | A JSON export is triggered. | [`TopBar/useTopBarActions.ts`](components/organisms/TopBar/useTopBarActions.ts) | `engine` — always `"json"` today; the prop exists so the shape survives engine-specific exports<br />`trigger` — `"menu"` or `"toolbar_save"`<br />`node_count` |
+| `return_visit` | A page load starts a new session (30+ minutes since the last activity) for a visitor who has been here before. | [`lib/analytics.ts`](lib/analytics.ts) → `initAnalytics()` | `days_since_last` — whole days since the previous session<br />`visit_count` — 2 on the first return |
+
+### Attribution
+
+On the first visit that carries them, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content` and the referring **host** are frozen into `localStorage` and attached to the anonymous profile with `$set_once`. Later visits never overwrite them, so a funnel answers "which campaign produced activated users", not "which link did they click most recently". Nothing else in the query string is read.
+
+### Verifying it locally
+
+Every `track()` call is recorded in the browser regardless of whether a transport is live, and rendered at **`/dev/analytics`** (development builds only; the route 404s in production).
+
+```bash
+npm run dev
+# open http://localhost:3000/dev/analytics
+```
+
+The page shows transport status, the anonymous ID, stored attribution, a checklist of all eight events with instructions for triggering each, and a live log of everything captured. **Reset funnel state** clears the milestones, visit history and anonymous ID so the whole funnel can be walked again from scratch.
+
+To exercise attribution, open the landing page as `/?utm_source=test&utm_campaign=demo` in a fresh browser profile.
+
+### Configuration
+
+```bash
+NEXT_PUBLIC_ANALYTICS_KEY=phc_...              # required; unset means nothing loads
+NEXT_PUBLIC_ANALYTICS_HOST=https://eu.i.posthog.com   # optional, defaults to PostHog EU
+NEXT_PUBLIC_ANALYTICS_DEBUG=1                  # optional, loads the SDK outside production
+```
 
 <br />
 

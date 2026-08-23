@@ -298,7 +298,7 @@ export function RoadmapContent() {
         </Link>
         <div className="w-px h-4 bg-border/60 hidden sm:block" />
         <Link
-          href="/"
+          href="/editor"
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />

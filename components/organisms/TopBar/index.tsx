@@ -14,6 +14,7 @@ import { SignInModal } from "@/components/organisms/SignInModal";
 import { UserMenu, SignInButton } from "@/components/organisms/UserMenu";
 import { ProfileSheet } from "@/components/organisms/ProfileSheet";
 import { useVariableStore } from "@/store/useVariableStore";
+import { track } from "@/lib/analytics";
 import cn from "classnames";
 import { useTopBarActions } from "./useTopBarActions";
 import { ToolbarButton } from "./ToolbarButton";
@@ -33,6 +34,11 @@ export function TopBar() {
     fileInputRef, saveFlash, pendingImport, setPendingImport, confirmImport,
     confirmClear, setConfirmClear, handleExport, handleSave, handleImportFile,
   } = useTopBarActions();
+
+  function openPreview() {
+    track("preview_run", { surface: "toolbar", node_count: nodes.length });
+    setPreviewOpen(true);
+  }
 
   const SaveIcon = saveFlash === "saved" ? Check : saveFlash === "error" ? AlertCircle : Save;
   const saveFlashClass = cn(saveFlash === "saved" && style.saveFlashSaved, saveFlash === "error" && style.saveFlashError);
@@ -57,7 +63,7 @@ export function TopBar() {
         <ToolbarButton icon={SaveIcon} tooltip={saveFlash === "saved" ? "Saved!" : "Save (Ctrl+S)"} onClick={handleSave} className={cn(style.desktopOnly, saveFlashClass)} />
         <Separator orientation="vertical" className={cn(style.vSepWide, style.desktopOnly)} />
 
-        <button type="button" className={style.previewBtn} onClick={() => setPreviewOpen(true)}>
+        <button type="button" className={style.previewBtn} onClick={openPreview}>
           <Play size={12} className={style.previewIcon} />
           Preview
         </button>

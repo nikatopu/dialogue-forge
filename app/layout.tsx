@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/organisms/ThemeProvider";
 import { Toaster } from "@/components/organisms/Toaster";
 import { CookieConsent } from "@/components/organisms/CookieConsent";
 import { AnalyticsScripts } from "@/components/organisms/AnalyticsScripts";
+import { AnalyticsProvider } from "@/components/organisms/AnalyticsProvider";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -95,6 +96,7 @@ export default function RootLayout({
         <Toaster />
         <CookieConsent />
         <AnalyticsScripts />
+        <AnalyticsProvider />
       </body>
     </html>
   );

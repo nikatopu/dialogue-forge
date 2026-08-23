@@ -21,6 +21,8 @@ import { useVariableStore } from "@/store/useVariableStore";
 import { validateGraph } from "@/lib/validate";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { useActivationTracking } from "./useActivationTracking";
+import { useDemoLaunch } from "./useDemoLaunch";
 import { useProjectStore } from "@/store/useProjectStore";
 import style from "./EditorLayout.module.scss";
 
@@ -40,6 +42,8 @@ export function EditorLayout() {
   }, [initAuth]);
 
   useCloudSync();
+  useDemoLaunch();
+  useActivationTracking();
 
   useEffect(() => {
     const { nodes, edges } = useGraphStore.getState();

@@ -35,3 +35,80 @@
   padding: 0 0.75rem;
   font-size: 0.75rem;
 }
+
+/* Startup preference */
+.settingCard {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: color-mix(in oklch, var(--card) 60%, transparent);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.settingRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.settingTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.settingDesc {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  max-width: 28rem;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  padding: 0.0625rem 0.25rem;
+  border-radius: 0.25rem;
+  background-color: var(--muted);
+}
+
+.toggle {
+  flex-shrink: 0;
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background-color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+.toggleOn {
+  background-color: var(--primary);
+  border-color: var(--primary);
+
+  .toggleKnob {
+    transform: translateX(1rem);
+    background-color: var(--primary-foreground);
+  }
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 50%;
+  left: 0.125rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-top: -0.4375rem;
+  border-radius: 50%;
+  background-color: var(--muted-foreground);
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}

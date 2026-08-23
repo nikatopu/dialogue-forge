@@ -21,7 +21,7 @@ export function SupportPage() {
           <span className={style.brandName}>Dialogue Forge</span>
         </Link>
         <div className={style.headerDivider} />
-        <Link href="/" className={style.backLink}>
+        <Link href="/editor" className={style.backLink}>
           <ArrowLeft size={14} />Back to editor
         </Link>
       </header>
