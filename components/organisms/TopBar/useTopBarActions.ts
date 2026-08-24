@@ -5,6 +5,12 @@ import { useVariableStore } from "@/store/useVariableStore";
 import { serializeGraph, downloadJson } from "@/lib/exportGraph";
 import { parseGraphJson, readFileAsText } from "@/lib/importGraph";
 import { track } from "@/lib/analytics";
+import {
+  getLastEngine,
+  setEnginePreference,
+  shouldShowEnginePopup,
+  type ExportEngine,
+} from "@/lib/enginePreference";
 import type { ProjectVariable } from "@/types";
 
 type PendingImport = {
@@ -13,6 +19,9 @@ type PendingImport = {
   variables?: ProjectVariable[];
   name?: string;
 } | null;
+
+/** Which toolbar action the engine picker is currently gating. */
+type PendingEngineAction = "export" | "save" | null;
 
 export function useTopBarActions() {
   const { projectName, setProjectName } = useEditorStore();
@@ -24,24 +33,55 @@ export function useTopBarActions() {
   const [pendingImport, setPendingImport] = useState<PendingImport>(null);
   const [confirmClear, setConfirmClear] = useState(false);
 
-  const handleExport = useCallback(() => {
+  const [enginePickerOpen, setEnginePickerOpen] = useState(false);
+  const [initialEngine, setInitialEngine] = useState<ExportEngine>("unity");
+  const [pendingEngineAction, setPendingEngineAction] = useState<PendingEngineAction>(null);
+
+  const doExport = useCallback((engine: ExportEngine) => {
     downloadJson(serializeGraph(nodes, edges, projectName, variables));
-    // Only one export format exists today; `engine` keeps the event shape
-    // stable for when engine-specific exports arrive.
-    track("export_clicked", { engine: "json", trigger: "menu", node_count: nodes.length });
+    track("export_clicked", { engine, trigger: "menu", node_count: nodes.length });
   }, [nodes, edges, projectName, variables]);
 
-  const handleSave = useCallback(() => {
+  const doSave = useCallback((engine: ExportEngine) => {
     try {
       downloadJson(serializeGraph(nodes, edges, projectName, variables));
       setSaveFlash("saved");
-      track("export_clicked", { engine: "json", trigger: "toolbar_save", node_count: nodes.length });
+      track("export_clicked", { engine, trigger: "toolbar_save", node_count: nodes.length });
     } catch {
       setSaveFlash("error");
     } finally {
       setTimeout(() => setSaveFlash("idle"), 2000);
     }
   }, [nodes, edges, projectName, variables]);
+
+  const openEnginePicker = useCallback((action: Exclude<PendingEngineAction, null>) => {
+    setInitialEngine(getLastEngine() ?? "unity");
+    setPendingEngineAction(action);
+    setEnginePickerOpen(true);
+  }, []);
+
+  const handleExport = useCallback(() => {
+    if (shouldShowEnginePopup()) { openEnginePicker("export"); return; }
+    doExport(getLastEngine() ?? "other");
+  }, [doExport, openEnginePicker]);
+
+  const handleSave = useCallback(() => {
+    if (shouldShowEnginePopup()) { openEnginePicker("save"); return; }
+    doSave(getLastEngine() ?? "other");
+  }, [doSave, openEnginePicker]);
+
+  const confirmEnginePicker = useCallback((engine: ExportEngine, dontShowAgain: boolean) => {
+    setEnginePreference(engine, dontShowAgain);
+    setEnginePickerOpen(false);
+    if (pendingEngineAction === "export") doExport(engine);
+    else if (pendingEngineAction === "save") doSave(engine);
+    setPendingEngineAction(null);
+  }, [pendingEngineAction, doExport, doSave]);
+
+  const cancelEnginePicker = useCallback(() => {
+    setEnginePickerOpen(false);
+    setPendingEngineAction(null);
+  }, []);
 
   const handleImportFile = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,5 +121,6 @@ export function useTopBarActions() {
     pendingImport, setPendingImport, confirmImport,
     confirmClear, setConfirmClear,
     handleExport, handleSave, handleImportFile,
+    enginePickerOpen, initialEngine, confirmEnginePicker, cancelEnginePicker,
   };
 }

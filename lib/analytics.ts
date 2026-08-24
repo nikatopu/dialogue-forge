@@ -23,6 +23,7 @@
  */
 
 import type { ForgeNodeType } from "@/types";
+import type { ExportEngine } from "./enginePreference";
 import { getAnonymousId } from "./analytics/anonymousId";
 import { captureAttribution } from "./analytics/attribution";
 import { recordEvent } from "./analytics/devCapture";
@@ -86,10 +87,10 @@ export interface AnalyticsEventProps {
     surface: "toolbar" | "mobile";
     node_count: number;
   };
-  /** An export was triggered. */
+  /** A save or export was triggered. */
   export_clicked: {
-    /** Only one target format exists today; kept so the shape survives more. */
-    engine: "json";
+    /** Target engine picked in the engine popup (or remembered from a prior pick). */
+    engine: ExportEngine;
     trigger: "menu" | "toolbar_save";
     node_count: number;
   };

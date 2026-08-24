@@ -10,6 +10,7 @@ import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useProjectStore } from "@/store/useProjectStore";
 import { ConfirmModal } from "@/components/organisms/ConfirmModal";
+import { EnginePickerModal } from "@/components/organisms/EnginePickerModal";
 import { SignInModal } from "@/components/organisms/SignInModal";
 import { UserMenu, SignInButton } from "@/components/organisms/UserMenu";
 import { ProfileSheet } from "@/components/organisms/ProfileSheet";
@@ -33,6 +34,7 @@ export function TopBar() {
   const {
     fileInputRef, saveFlash, pendingImport, setPendingImport, confirmImport,
     confirmClear, setConfirmClear, handleExport, handleSave, handleImportFile,
+    enginePickerOpen, initialEngine, confirmEnginePicker, cancelEnginePicker,
   } = useTopBarActions();
 
   function openPreview() {
@@ -112,6 +114,12 @@ export function TopBar() {
         confirmLabel="Delete everything"
         onConfirm={() => { useGraphStore.getState().clearGraph(); useVariableStore.getState().clearVariables(); setConfirmClear(false); }}
         onCancel={() => setConfirmClear(false)}
+      />
+      <EnginePickerModal
+        open={enginePickerOpen}
+        initialEngine={initialEngine}
+        onConfirm={confirmEnginePicker}
+        onCancel={cancelEnginePicker}
       />
     </header>
   );
