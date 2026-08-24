@@ -6,12 +6,14 @@ import {
   ArrowLeft, Workflow, LifeBuoy, Mail, BookOpen, Map,
 } from "lucide-react";
 import { FAQ_GROUPS } from "@/lib/support/faq";
+import { useBackDestination, withOrigin } from "@/lib/backDestination";
 import { FaqItem } from "./FaqItem";
 import { ContactForm } from "./ContactForm";
 import style from "./SupportPage.module.scss";
 
 export function SupportPage() {
   const [openId, setOpenId] = useState<string | null>(null);
+  const back = useBackDestination();
 
   return (
     <div className={style.page}>
@@ -21,8 +23,8 @@ export function SupportPage() {
           <span className={style.brandName}>Dialogue Forge</span>
         </Link>
         <div className={style.headerDivider} />
-        <Link href="/editor" className={style.backLink}>
-          <ArrowLeft size={14} />Back to editor
+        <Link href={back.href} className={style.backLink}>
+          <ArrowLeft size={14} />{back.label}
         </Link>
       </header>
 
@@ -35,10 +37,10 @@ export function SupportPage() {
             everything else.
           </p>
           <div className={style.heroLinks}>
-            <Link href="/how-to-use" className={style.heroLink}>
+            <Link href={withOrigin("/how-to-use", back)} className={style.heroLink}>
               <BookOpen size={13} />How to use
             </Link>
-            <Link href="/roadmap" className={style.heroLink}>
+            <Link href={withOrigin("/roadmap", back)} className={style.heroLink}>
               <Map size={13} />Roadmap
             </Link>
           </div>

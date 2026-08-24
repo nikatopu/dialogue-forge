@@ -14,6 +14,7 @@ import {
   GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useBackDestination } from "@/lib/backDestination";
 import {
   ROADMAP,
   STATUS_COLUMNS,
@@ -277,6 +278,7 @@ function ColumnHeader({
 /* ─── Main content ───────────────────────────────────────── */
 
 export function RoadmapContent() {
+  const back = useBackDestination();
   const byStatus = Object.fromEntries(
     STATUS_COLUMNS.map((s) => [s, ROADMAP.filter((e) => e.status === s)]),
   ) as Record<RoadmapStatus, RoadmapEntry[]>;
@@ -298,11 +300,11 @@ export function RoadmapContent() {
         </Link>
         <div className="w-px h-4 bg-border/60 hidden sm:block" />
         <Link
-          href="/editor"
+          href={back.href}
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to editor
+          {back.label}
         </Link>
 
         {/* Right: feedback + GitHub */}

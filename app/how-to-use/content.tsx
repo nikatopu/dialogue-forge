@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useBackDestination } from "@/lib/backDestination";
 
 /* ─── TOC definition ────────────────────────────────────────── */
 
@@ -47,6 +48,7 @@ type SectionId = (typeof TOC)[number]["id"];
 /* ─── Page root ─────────────────────────────────────────────── */
 
 export function HowToUseContent() {
+  const back = useBackDestination();
   const [activeId, setActiveId] = useState<SectionId>(TOC[0].id);
   const [tocOpen, setTocOpen] = useState(false);
 
@@ -85,11 +87,11 @@ export function HowToUseContent() {
       <div className="max-w-5xl mx-auto px-6 py-12 pb-24">
         {/* Back link */}
         <Link
-          href="/editor"
+          href={back.href}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10 group"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-          Back to editor
+          {back.label}
         </Link>
 
         {/* Hero */}
@@ -1105,11 +1107,11 @@ while (!runner.isEnded) {
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-border/30 text-center">
           <Link
-            href="/editor"
+            href={back.href}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Back to the editor
+            {back.label}
           </Link>
         </div>
       </div>

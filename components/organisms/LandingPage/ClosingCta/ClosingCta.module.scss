@@ -17,13 +17,7 @@
   padding: 3rem 1.5rem;
   border: 1px solid color-mix(in oklch, var(--primary) 25%, var(--border));
   border-radius: var(--radius-2xl);
-  background:
-    radial-gradient(
-      ellipse at 50% 0%,
-      color-mix(in oklch, var(--primary) 14%, transparent),
-      transparent 65%
-    ),
-    color-mix(in oklch, var(--card) 60%, transparent);
+  background-color: color-mix(in oklch, var(--card) 60%, transparent);
 }
 
 .title {

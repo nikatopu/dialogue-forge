@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Workflow, Save, Play, Download, Undo2, Redo2,
   Check, AlertCircle, User,
@@ -49,12 +50,12 @@ export function TopBar() {
     <header className={style.header}>
       <input ref={fileInputRef} type="file" accept=".json,.forge.json" className={style.hiddenInput} aria-label="Import JSON file" onChange={handleImportFile} />
 
-      <div className={style.brand}>
+      <Link href="/?stay=1" className={style.brand}>
         <div className={style.brandInner}>
           <div className={style.logo}><Workflow size={14} className={style.logoIcon} /></div>
           <span className={style.brandName}>Dialogue Forge</span>
         </div>
-      </div>
+      </Link>
 
       <div className={style.center}><ProjectNameField /></div>
 

@@ -14,22 +14,6 @@
   }
 }
 
-/* Soft primary bloom behind the copy, purely decorative. */
-.glow {
-  position: absolute;
-  top: -6rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(48rem, 100%);
-  height: 24rem;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse at center,
-    color-mix(in oklch, var(--primary) 16%, transparent),
-    transparent 70%
-  );
-}
-
 .content {
   position: relative;
   display: flex;

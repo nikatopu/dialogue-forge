@@ -41,14 +41,14 @@
   height: auto;
 }
 
-/* Edges */
+/* Edges — same idle treatment as the real canvas's default (non-selected) edge. */
 .edges {
   fill: none;
-  stroke: color-mix(in oklch, var(--muted-foreground) 55%, transparent);
+  stroke: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
   stroke-width: 1.5;
 
   marker path {
-    fill: color-mix(in oklch, var(--muted-foreground) 55%, transparent);
+    fill: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
     stroke: none;
   }
 }
@@ -59,42 +59,107 @@
 .nodeAction,
 .nodeChoice {
   text {
-    text-anchor: middle;
     font-size: 11px;
     font-weight: 500;
     fill: var(--foreground);
   }
-
-  rect {
-    stroke-width: 1;
-  }
 }
 
+.nodeStart rect,
+.nodeCharacter rect,
+.nodeAction rect,
+.nodeChoice rect {
+  stroke-width: 1;
+}
+
+/* Node cards mirror the real editor's cards: a neutral card body, with the
+   accent color carried only by the Start node's border (it's the one node
+   type whose card border is accent-tinted) and by each type's icon. */
 .nodeStart rect {
-  fill: color-mix(in oklch, var(--accent-teal) 16%, var(--card));
-  stroke: color-mix(in oklch, var(--accent-teal) 65%, transparent);
+  fill: var(--card);
+  stroke: color-mix(in oklch, var(--accent-teal) 55%, transparent);
 }
 
 .nodeCharacter rect {
-  fill: color-mix(in oklch, var(--accent-indigo) 16%, var(--card));
-  stroke: color-mix(in oklch, var(--accent-indigo) 65%, transparent);
-}
-
-.nodeAction rect {
-  fill: color-mix(in oklch, var(--accent-violet) 16%, var(--card));
-  stroke: color-mix(in oklch, var(--accent-violet) 65%, transparent);
-}
-
-.nodeChoice rect {
-  fill: color-mix(in oklch, var(--muted) 90%, transparent);
+  fill: var(--card);
   stroke: var(--border);
 }
 
+.nodeAction rect {
+  fill: var(--card);
+  stroke: var(--border);
+}
+
+.nodeChoice rect {
+  fill: var(--card);
+  stroke: var(--border);
+}
+
+/* Icon chips (Start, Branch) — same tinted-chip treatment as the real node headers. */
+.chip {
+  stroke-width: 1;
+}
+
+.nodeStart .chip {
+  fill: color-mix(in oklch, var(--accent-teal) 20%, transparent);
+  stroke: color-mix(in oklch, var(--accent-teal) 55%, transparent);
+}
+
+.nodeAction .chip {
+  fill: color-mix(in oklch, var(--accent-orange) 20%, transparent);
+  stroke: color-mix(in oklch, var(--accent-orange) 55%, transparent);
+}
+
+.startGlyph {
+  fill: var(--accent-teal);
+}
+
+.branchGlyph {
+  fill: none;
+  stroke: var(--accent-orange);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Character portrait, standing in for the real node's avatar circle. */
+.portrait {
+  fill: color-mix(in oklch, var(--accent-indigo) 18%, var(--card));
+  stroke: color-mix(in oklch, var(--accent-indigo) 55%, transparent);
+  stroke-width: 1;
+}
+
+/* Section divider between a card's header row and its body, as on the real Character node. */
+.divider {
+  stroke: color-mix(in oklch, var(--border) 70%, transparent);
+  stroke-width: 1;
+}
+
+/* Small uppercase type label next to each node's icon (Start / Character / Branch). */
+.kicker {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.nodeStart .kicker {
+  fill: color-mix(in oklch, var(--accent-teal) 85%, var(--foreground));
+}
+
+.nodeCharacter .kicker {
+  fill: color-mix(in oklch, var(--accent-indigo) 85%, var(--foreground));
+}
+
+.nodeAction .kicker {
+  fill: color-mix(in oklch, var(--accent-orange) 85%, var(--foreground));
+}
+
 .nodeTitle {
+  font-size: 12.5px;
   font-weight: 600;
 }
 
 .nodeBody {
-  font-size: 10px;
+  font-size: 10.5px;
   fill: var(--muted-foreground);
 }

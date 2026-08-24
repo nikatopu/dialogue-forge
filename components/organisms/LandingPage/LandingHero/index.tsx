@@ -9,8 +9,6 @@ import style from "./LandingHero.module.scss";
 export function LandingHero() {
   return (
     <section className={style.hero}>
-      <div className={style.glow} aria-hidden="true" />
-
       <motion.div
         className={style.content}
         initial={{ opacity: 0, y: 12 }}
