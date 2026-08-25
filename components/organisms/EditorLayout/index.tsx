@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import cn from "classnames";
-import { fadeVariant } from "@/lib/motionVariants";
+import { childVariant } from "@/lib/motionVariants";
 import { PanelRail } from "@/components/atoms/PanelRail";
 import { TopBar } from "@/components/organisms/TopBar";
 import { Sidebar } from "@/components/organisms/Sidebar";
@@ -31,9 +31,18 @@ import style from "./EditorLayout.module.scss";
 export function EditorLayout() {
   const setIssues = useValidationStore((s) => s.setIssues);
   const {
-    previewOpen, setPreviewOpen, selectedNodeId, selectedEdgeId, setMobileInspectorOpen,
-    sidebarOpen, toggleSidebar, inspectorOpen, toggleInspector, setInspectorOpen,
-    variablesPanelOpen, setVariablesPanelOpen,
+    previewOpen,
+    setPreviewOpen,
+    selectedNodeId,
+    selectedEdgeId,
+    setMobileInspectorOpen,
+    sidebarOpen,
+    toggleSidebar,
+    inspectorOpen,
+    toggleInspector,
+    setInspectorOpen,
+    variablesPanelOpen,
+    setVariablesPanelOpen,
   } = useEditorStore();
   const variables = useVariableStore((s) => s.variables);
   const isMobile = useIsMobile();
@@ -74,21 +83,26 @@ export function EditorLayout() {
 
   return (
     <div className={style.container}>
-      <motion.div variants={fadeVariant} initial="hidden" animate="visible">
-        <TopBar />
-      </motion.div>
+      {/* Header stays outside the content's motion — it only inherits
+          PageTransition's fade, it never translates. */}
+      <TopBar />
 
       <div className={style.body}>
-        <motion.div variants={fadeVariant} initial="hidden" animate="visible">
+        <motion.div variants={childVariant} initial="hidden" animate="visible">
           <Sidebar />
         </motion.div>
         {!isMobile && (
-          <PanelRail side="left" open={sidebarOpen} onToggle={toggleSidebar} label="Sidebar" />
+          <PanelRail
+            side="left"
+            open={sidebarOpen}
+            onToggle={toggleSidebar}
+            label="Sidebar"
+          />
         )}
 
         <motion.div
           className={cn(style.canvasWrapper, isMobile && style.mobileOffset)}
-          variants={fadeVariant}
+          variants={childVariant}
           initial="hidden"
           animate="visible"
         >
@@ -96,8 +110,18 @@ export function EditorLayout() {
         </motion.div>
 
         {!isMobile && (
-          <motion.div className={style.rightGutter} variants={fadeVariant} initial="hidden" animate="visible">
-            <PanelRail side="right" open={inspectorOpen} onToggle={toggleInspector} label="Inspector" />
+          <motion.div
+            className={style.rightGutter}
+            variants={childVariant}
+            initial="hidden"
+            animate="visible"
+          >
+            <PanelRail
+              side="right"
+              open={inspectorOpen}
+              onToggle={toggleInspector}
+              label="Inspector"
+            />
             <PanelRail
               side="right"
               open={variablesPanelOpen}
@@ -126,7 +150,7 @@ export function EditorLayout() {
       </div>
 
       {!isMobile && (
-        <motion.div variants={fadeVariant} initial="hidden" animate="visible">
+        <motion.div variants={childVariant} initial="hidden" animate="visible">
           <ValidationBar />
         </motion.div>
       )}

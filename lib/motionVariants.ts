@@ -17,7 +17,7 @@ import type { Transition, Variants } from "framer-motion";
  * for the route-level transition in `PageTransition`.
  */
 
-/** The one easing curve everything below shares, outside of `pageVariant`'s exit. */
+/** The one easing curve everything below shares. */
 export const EASE_OUT: Transition = { duration: 0.4, ease: [0.4, 0, 0.2, 1] };
 
 /** Opacity only — for content that shouldn't also move. */
@@ -41,14 +41,16 @@ export const containerVariant: Variants = {
 };
 
 /**
- * A full route transition: fade + rise in, fade + a small drop out. Used by
- * `PageTransition` only. Deliberately quicker than `EASE_OUT` in both
- * directions — `AnimatePresence mode="wait"` runs the exit to completion
- * before the next route mounts, so the two durations sum into the visible
- * gap between pages, and a slow pair reads as the transition hanging.
+ * The route-level transition itself: fade only, no vertical motion. It wraps
+ * the whole page — header included — and a header the user doesn't expect
+ * to move sliding up with the rest of the page reads as a bug, not polish.
+ * Each page's own content wrapper layers `childVariant`'s fade+rise on top
+ * of this (see `EditorLayout`'s content vs. `TopBar`), so only the content
+ * appears to shift while the header just fades in place.
+ *
+ * Entrance only, no `exit` — see `PageTransition` for why.
  */
 export const pageVariant: Variants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: [0.4, 0, 0.2, 1] } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.12, ease: [0.4, 0, 1, 1] } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.22, ease: [0.4, 0, 0.2, 1] } },
 };
