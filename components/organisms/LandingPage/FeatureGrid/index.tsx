@@ -17,19 +17,26 @@ export function FeatureGrid() {
       <motion.div className={style.header} {...fadeIn}>
         <h2 className={style.title}>Everything the conversation needs</h2>
         <p className={style.subtitle}>
-          Built for the part of game writing that spreadsheets are bad at: the shape of the branch.
+          Built for the part of game writing that spreadsheets are bad at: the
+          shape of the branch.
         </p>
       </motion.div>
 
       <motion.div className={style.grid} {...fadeIn}>
         {FEATURES.map(({ icon: Icon, title, description }) => (
           <article key={title} className={style.card}>
-            <span className={style.cardIcon}><Icon size={16} /></span>
+            <span className={style.cardIcon}>
+              <Icon size={16} />
+            </span>
             <h3 className={style.cardTitle}>{title}</h3>
             <p className={style.cardDesc}>{description}</p>
           </article>
         ))}
       </motion.div>
+
+      <motion.h2 id="how-it-works" className={style.stepsTitle} {...fadeIn}>
+        How it works
+      </motion.h2>
 
       <motion.ol className={style.steps} {...fadeIn}>
         {STEPS.map(({ number, title, description }) => (

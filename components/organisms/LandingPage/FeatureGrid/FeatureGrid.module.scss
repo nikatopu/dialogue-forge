@@ -74,10 +74,18 @@
 }
 
 /* Three-step walkthrough */
+.stepsTitle {
+  margin: 3rem 0 1.25rem;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 5rem; /* clears the sticky nav when linked to directly */
+}
+
 .steps {
   display: grid;
   gap: 1.5rem;
-  margin: 3rem 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 

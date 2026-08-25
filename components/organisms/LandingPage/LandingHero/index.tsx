@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { GraphPreview } from "./GraphPreview";
 import style from "./LandingHero.module.scss";
+
+const TRUST_CHIPS = [
+  "No account needed",
+  "Free incl. commercial use",
+  "Exports to any engine",
+];
 
 export function LandingHero() {
   return (
@@ -16,35 +22,39 @@ export function LandingHero() {
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
         <span className={style.eyebrow}>
-          <Sparkles size={12} />
-          Free, local-first, no account required
+          Branching dialogue, forged in your browser.
         </span>
 
         <h1 className={style.title}>
-          Branching dialogue,<br />
-          <span className={style.titleAccent}>drawn as a graph</span>
+          The free, zero&#8209;setup
+          <br />
+          <span className={style.titleAccent}>visual dialogue editor</span>
         </h1>
 
         <p className={style.subtitle}>
-          Dialogue Forge is a visual editor for the conversations in your game.
-          Wire up choices, gate them behind variables, play the whole thing back
-          in the browser, then export one structured JSON file your engine can
-          traverse.
+          Design branching conversations as a graph, gate them behind variables
+          and conditions, then export clean JSON to Unity, Godot, Unreal, or any
+          custom runtime. No account, no seat pricing, no lock-in.
         </p>
 
         <div className={style.actions}>
           <Link href="/editor" className={style.primaryCta}>
-            Open the editor
+            Open the editor — no signup
             <ArrowRight size={15} />
           </Link>
-          <Link href="/editor?demo=1" className={style.secondaryCta}>
-            Load the demo project
-          </Link>
+          <a href="#how-it-works" className={style.secondaryCta}>
+            See how it works
+          </a>
         </div>
 
-        <p className={style.note}>
-          Nothing to install. Your work stays in your browser until you choose otherwise.
-        </p>
+        <ul className={style.trustChips}>
+          {TRUST_CHIPS.map((chip) => (
+            <li key={chip} className={style.trustChip}>
+              <Check size={13} />
+              {chip}
+            </li>
+          ))}
+        </ul>
       </motion.div>
 
       <motion.div
