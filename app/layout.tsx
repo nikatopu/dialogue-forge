@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/atoms/Tooltip";
 import { ThemeProvider } from "@/components/organisms/ThemeProvider";
+import { PageTransition } from "@/components/organisms/PageTransition";
 import { Toaster } from "@/components/organisms/Toaster";
 import { CookieConsent } from "@/components/organisms/CookieConsent";
 import { AnalyticsScripts } from "@/components/organisms/AnalyticsScripts";
@@ -91,7 +92,9 @@ export default function RootLayout({
       <body className="h-full">
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <TooltipProvider delayDuration={400}>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <PageTransition>{children}</PageTransition>
+          </ThemeProvider>
         </TooltipProvider>
         <Toaster />
         <CookieConsent />

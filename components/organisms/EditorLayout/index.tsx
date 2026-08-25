@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import cn from "classnames";
+import { fadeVariant } from "@/lib/motionVariants";
 import { PanelRail } from "@/components/atoms/PanelRail";
 import { TopBar } from "@/components/organisms/TopBar";
 import { Sidebar } from "@/components/organisms/Sidebar";
@@ -73,20 +74,29 @@ export function EditorLayout() {
 
   return (
     <div className={style.container}>
-      <TopBar />
+      <motion.div variants={fadeVariant} initial="hidden" animate="visible">
+        <TopBar />
+      </motion.div>
 
       <div className={style.body}>
-        <Sidebar />
+        <motion.div variants={fadeVariant} initial="hidden" animate="visible">
+          <Sidebar />
+        </motion.div>
         {!isMobile && (
           <PanelRail side="left" open={sidebarOpen} onToggle={toggleSidebar} label="Sidebar" />
         )}
 
-        <div className={cn(style.canvasWrapper, isMobile && style.mobileOffset)}>
+        <motion.div
+          className={cn(style.canvasWrapper, isMobile && style.mobileOffset)}
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+        >
           <GraphCanvas />
-        </div>
+        </motion.div>
 
         {!isMobile && (
-          <div className={style.rightGutter}>
+          <motion.div className={style.rightGutter} variants={fadeVariant} initial="hidden" animate="visible">
             <PanelRail side="right" open={inspectorOpen} onToggle={toggleInspector} label="Inspector" />
             <PanelRail
               side="right"
@@ -94,7 +104,7 @@ export function EditorLayout() {
               onToggle={() => setVariablesPanelOpen(!variablesPanelOpen)}
               label="Variables"
             />
-          </div>
+          </motion.div>
         )}
 
         {isMobile ? (
@@ -115,7 +125,11 @@ export function EditorLayout() {
         )}
       </div>
 
-      {!isMobile && <ValidationBar />}
+      {!isMobile && (
+        <motion.div variants={fadeVariant} initial="hidden" animate="visible">
+          <ValidationBar />
+        </motion.div>
+      )}
 
       {isMobile && (
         <>

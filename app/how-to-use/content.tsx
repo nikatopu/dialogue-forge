@@ -25,6 +25,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useBackDestination } from "@/lib/backDestination";
+import { childVariant } from "@/lib/motionVariants";
 
 /* ─── TOC definition ────────────────────────────────────────── */
 
@@ -95,7 +96,7 @@ export function HowToUseContent() {
         </Link>
 
         {/* Hero */}
-        <div className="mb-12">
+        <motion.div className="mb-12" variants={childVariant} initial="hidden" animate="visible">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <Network className="w-5 h-5 text-primary-foreground" />
@@ -109,7 +110,7 @@ export function HowToUseContent() {
             interactive fiction. Design conversations with a node graph, then
             export structured JSON your game engine can traverse at runtime.
           </p>
-        </div>
+        </motion.div>
 
         {/* Mobile collapsible TOC — hidden on lg+ */}
         <div className="lg:hidden mb-8 rounded-xl border border-border/50 bg-card/60 overflow-hidden">
@@ -165,7 +166,12 @@ export function HowToUseContent() {
         {/* Two-column layout */}
         <div className="flex gap-12">
           {/* ── Sticky TOC sidebar (lg+) ── */}
-          <aside className="hidden lg:block w-48 shrink-0">
+          <motion.aside
+            className="hidden lg:block w-48 shrink-0"
+            variants={childVariant}
+            initial="hidden"
+            animate="visible"
+          >
             <div className="sticky top-8">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3 px-3">
                 On this page
@@ -192,12 +198,12 @@ export function HowToUseContent() {
                 </ul>
               </nav>
             </div>
-          </aside>
+          </motion.aside>
 
           {/* ── Main content ── */}
-          <div className="flex-1 min-w-0 space-y-14">
+          <motion.div className="flex-1 min-w-0 space-y-14" variants={childVariant} initial="hidden" animate="visible">
             {/* 1. The Interface */}
-            <section id="interface" aria-labelledby="heading-interface">
+            <motion.section id="interface" aria-labelledby="heading-interface" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-interface"
                 icon={Layers}
@@ -235,10 +241,10 @@ export function HowToUseContent() {
                   </div>
                 ))}
               </div>
-            </section>
+            </motion.section>
 
             {/* 2. Node Types */}
-            <section id="node-types" aria-labelledby="heading-node-types">
+            <motion.section id="node-types" aria-labelledby="heading-node-types" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-node-types"
                 icon={User}
@@ -284,10 +290,10 @@ export function HowToUseContent() {
                   desc="Terminates the conversation. Connect the final node in every path to an End node so your runtime knows when to close the dialogue window."
                 />
               </div>
-            </section>
+            </motion.section>
 
             {/* 3. Building a Graph */}
-            <section id="building" aria-labelledby="heading-building">
+            <motion.section id="building" aria-labelledby="heading-building" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-building"
                 icon={MousePointer}
@@ -327,10 +333,10 @@ export function HowToUseContent() {
                   </li>
                 ))}
               </ol>
-            </section>
+            </motion.section>
 
             {/* 4. Selection & Multi-Select */}
-            <section id="selection" aria-labelledby="heading-selection">
+            <motion.section id="selection" aria-labelledby="heading-selection" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-selection"
                 icon={Copy}
@@ -369,10 +375,10 @@ export function HowToUseContent() {
                   remove just that edge without touching its nodes.
                 </p>
               </div>
-            </section>
+            </motion.section>
 
             {/* 5. Keyboard Shortcuts */}
-            <section id="shortcuts" aria-labelledby="heading-shortcuts">
+            <motion.section id="shortcuts" aria-labelledby="heading-shortcuts" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-shortcuts"
                 icon={Keyboard}
@@ -422,10 +428,10 @@ export function HowToUseContent() {
                   </div>
                 ))}
               </div>
-            </section>
+            </motion.section>
 
             {/* 6. Saving & Loading */}
-            <section id="saving" aria-labelledby="heading-saving">
+            <motion.section id="saving" aria-labelledby="heading-saving" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-saving"
                 icon={Download}
@@ -456,10 +462,10 @@ export function HowToUseContent() {
                   walk through every branch before exporting.
                 </InfoRow>
               </div>
-            </section>
+            </motion.section>
 
             {/* 7. Variables */}
-            <section id="variables" aria-labelledby="heading-variables">
+            <motion.section id="variables" aria-labelledby="heading-variables" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-variables"
                 icon={Code2}
@@ -511,10 +517,10 @@ export function HowToUseContent() {
                   </div>
                 ))}
               </div>
-            </section>
+            </motion.section>
 
             {/* 8. Variable Interpolation */}
-            <section id="interpolation" aria-labelledby="heading-interpolation">
+            <motion.section id="interpolation" aria-labelledby="heading-interpolation" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-interpolation"
                 icon={Code2}
@@ -567,10 +573,10 @@ export function HowToUseContent() {
 "Your current level is {stats.level} and your speed is {stats.speed}."
 "The password is {secretCode}."`}</CodeBlock>
               </div>
-            </section>
+            </motion.section>
 
             {/* 9. Conditions */}
-            <section id="conditions" aria-labelledby="heading-conditions">
+            <motion.section id="conditions" aria-labelledby="heading-conditions" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-conditions"
                 icon={GitBranch}
@@ -754,10 +760,10 @@ export function HowToUseContent() {
                   </div>
                 </div>
               </div>
-            </section>
+            </motion.section>
 
             {/* 10. State Preview */}
-            <section id="state-preview" aria-labelledby="heading-state-preview">
+            <motion.section id="state-preview" aria-labelledby="heading-state-preview" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-state-preview"
                 icon={Play}
@@ -808,10 +814,10 @@ export function HowToUseContent() {
                   display.
                 </p>
               </div>
-            </section>
+            </motion.section>
 
             {/* 11. The Exported JSON */}
-            <section id="json-format" aria-labelledby="heading-json-format">
+            <motion.section id="json-format" aria-labelledby="heading-json-format" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-json-format"
                 icon={FileJson}
@@ -896,10 +902,10 @@ export function HowToUseContent() {
     "metadata": {}                     // reserved for custom data
   }
 }`}</CodeBlock>
-            </section>
+            </motion.section>
 
             {/* 8. Runtime integration */}
-            <section id="runtime" aria-labelledby="heading-runtime">
+            <motion.section id="runtime" aria-labelledby="heading-runtime" variants={childVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}>
               <SectionHeading
                 id="heading-runtime"
                 icon={Code2}
@@ -1098,8 +1104,8 @@ while (!runner.isEnded) {
                   </li>
                 </ul>
               </div>
-            </section>
-          </div>
+            </motion.section>
+          </motion.div>
           {/* end main content */}
         </div>
         {/* end two-column */}

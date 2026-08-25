@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Workflow,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBackDestination } from "@/lib/backDestination";
+import { childVariant } from "@/lib/motionVariants";
 import {
   CHANGELOG,
   ROADMAP,
@@ -181,7 +183,12 @@ export function RoadmapContent() {
       </header>
 
       {/* Hero */}
-      <div className="max-w-3xl mx-auto px-5 pt-10 pb-6">
+      <motion.div
+        className="max-w-3xl mx-auto px-5 pt-10 pb-6"
+        variants={childVariant}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="mb-1">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">
             Product Roadmap
@@ -193,7 +200,7 @@ export function RoadmapContent() {
         <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
           Every release so far, in detail, and a look at what&apos;s coming next.
         </p>
-      </div>
+      </motion.div>
 
       <div className="max-w-3xl mx-auto px-5 pb-16 space-y-10">
         <section>
@@ -202,12 +209,15 @@ export function RoadmapContent() {
           </h2>
           <div className="space-y-3">
             {CHANGELOG.map((release, i) => (
-              <ReleaseCard
+              <motion.div
                 key={release.version}
-                release={release}
-                isLatest={i === 0}
-                defaultOpen={i === 0}
-              />
+                variants={childVariant}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-80px" }}
+              >
+                <ReleaseCard release={release} isLatest={i === 0} defaultOpen={i === 0} />
+              </motion.div>
             ))}
           </div>
         </section>
@@ -218,7 +228,15 @@ export function RoadmapContent() {
           </h2>
           <div className="rounded-xl border border-border/50 bg-card px-4 divide-y divide-border/30">
             {ROADMAP.map((item) => (
-              <RoadmapRow key={item.version} item={item} />
+              <motion.div
+                key={item.version}
+                variants={childVariant}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+              >
+                <RoadmapRow item={item} />
+              </motion.div>
             ))}
           </div>
         </section>
