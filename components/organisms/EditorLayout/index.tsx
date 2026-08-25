@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import cn from "classnames";
+import { childVariant } from "@/lib/motionVariants";
 import { PanelRail } from "@/components/atoms/PanelRail";
 import { TopBar } from "@/components/organisms/TopBar";
 import { Sidebar } from "@/components/organisms/Sidebar";
@@ -13,6 +14,7 @@ import { GraphCanvas } from "@/components/organisms/GraphCanvas";
 import { ValidationBar } from "@/components/organisms/ValidationBar";
 import { PreviewModal } from "@/components/organisms/PreviewModal";
 import { SettingsPanel } from "@/components/organisms/SettingsPanel";
+import { WhatsNewModal } from "@/components/organisms/WhatsNewModal";
 import { VariablesPanel } from "@/components/organisms/VariablesPanel";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useValidationStore } from "@/store/useValidationStore";
@@ -21,15 +23,26 @@ import { useVariableStore } from "@/store/useVariableStore";
 import { validateGraph } from "@/lib/validate";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { useActivationTracking } from "./useActivationTracking";
+import { useDemoLaunch } from "./useDemoLaunch";
 import { useProjectStore } from "@/store/useProjectStore";
 import style from "./EditorLayout.module.scss";
 
 export function EditorLayout() {
   const setIssues = useValidationStore((s) => s.setIssues);
   const {
-    previewOpen, setPreviewOpen, selectedNodeId, selectedEdgeId, setMobileInspectorOpen,
-    sidebarOpen, toggleSidebar, inspectorOpen, toggleInspector, setInspectorOpen,
-    variablesPanelOpen, setVariablesPanelOpen,
+    previewOpen,
+    setPreviewOpen,
+    selectedNodeId,
+    selectedEdgeId,
+    setMobileInspectorOpen,
+    sidebarOpen,
+    toggleSidebar,
+    inspectorOpen,
+    toggleInspector,
+    setInspectorOpen,
+    variablesPanelOpen,
+    setVariablesPanelOpen,
   } = useEditorStore();
   const variables = useVariableStore((s) => s.variables);
   const isMobile = useIsMobile();
@@ -40,6 +53,8 @@ export function EditorLayout() {
   }, [initAuth]);
 
   useCloudSync();
+  useDemoLaunch();
+  useActivationTracking();
 
   useEffect(() => {
     const { nodes, edges } = useGraphStore.getState();
@@ -68,28 +83,52 @@ export function EditorLayout() {
 
   return (
     <div className={style.container}>
+      {/* Header stays outside the content's motion — it only inherits
+          PageTransition's fade, it never translates. */}
       <TopBar />
 
       <div className={style.body}>
-        <Sidebar />
+        <motion.div variants={childVariant} initial="hidden" animate="visible">
+          <Sidebar />
+        </motion.div>
         {!isMobile && (
-          <PanelRail side="left" open={sidebarOpen} onToggle={toggleSidebar} label="Sidebar" />
+          <PanelRail
+            side="left"
+            open={sidebarOpen}
+            onToggle={toggleSidebar}
+            label="Sidebar"
+          />
         )}
 
-        <div className={cn(style.canvasWrapper, isMobile && style.mobileOffset)}>
+        <motion.div
+          className={cn(style.canvasWrapper, isMobile && style.mobileOffset)}
+          variants={childVariant}
+          initial="hidden"
+          animate="visible"
+        >
           <GraphCanvas />
-        </div>
+        </motion.div>
 
         {!isMobile && (
-          <div className={style.rightGutter}>
-            <PanelRail side="right" open={inspectorOpen} onToggle={toggleInspector} label="Inspector" />
+          <motion.div
+            className={style.rightGutter}
+            variants={childVariant}
+            initial="hidden"
+            animate="visible"
+          >
+            <PanelRail
+              side="right"
+              open={inspectorOpen}
+              onToggle={toggleInspector}
+              label="Inspector"
+            />
             <PanelRail
               side="right"
               open={variablesPanelOpen}
               onToggle={() => setVariablesPanelOpen(!variablesPanelOpen)}
               label="Variables"
             />
-          </div>
+          </motion.div>
         )}
 
         {isMobile ? (
@@ -110,7 +149,11 @@ export function EditorLayout() {
         )}
       </div>
 
-      {!isMobile && <ValidationBar />}
+      {!isMobile && (
+        <motion.div variants={childVariant} initial="hidden" animate="visible">
+          <ValidationBar />
+        </motion.div>
+      )}
 
       {isMobile && (
         <>
@@ -121,6 +164,7 @@ export function EditorLayout() {
 
       <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} />
       <SettingsPanel />
+      <WhatsNewModal />
     </div>
   );
 }

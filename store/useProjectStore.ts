@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { createClient } from "@/lib/supabase/client";
 import { projectService, FREE_PLAN_CLOUD_LIMIT } from "@/lib/services/projectService";
 import { analyticsService } from "@/lib/analytics/analyticsService";
+import { track } from "@/lib/analytics";
 import type { CloudProject, AuthUser } from "@/types";
 
 interface ProjectStore {
@@ -139,6 +140,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       cloudProjectCount: s.cloudProjectCount + 1,
     }));
     analyticsService.track("project_created", { mode: "cloud" });
+    track("project_created", { source: "cloud" });
     return project;
   },
 

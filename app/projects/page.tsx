@@ -133,7 +133,7 @@ export default function ProjectsPage() {
     catch { toast.error("Failed to rename project."); }
   }
 
-  function handleOpenLocal() { setCurrentProjectId(null); router.push("/"); }
+  function handleOpenLocal() { setCurrentProjectId(null); router.push("/editor"); }
 
   const FILTERS: { id: SidebarFilter; label: string; icon: React.ElementType }[] = [
     { id: "all",    label: "All Projects", icon: FolderOpen },
@@ -192,7 +192,7 @@ export default function ProjectsPage() {
 
       <div className={style.main}>
         <header className={style.topBar}>
-          <Link href="/" className={style.backLink}>
+          <Link href="/editor" className={style.backLink}>
             <ArrowLeft size={14} />Editor
           </Link>
           <div className={style.topBarDivider} />

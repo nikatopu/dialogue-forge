@@ -1,5 +1,5 @@
-import { EditorLayout } from "@/components/organisms/EditorLayout";
+import { LandingPage } from "@/components/organisms/LandingPage";
 
 export default function Home() {
-  return <EditorLayout />;
+  return <LandingPage />;
 }

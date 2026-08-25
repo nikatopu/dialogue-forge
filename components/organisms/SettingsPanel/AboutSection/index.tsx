@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Map, BookOpen, LifeBuoy, ExternalLink } from "lucide-react";
 import { Separator } from "@/components/atoms/Separator";
+import { APP_VERSION } from "@/lib/version";
 import sections from "../sections.module.scss";
 import style from "./AboutSection.module.scss";
 
@@ -13,18 +14,18 @@ export function AboutSection() {
       <div className={style.aboutCard}>
         <p className={style.aboutTitle}>Dialogue Forge</p>
         <p className={style.aboutDesc}>A visual branching dialogue editor for games and interactive fiction. Build node-based conversation graphs and export structured JSON for any engine.</p>
-        <p className={style.aboutVersion}>Version 1.4.2</p>
+        <p className={style.aboutVersion}>Version {APP_VERSION}</p>
       </div>
       <div className={style.linkList}>
-        <a href="/support" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
+        <a href="/support?from=editor" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
           <div className={style.linkLeft}><LifeBuoy size={14} />Support &amp; FAQ</div>
           <ExternalLink size={12} className={style.externalIcon} />
         </a>
-        <a href="/roadmap" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
+        <a href="/roadmap?from=editor" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
           <div className={style.linkLeft}><Map size={14} />Roadmap</div>
           <ExternalLink size={12} className={style.externalIcon} />
         </a>
-        <a href="/how-to-use" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
+        <a href="/how-to-use?from=editor" target="_blank" rel="noopener noreferrer" className={style.linkItem}>
           <div className={style.linkLeft}><BookOpen size={14} />How to use</div>
           <ExternalLink size={12} className={style.externalIcon} />
         </a>

@@ -4,6 +4,7 @@ import { useIsMobile } from "@/hooks/useBreakpoint";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGraphStore } from "@/store/useGraphStore";
 import { computeAutoLayout } from "@/lib/autoLayout";
+import { trackNodeAdded } from "@/lib/analytics/funnel";
 import type { ForgeNodeType, ForgeNode } from "@/types";
 
 export function useCanvasInteractions() {
@@ -30,8 +31,14 @@ export function useCanvasInteractions() {
     const nodeType = e.dataTransfer.getData("application/forge-node-type") as ForgeNodeType;
     if (!nodeType) return;
     const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+    const previousNodeCount = useGraphStore.getState().nodes.length;
     const id = addNode(nodeType, position);
     setSelectedNodeId(id);
+    trackNodeAdded({
+      nodeType,
+      previousNodeCount,
+      projectId: useEditorStore.getState().currentProjectId,
+    });
   }, [screenToFlowPosition, addNode, setSelectedNodeId]);
 
   const onNodeClick = useCallback<NodeMouseHandler>((_, node) => {

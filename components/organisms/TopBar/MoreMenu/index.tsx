@@ -87,19 +87,19 @@ export function MoreMenu({
           <MenuItem
             icon={Map}
             label="Roadmap"
-            href="/roadmap"
+            href="/roadmap?from=editor"
             onClick={() => setOpen(false)}
           />
           <MenuItem
             icon={BookOpen}
             label="How to use"
-            href="/how-to-use"
+            href="/how-to-use?from=editor"
             onClick={() => setOpen(false)}
           />
           <MenuItem
             icon={LifeBuoy}
             label="Support"
-            href="/support"
+            href="/support?from=editor"
             onClick={() => setOpen(false)}
           />
           <div className={style.menuDivider} />

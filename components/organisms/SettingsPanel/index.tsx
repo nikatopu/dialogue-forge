@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useEditorStore } from "@/store/useEditorStore";
+import { childVariant, fadeVariant } from "@/lib/motionVariants";
 import { NAV_ITEMS, type SettingsSection } from "./settingsConfig";
 import { SettingsNav } from "./SettingsNav";
 import { GeneralSection } from "./GeneralSection";
@@ -33,10 +34,10 @@ export function SettingsPanel() {
     <AnimatePresence>
       {settingsOpen && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
           className={style.overlay}
         >
           <SettingsNav section={section} onSelect={setSection} />
@@ -47,7 +48,7 @@ export function SettingsPanel() {
               <button type="button" aria-label="Close settings" onClick={close} className={style.closeBtn}><X size={16} /></button>
             </div>
             <div className={style.sectionScroll}>
-              <motion.div key={section} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }} className={style.sectionPad}>
+              <motion.div key={section} variants={childVariant} initial="hidden" animate="visible" className={style.sectionPad}>
                 {section === "general" && <GeneralSection onClose={close} />}
                 {section === "appearance" && <AppearanceSection />}
                 {section === "shortcuts" && <ShortcutsSection />}
