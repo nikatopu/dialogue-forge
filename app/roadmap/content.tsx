@@ -5,10 +5,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Workflow,
-  CheckCircle2,
-  Clock,
-  Circle,
-  Sparkles,
   ChevronDown,
   MessageSquare,
   GitBranch,
@@ -16,260 +12,119 @@ import {
 import { cn } from "@/lib/utils";
 import { useBackDestination } from "@/lib/backDestination";
 import {
+  CHANGELOG,
   ROADMAP,
-  STATUS_COLUMNS,
   STATUS_LABELS,
-  type RoadmapEntry,
-  type RoadmapStatus,
+  type ChangelogRelease,
+  type RoadmapItem,
 } from "@/lib/roadmap";
 
-/* ─── Status config ─────────────────────────────────────── */
+const REPO_URL = "https://github.com/nikatopu/dialogue-forge";
 
-const STATUS_STYLE: Record<
-  RoadmapStatus,
-  {
-    icon: React.ComponentType<{ className?: string }>;
-    chip: string;
-    col: string;
-    dot: string;
-  }
-> = {
-  completed: {
-    icon: CheckCircle2,
-    chip: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-    col: "border-emerald-500/20",
-    dot: "bg-emerald-500",
-  },
-  "in-progress": {
-    icon: Clock,
-    chip: "text-primary bg-primary/10 border-primary/20",
-    col: "border-primary/30",
-    dot: "bg-primary",
-  },
-  planned: {
-    icon: Circle,
-    chip: "text-muted-foreground bg-muted/50 border-border/50",
-    col: "border-border/40",
-    dot: "bg-muted-foreground/40",
-  },
-  future: {
-    icon: Sparkles,
-    chip: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    col: "border-amber-500/20",
-    dot: "bg-amber-500",
-  },
-};
+/* ─── Release card (past updates, in detail) ─────────────────────────── */
 
-/* ─── Entry card ─────────────────────────────────────────── */
-
-function EntryCard({ entry }: { entry: RoadmapEntry }) {
-  const style = STATUS_STYLE[entry.status];
-  const Icon = style.icon;
+function ReleaseCard({
+  release,
+  isLatest,
+  defaultOpen,
+}: {
+  release: ChangelogRelease;
+  isLatest: boolean;
+  defaultOpen: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3 hover:border-border/80 transition-colors">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-[10px] font-medium bg-muted/60 border border-border/50 rounded px-1.5 py-0.5 text-muted-foreground">
-            {entry.version}
-          </span>
-          <span
-            className={cn(
-              "flex items-center gap-1 text-[10px] font-medium border rounded-full px-2 py-0.5",
-              style.chip,
-            )}
-          >
-            <Icon className="w-2.5 h-2.5" />
-            {STATUS_LABELS[entry.status]}
-          </span>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-semibold mb-1">{entry.title}</h3>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {entry.description}
-        </p>
-      </div>
-
-      {entry.status === "in-progress" && entry.progress !== undefined && (
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-muted-foreground">Progress</span>
-            <span className="text-[10px] font-medium tabular-nums text-primary">
-              {entry.progress}%
-            </span>
-          </div>
-          <div className="h-1 rounded-full bg-muted/50 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-primary/70 transition-all"
-              style={{ width: `${entry.progress}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      <ul className="space-y-1">
-        {entry.features.map((f) => (
-          <li
-            key={f}
-            className="flex items-start gap-1.5 text-xs text-muted-foreground/80"
-          >
-            <span
-              className={cn("w-1 h-1 rounded-full shrink-0 mt-1.5", style.dot)}
-            />
-            {f}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ─── Accordion item (mobile) ────────────────────────────── */
-
-function AccordionEntry({ entry }: { entry: RoadmapEntry }) {
-  const [open, setOpen] = useState(entry.status === "in-progress");
-  const style = STATUS_STYLE[entry.status];
-  const Icon = style.icon;
-
-  return (
-    <div className="border border-border/50 rounded-xl overflow-hidden">
+    <article className="rounded-xl border border-border/50 bg-card overflow-hidden">
       <button
         type="button"
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/20 transition-colors cursor-pointer"
+        className="w-full flex items-start justify-between gap-3 px-5 py-4 text-left hover:bg-muted/20 transition-colors cursor-pointer"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span
-            className={cn(
-              "flex items-center justify-center w-6 h-6 rounded-full shrink-0",
-              entry.status === "completed"
-                ? "bg-emerald-500/15"
-                : entry.status === "in-progress"
-                  ? "bg-primary/15"
-                  : entry.status === "future"
-                    ? "bg-amber-500/15"
-                    : "bg-muted/40",
-            )}
-          >
-            <Icon
-              className={cn(
-                "w-3 h-3",
-                entry.status === "completed"
-                  ? "text-emerald-400"
-                  : entry.status === "in-progress"
-                    ? "text-primary"
-                    : entry.status === "future"
-                      ? "text-amber-400"
-                      : "text-muted-foreground",
-              )}
-            />
-          </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[10px] text-muted-foreground">
-                {entry.version}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1.5">
+            <span className="font-mono text-[10px] font-medium bg-muted/60 border border-border/50 rounded px-1.5 py-0.5 text-muted-foreground">
+              {release.version}
+            </span>
+            {isLatest && (
+              <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-0.5">
+                Latest
               </span>
-              <span className="text-sm font-medium truncate">
-                {entry.title}
-              </span>
-            </div>
-            {!open && (
-              <p className="text-xs text-muted-foreground truncate">
-                {entry.description}
-              </p>
             )}
+            <span className="text-[10px] text-muted-foreground">{release.date}</span>
           </div>
+          <h3 className="text-sm font-semibold">{release.title}</h3>
+          {!open && (
+            <p className="text-xs text-muted-foreground mt-1 truncate">{release.summary}</p>
+          )}
         </div>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-muted-foreground shrink-0 transition-transform",
+            "w-4 h-4 text-muted-foreground shrink-0 mt-1 transition-transform",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="px-4 pb-4 space-y-3 border-t border-border/30">
-          <p className="text-xs text-muted-foreground leading-relaxed pt-3">
-            {entry.description}
-          </p>
+        <div className="px-5 pb-5 pt-4 border-t border-border/30 space-y-4">
+          <p className="text-sm text-muted-foreground leading-relaxed">{release.summary}</p>
 
-          {entry.status === "in-progress" && entry.progress !== undefined && (
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground">
-                  Progress
-                </span>
-                <span className="text-[10px] font-medium tabular-nums text-primary">
-                  {entry.progress}%
-                </span>
+          <div className="space-y-3.5">
+            {release.sections.map((section) => (
+              <div key={section.heading}>
+                <h4 className="text-xs font-semibold mb-1.5">{section.heading}</h4>
+                <ul className="space-y-1">
+                  {section.items.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-1.5 text-xs text-muted-foreground leading-relaxed"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40 shrink-0 mt-1.5" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="h-1 rounded-full bg-muted/50 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary/70"
-                  style={{ width: `${entry.progress}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          <ul className="space-y-1.5">
-            {entry.features.map((f) => (
-              <li
-                key={f}
-                className="flex items-start gap-1.5 text-xs text-muted-foreground"
-              >
-                <span
-                  className={cn(
-                    "w-1 h-1 rounded-full shrink-0 mt-1.5",
-                    style.dot,
-                  )}
-                />
-                {f}
-              </li>
             ))}
-          </ul>
+          </div>
+
+          {release.previousVersion && (
+            <a
+              href={`${REPO_URL}/compare/${release.previousVersion}...${release.version}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <GitBranch className="w-3 h-3" />
+              Full changelog: {release.previousVersion}...{release.version}
+            </a>
+          )}
         </div>
       )}
-    </div>
+    </article>
   );
 }
 
-/* ─── Column header (desktop Kanban) ─────────────────────── */
+/* ─── Roadmap row (what's next, title only) ──────────────────────────── */
 
-function ColumnHeader({
-  status,
-  count,
-}: {
-  status: RoadmapStatus;
-  count: number;
-}) {
-  const style = STATUS_STYLE[status];
-  const Icon = style.icon;
-
+function RoadmapRow({ item }: { item: RoadmapItem }) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">
-        <Icon
-          className={cn(
-            "w-3.5 h-3.5",
-            status === "completed"
-              ? "text-emerald-400"
-              : status === "in-progress"
-                ? "text-primary"
-                : status === "future"
-                  ? "text-amber-400"
-                  : "text-muted-foreground",
-          )}
-        />
-        <span className="text-xs font-semibold tracking-wide">
-          {STATUS_LABELS[status]}
-        </span>
-      </div>
-      <span className="text-[10px] font-medium tabular-nums bg-muted/50 border border-border/40 rounded-full px-1.5 py-0.5 text-muted-foreground">
-        {count}
+    <div className="flex items-center gap-3 py-2.5">
+      <span className="font-mono text-[10px] text-muted-foreground w-9 shrink-0">
+        {item.version}
+      </span>
+      <span className="text-sm flex-1 min-w-0 truncate">{item.title}</span>
+      <span
+        className={cn(
+          "text-[10px] font-medium border rounded-full px-2 py-0.5 shrink-0",
+          item.status === "future"
+            ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+            : "text-muted-foreground bg-muted/50 border-border/50",
+        )}
+      >
+        {STATUS_LABELS[item.status]}
       </span>
     </div>
   );
@@ -279,9 +134,6 @@ function ColumnHeader({
 
 export function RoadmapContent() {
   const back = useBackDestination();
-  const byStatus = Object.fromEntries(
-    STATUS_COLUMNS.map((s) => [s, ROADMAP.filter((e) => e.status === s)]),
-  ) as Record<RoadmapStatus, RoadmapEntry[]>;
 
   return (
     <div className="min-h-full bg-background text-foreground">
@@ -317,7 +169,7 @@ export function RoadmapContent() {
             <span className="hidden sm:block">Feedback</span>
           </a>
           <a
-            href="https://github.com/nikatopu/dialogue-forge"
+            href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted/40 cursor-pointer"
@@ -329,7 +181,7 @@ export function RoadmapContent() {
       </header>
 
       {/* Hero */}
-      <div className="max-w-6xl mx-auto px-5 pt-10 pb-6">
+      <div className="max-w-3xl mx-auto px-5 pt-10 pb-6">
         <div className="mb-1">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">
             Product Roadmap
@@ -339,68 +191,37 @@ export function RoadmapContent() {
           Dialogue Forge Roadmap
         </h1>
         <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
-          Where we&apos;ve been, where we&apos;re going. Track shipped features
-          and upcoming work.
+          Every release so far, in detail, and a look at what&apos;s coming next.
         </p>
       </div>
 
-      {/* ── Desktop: Kanban ── */}
-      <div className="hidden md:block max-w-6xl mx-auto px-5 pb-16">
-        <div className="grid grid-cols-4 gap-4">
-          {STATUS_COLUMNS.map((status) => (
-            <div key={status}>
-              <ColumnHeader status={status} count={byStatus[status].length} />
-              <div className="space-y-3">
-                {byStatus[status].map((entry) => (
-                  <EntryCard key={entry.version} entry={entry} />
-                ))}
-                {byStatus[status].length === 0 && (
-                  <div className="rounded-xl border border-dashed border-border/30 p-4 text-xs text-muted-foreground/50 text-center">
-                    Nothing here yet
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Mobile: Accordion ── */}
-      <div className="md:hidden max-w-xl mx-auto px-4 pb-16 space-y-6">
-        {STATUS_COLUMNS.map((status) => (
-          <div key={status}>
-            <div className="flex items-center gap-2 mb-2">
-              {(() => {
-                const Icon = STATUS_STYLE[status].icon;
-                return (
-                  <Icon
-                    className={cn(
-                      "w-3.5 h-3.5",
-                      status === "completed"
-                        ? "text-emerald-400"
-                        : status === "in-progress"
-                          ? "text-primary"
-                          : status === "future"
-                            ? "text-amber-400"
-                            : "text-muted-foreground",
-                    )}
-                  />
-                );
-              })()}
-              <span className="text-xs font-semibold tracking-wide">
-                {STATUS_LABELS[status]}
-              </span>
-              <span className="text-[10px] text-muted-foreground tabular-nums">
-                ({byStatus[status].length})
-              </span>
-            </div>
-            <div className="space-y-2">
-              {byStatus[status].map((entry) => (
-                <AccordionEntry key={entry.version} entry={entry} />
-              ))}
-            </div>
+      <div className="max-w-3xl mx-auto px-5 pb-16 space-y-10">
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Release notes
+          </h2>
+          <div className="space-y-3">
+            {CHANGELOG.map((release, i) => (
+              <ReleaseCard
+                key={release.version}
+                release={release}
+                isLatest={i === 0}
+                defaultOpen={i === 0}
+              />
+            ))}
           </div>
-        ))}
+        </section>
+
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            What&apos;s next
+          </h2>
+          <div className="rounded-xl border border-border/50 bg-card px-4 divide-y divide-border/30">
+            {ROADMAP.map((item) => (
+              <RoadmapRow key={item.version} item={item} />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

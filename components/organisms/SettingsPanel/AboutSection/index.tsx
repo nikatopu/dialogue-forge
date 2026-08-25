@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Map, BookOpen, LifeBuoy, ExternalLink } from "lucide-react";
 import { Separator } from "@/components/atoms/Separator";
+import { APP_VERSION } from "@/lib/version";
 import sections from "../sections.module.scss";
 import style from "./AboutSection.module.scss";
 
@@ -13,7 +14,7 @@ export function AboutSection() {
       <div className={style.aboutCard}>
         <p className={style.aboutTitle}>Dialogue Forge</p>
         <p className={style.aboutDesc}>A visual branching dialogue editor for games and interactive fiction. Build node-based conversation graphs and export structured JSON for any engine.</p>
-        <p className={style.aboutVersion}>Version 1.4.2</p>
+        <p className={style.aboutVersion}>Version {APP_VERSION}</p>
       </div>
       <div className={style.linkList}>
         <a href="/support?from=editor" target="_blank" rel="noopener noreferrer" className={style.linkItem}>

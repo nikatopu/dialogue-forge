@@ -13,6 +13,7 @@ import { GraphCanvas } from "@/components/organisms/GraphCanvas";
 import { ValidationBar } from "@/components/organisms/ValidationBar";
 import { PreviewModal } from "@/components/organisms/PreviewModal";
 import { SettingsPanel } from "@/components/organisms/SettingsPanel";
+import { WhatsNewModal } from "@/components/organisms/WhatsNewModal";
 import { VariablesPanel } from "@/components/organisms/VariablesPanel";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useValidationStore } from "@/store/useValidationStore";
@@ -125,6 +126,7 @@ export function EditorLayout() {
 
       <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} />
       <SettingsPanel />
+      <WhatsNewModal />
     </div>
   );
 }

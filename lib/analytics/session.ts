@@ -83,6 +83,18 @@ export function registerVisit(): ReturnVisit | null {
   };
 }
 
+/**
+ * Whether this browser has a visit recorded from before this page load —
+ * read-only, and safe to call during render rather than only from an effect.
+ * Any code that needs a synchronous "is this visitor new or returning?" read
+ * (the What's New popup, for one) should use this rather than `registerVisit`:
+ * that function mutates the record and only reports a return on the first
+ * call of a new session, which is the wrong shape for a plain read.
+ */
+export function hasPriorSession(): boolean {
+  return read() !== null;
+}
+
 /** Dev capture view only — forces the next load to look like a return visit. */
 export function resetVisits(): void {
   try {
