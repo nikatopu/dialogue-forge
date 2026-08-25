@@ -19,6 +19,54 @@ export interface ChangelogRelease {
 /** Every shipped release, newest first. Mirrors the GitHub release notes. */
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: "v1.4.3",
+    previousVersion: "v1.4.2",
+    title: "Landing Page Relaunch & Visitor Analytics",
+    date: "Aug 25, 2026",
+    summary:
+      "The public site gets a real value proposition, an SEO pass, and a proper changelog — and under the hood, the app can now see which engines people actually export for.",
+    sections: [
+      {
+        heading: "New landing page",
+        items: [
+          'Hero rewritten around a clear value prop, with a no-signup "Open the editor" CTA and an in-page "See how it works" link',
+          "Three trust chips: no account needed, free including commercial use, exports to any engine",
+          "The hero graph visual now shows the full loop, ending in a dialogue.json export card",
+          "Smooth page-to-page transitions and staggered entrance animations across the marketing pages and the editor",
+        ],
+      },
+      {
+        heading: "Better SEO",
+        items: [
+          "New title, description, and a real 1200×630 Open Graph / Twitter card image",
+          "staging.dialogueforge.org is now excluded from indexing — a noindex header plus a host-aware robots.txt keep search engines on production only",
+        ],
+      },
+      {
+        heading: "Release notes & What's New",
+        items: [
+          "The roadmap page is now a real changelog: past releases as expandable detailed cards, upcoming work as a simple planned/future list",
+          'Returning visitors get a one-time "What\'s New" popup summarizing the latest release, with Support and How-to-use links',
+        ],
+      },
+      {
+        heading: "Visitor & activation analytics",
+        items: [
+          "Anonymous, cookieless visit tracking across the whole activation funnel — landing, first node, first branch, first export",
+          "First-touch campaign attribution (UTM parameters and referrer), and a dev-only live capture view at /dev/analytics",
+        ],
+      },
+      {
+        heading: "Engine export tracking",
+        items: [
+          "A one-time picker asks which engine (Unity, Godot, Unreal, or other) a save or export is for, and remembers the answer",
+          "Exports are now tagged by engine, so we can see what people are actually building for",
+        ],
+      },
+    ],
+  },
+
+  {
     version: "v1.4.2",
     previousVersion: "v1.4.1",
     title: "Light Mode & Reworked Workspace",
@@ -78,7 +126,7 @@ export const CHANGELOG: ChangelogRelease[] = [
       {
         heading: "What's new",
         items: [
-          "Use variables directly in dialogue text, e.g. \"So we finally meet, {playerName}.\"",
+          'Use variables directly in dialogue text, e.g. "So we finally meet, {playerName}."',
           "Player name and custom text variable support",
           "Dynamic text replacement during preview and at runtime",
           "New variable types and advanced condition operators",
@@ -195,7 +243,7 @@ export const CHANGELOG: ChangelogRelease[] = [
       {
         heading: "Project management",
         items: [
-          "Per-project \"Move to Cloud\", with the option to keep a local copy",
+          'Per-project "Move to Cloud", with the option to keep a local copy',
           "Dashboard views for All, Recent, Cloud, and Local",
           "Immediate dashboard refresh and correct project counts",
         ],
@@ -306,7 +354,8 @@ export const CHANGELOG: ChangelogRelease[] = [
     version: "v1.0.1",
     title: "Branch Editor Improvements",
     date: "May 20, 2026",
-    summary: "A patch release focused on dialogue authoring workflow improvements.",
+    summary:
+      "A patch release focused on dialogue authoring workflow improvements.",
     sections: [
       {
         heading: "Fixed",
