@@ -55,7 +55,10 @@ export default function ProjectsPage() {
     }
   }, [user, nodes.length]);
 
-  useEffect(() => { if (user) loadProjects(); }, [user, loadProjects]);
+  // Keyed on `user?.id`, not the `user` object, so a token-refresh event
+  // (which produces a new-but-equivalent user object) doesn't re-trigger a
+  // full project reload — only an actual sign-in/out/account-switch does.
+  useEffect(() => { if (user?.id) loadProjects(); }, [user?.id, loadProjects]);
 
   const localDraft: CloudProject | null = useMemo(() => {
     if (nodes.length === 0) return null;
@@ -68,6 +71,7 @@ export default function ProjectsPage() {
         nodes: nodes as unknown as import("@/types").SerialNode[],
         edges: edges as unknown as import("@/types").SerialEdge[],
       },
+      nodeCount: nodes.length,
       previewImage: null,
       mode: "local",
       isTemplate: false,
@@ -112,6 +116,7 @@ export default function ProjectsPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       if (!navigator.onLine) toast.error("You're offline. Connect and try again.");
+      else if (msg.toLowerCase().includes("limit reached")) toast.error(msg);
       else if (msg.toLowerCase().includes("auth")) toast.error("Session expired. Please sign in again.");
       else toast.error("Failed to create project. Please try again.");
     }
@@ -333,7 +338,7 @@ function LocalDraftCard({ project, onOpen, onMoveToCloud, index, isSignedIn, can
       </div>
       <div className={style.draftBody}>
         <p className={style.draftName} onClick={onOpen}>{project.name}</p>
-        <p className={style.draftMeta}>{project.graph.nodes.length} nodes · local only</p>
+        <p className={style.draftMeta}>{project.nodeCount} nodes · local only</p>
       </div>
       {isSignedIn && (
         <div className={style.draftAction}>

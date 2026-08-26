@@ -35,6 +35,19 @@ interface ProjectStore {
   cloudProjectCount: number;
 }
 
+/*
+ * `createClient()` returns a browser-wide singleton (see @supabase/ssr), so
+ * every call to `initAuth()` — e.g. every time <EditorLayout> mounts, which
+ * happens on every project open — would otherwise register a *new*
+ * `onAuthStateChange` listener on the same underlying client, forever. Each
+ * leaked listener re-fires on every subsequent auth event (including the
+ * hourly token refresh), so after opening N projects in one session, a
+ * single token refresh would trigger N duplicate `loadProjects()` calls —
+ * each a full project-list query. Guard so the listener is registered once
+ * per page load, no matter how many times `initAuth()` is called.
+ */
+let authListenerRegistered = false;
+
 function mapUser(supabaseUser: {
   id: string;
   email?: string | null;
@@ -81,14 +94,26 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       get().loadProjects();
     }
 
-    // Subscribe to auth state changes
+    // Subscribe to auth state changes — exactly once per page load (see
+    // `authListenerRegistered` above). initAuth() itself may run again on
+    // every <EditorLayout> mount; only the listener registration is guarded.
+    if (authListenerRegistered) return;
+    authListenerRegistered = true;
+
     supabase.auth.onAuthStateChange((_event, session) => {
       const u = mapUser(session?.user ?? null);
+      const prevUserId = get().user?.id ?? null;
+
       set({ user: u });
       analyticsService.setUser(u?.id ?? null);
-      if (u) {
+
+      // Supabase fires this on routine token refresh (roughly hourly, and
+      // on tab refocus) even when nothing about the signed-in user changed.
+      // Only reload projects on an actual sign-in or account switch —
+      // otherwise every refresh would re-run a full project-list query.
+      if (u && u.id !== prevUserId) {
         get().loadProjects();
-      } else {
+      } else if (!u && prevUserId) {
         set({ projects: [], cloudProjectCount: 0 });
       }
     });

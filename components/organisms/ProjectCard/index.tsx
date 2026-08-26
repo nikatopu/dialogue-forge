@@ -36,7 +36,7 @@ export function ProjectCard({ project, onDelete, onDuplicate, onRename, index = 
   const [nameValue, setNameValue] = useState(project.name);
 
   const isCloud = project.mode === "cloud";
-  const nodeCount = project.graph.nodes.length;
+  const nodeCount = project.nodeCount;
   const isRecent = Date.now() - new Date(project.updatedAt).getTime() < 86400000;
 
   function commitRename() {
