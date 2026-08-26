@@ -182,6 +182,8 @@ export interface CloudProject {
   userId: string;
   name: string;
   graph: { version?: string; nodes: SerialNode[]; edges: SerialEdge[]; metadata?: Record<string, unknown> };
+  /** Node count for list views — always accurate, even when `graph` is a placeholder (see projectService.list). */
+  nodeCount: number;
   previewImage: string | null;
   mode: ProjectMode;
   isTemplate: boolean;

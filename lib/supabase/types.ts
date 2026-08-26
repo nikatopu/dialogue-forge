@@ -15,6 +15,8 @@ export interface Database {
           user_id: string;
           name: string;
           graph: Json;
+          /** Generated column: jsonb_array_length(graph->'nodes'). Read-only. */
+          node_count: number;
           preview_image: string | null;
           mode: "local" | "cloud";
           is_template: boolean;
