@@ -48,6 +48,17 @@ interface ProjectStore {
  */
 let authListenerRegistered = false;
 
+/**
+ * Builds the OAuth redirectTo, carrying the page the user signed in from
+ * as `next` so /auth/callback can send them back there instead of always
+ * dropping them on the landing page.
+ */
+function buildAuthCallbackUrl(): string {
+  const next = window.location.pathname + window.location.search;
+  const params = next && next !== "/" ? `?next=${encodeURIComponent(next)}` : "";
+  return `${window.location.origin}/auth/callback${params}`;
+}
+
 function mapUser(supabaseUser: {
   id: string;
   email?: string | null;
@@ -123,7 +134,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: buildAuthCallbackUrl() },
     });
   },
 
@@ -131,7 +142,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "github",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: buildAuthCallbackUrl() },
     });
   },
 
