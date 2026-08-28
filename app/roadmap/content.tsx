@@ -164,7 +164,7 @@ export function RoadmapContent() {
         {/* Right: feedback + GitHub */}
         <div className="ml-auto flex items-center gap-2">
           <a
-            href="mailto:nikatopu@gmail.com?subject=Dialogue Forge Feedback"
+            href="mailto:hello@dialogueforge.org?subject=Dialogue Forge Feedback"
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted/40 cursor-pointer"
           >
             <MessageSquare className="w-3.5 h-3.5" />

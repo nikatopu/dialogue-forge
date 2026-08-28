@@ -24,6 +24,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+.social {
+  flex-shrink: 0;
+}
+
 .nav {
   display: flex;
   flex-wrap: wrap;

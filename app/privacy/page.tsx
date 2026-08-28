@@ -327,10 +327,10 @@ export default function PrivacyPage() {
           <p>
             Questions or requests about your data? Reach out at{" "}
             <a
-              href="mailto:nikatopu@gmail.com"
+              href="mailto:support@dialogueforge.org"
               className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
-              nikatopu@gmail.com
+              support@dialogueforge.org
             </a>
             .
           </p>

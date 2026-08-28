@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SocialLinks } from "@/components/atoms/SocialLinks";
 import { CookiePreferencesLink } from "./CookiePreferencesLink";
 import style from "./SiteFooter.module.scss";
 
@@ -9,6 +10,7 @@ export function SiteFooter() {
         <p className={style.copyright}>
           &copy; {new Date().getFullYear()} Dialogue Forge. All rights reserved.
         </p>
+        <SocialLinks className={style.social} />
         <nav className={style.nav}>
           <Link href="/support" className={style.link}>Support</Link>
           <span className={style.separator}>·</span>

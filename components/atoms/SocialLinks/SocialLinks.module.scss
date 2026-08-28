@@ -1,0 +1,22 @@
+.social {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--muted-foreground);
+  }
+}
+
+.icon {
+  width: 0.8125rem;
+  height: 0.8125rem;
+}
