@@ -16,7 +16,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dialogueforge.org"
 
 export const PRODUCTION_HOST = new URL(SITE_URL).hostname;
 
+/** Strip a leading "www." so the apex and www hostnames compare as one site. */
+function stripWww(hostname: string): string {
+  return hostname.startsWith("www.") ? hostname.slice(4) : hostname;
+}
+
 export function isProductionHost(host: string | null): boolean {
   if (!host) return false;
-  return host.split(":")[0] === PRODUCTION_HOST; // strip a port, e.g. "localhost:3000"
+  const incoming = stripWww(host.split(":")[0]!); // strip a port, e.g. "localhost:3000"
+  return incoming === stripWww(PRODUCTION_HOST);
 }
