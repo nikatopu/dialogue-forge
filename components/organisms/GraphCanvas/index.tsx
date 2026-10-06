@@ -41,6 +41,11 @@ function FlowEditor() {
       ref={reactFlowWrapper}
       className={cn(style.wrapper, pickingJumpFor && style.picking)}
       onKeyDown={onKeyDown}
+      // Drop handling lives on the wrapper, not <ReactFlow>, so drops that
+      // land on overlays above the canvas (the empty state, search) still
+      // bubble up here and add the node.
+      onDrop={onDrop}
+      onDragOver={onDragOver}
       tabIndex={-1}
     >
       <ReactFlow
@@ -53,13 +58,13 @@ function FlowEditor() {
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
         onNodeDragStart={onNodeDragStart}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
         isValidConnection={isValidConnection}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        // Capped at 100% so the first node dropped onto an empty canvas isn't
+        // blown up to fill the screen when React Flow fits to it.
+        fitViewOptions={{ padding: 0.3, maxZoom: 1 }}
         deleteKeyCode={null}
         multiSelectionKeyCode="Shift"
         selectionKeyCode="Shift"

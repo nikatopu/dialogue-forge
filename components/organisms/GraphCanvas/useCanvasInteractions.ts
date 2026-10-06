@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useReactFlow, type NodeMouseHandler } from "@xyflow/react";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { useEditorStore } from "@/store/useEditorStore";
@@ -6,6 +6,9 @@ import { useGraphStore } from "@/store/useGraphStore";
 import { computeAutoLayout } from "@/lib/autoLayout";
 import { trackNodeAdded } from "@/lib/analytics/funnel";
 import type { ForgeNodeType, ForgeNode } from "@/types";
+
+/** Rough footprint of a freshly created node, before React Flow measures it. */
+const NEW_NODE_SIZE = { width: 220, height: 120 };
 
 export function useCanvasInteractions() {
   const { screenToFlowPosition, fitView } = useReactFlow();
@@ -26,11 +29,7 @@ export function useCanvasInteractions() {
     e.dataTransfer.dropEffect = "move";
   }, []);
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const nodeType = e.dataTransfer.getData("application/forge-node-type") as ForgeNodeType;
-    if (!nodeType) return;
-    const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+  const placeNode = useCallback((nodeType: ForgeNodeType, position: { x: number; y: number }) => {
     const previousNodeCount = useGraphStore.getState().nodes.length;
     const id = addNode(nodeType, position);
     setSelectedNodeId(id);
@@ -39,7 +38,42 @@ export function useCanvasInteractions() {
       previousNodeCount,
       projectId: useEditorStore.getState().currentProjectId,
     });
-  }, [screenToFlowPosition, addNode, setSelectedNodeId]);
+  }, [addNode, setSelectedNodeId]);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const nodeType = e.dataTransfer.getData("application/forge-node-type") as ForgeNodeType;
+    if (!nodeType) return;
+    placeNode(nodeType, screenToFlowPosition({ x: e.clientX, y: e.clientY }));
+  }, [screenToFlowPosition, placeNode]);
+
+  /*
+   * Sidebar "+" button: drop the node at the centre of the visible canvas,
+   * stepping down past any node already there so repeated clicks stack into
+   * a readable column instead of on top of each other.
+   */
+  const pendingNodeAdd = useEditorStore((s) => s.pendingNodeAdd);
+  useEffect(() => {
+    if (!pendingNodeAdd) return;
+    useEditorStore.getState().setPendingNodeAdd(null);
+    const rect = reactFlowWrapper.current?.getBoundingClientRect();
+    if (!rect) return;
+    const center = screenToFlowPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    const position = { x: center.x - NEW_NODE_SIZE.width / 2, y: center.y - NEW_NODE_SIZE.height / 2 };
+    const existing = useGraphStore.getState().nodes;
+    const overlaps = (n: ForgeNode) => {
+      const w = n.measured?.width ?? NEW_NODE_SIZE.width;
+      const h = n.measured?.height ?? NEW_NODE_SIZE.height;
+      return position.x < n.position.x + w && position.x + NEW_NODE_SIZE.width > n.position.x
+        && position.y < n.position.y + h && position.y + NEW_NODE_SIZE.height > n.position.y;
+    };
+    for (let i = 0; i < 50; i++) {
+      const hit = existing.find(overlaps);
+      if (!hit) break;
+      position.y = hit.position.y + (hit.measured?.height ?? NEW_NODE_SIZE.height) + 24;
+    }
+    placeNode(pendingNodeAdd, position);
+  }, [pendingNodeAdd, screenToFlowPosition, placeNode]);
 
   const onNodeClick = useCallback<NodeMouseHandler>((_, node) => {
     const { pickingJumpFor: picking } = useEditorStore.getState();

@@ -19,6 +19,50 @@ export interface ChangelogRelease {
 /** Every shipped release, newest first. Mirrors the GitHub release notes. */
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: "v1.4.4",
+    previousVersion: "v1.4.3",
+    title: "Easier Node Placement & Smoother First Steps",
+    date: "Oct 6, 2026",
+    summary:
+      "Getting started is smoother: dropping nodes onto an empty canvas works everywhere, nodes can be added with one click, and the demo project opens right in view.",
+    sections: [
+      {
+        heading: "One-click node adding & reliable drag-and-drop",
+        items: [
+          "Every node in the sidebar now has a green + button — click it to drop that node into the middle of your view, no dragging needed",
+          "Repeated clicks stack new nodes neatly in a column instead of piling them on top of each other",
+          "Fixed: dragging a node onto the empty-canvas message or the Load demo project button did nothing — drops now work anywhere on the canvas",
+          "Your first node no longer zooms in to fill the whole screen",
+        ],
+      },
+      {
+        heading: "Demo opens in view, clearer Preview buttons",
+        items: [
+          "Fixed: Load demo project could open the demo out of view, leaving the canvas looking empty — it now zooms to fit the whole graph",
+          "Choice and Continue buttons in Preview are now bold, primary buttons, so the next step is obvious",
+        ],
+      },
+      {
+        heading: "Faster projects dashboard & sign-in fixes",
+        items: [
+          "Signing in now returns you to the page you started from instead of the landing page",
+          "Fixed sign-in redirects failing on www.dialogueforge.org",
+          "The projects dashboard loads faster, fetching project details only when you open one",
+          "Projects too large to save now show a clear message instead of a raw database error",
+          "Fixed background project reloads piling up the longer a session stayed open",
+        ],
+      },
+      {
+        heading: "Follow us: social links in the footer",
+        items: [
+          "Follow Dialogue Forge on Instagram, X, and Bluesky — links are now in the site footer",
+          "New site icon, and feedback emails now go to hello@dialogueforge.org",
+        ],
+      },
+    ],
+  },
+
+  {
     version: "v1.4.3",
     previousVersion: "v1.4.2",
     title: "Landing Page Relaunch & Visitor Analytics",

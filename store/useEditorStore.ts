@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Theme, ThemeMode, AutosaveStatus } from "@/types";
+import type { Theme, ThemeMode, AutosaveStatus, ForgeNodeType } from "@/types";
 
 interface ContextMenuState {
   x: number;
@@ -36,6 +36,12 @@ interface EditorStore {
   selectedEdgeId: string | null;
   /** Whether the Variables panel overlay is open */
   variablesPanelOpen: boolean;
+  /**
+   * One-shot request from outside the canvas (the sidebar's "+" button) to
+   * add a node. The canvas owns the React Flow viewport, so it consumes the
+   * request, places the node in view, and clears it.
+   */
+  pendingNodeAdd: ForgeNodeType | null;
 
   /* Actions */
   setSidebarOpen: (open: boolean) => void;
@@ -58,6 +64,7 @@ interface EditorStore {
   setAutosaveStatus: (status: AutosaveStatus) => void;
   setSelectedEdgeId: (id: string | null) => void;
   setVariablesPanelOpen: (open: boolean) => void;
+  setPendingNodeAdd: (type: ForgeNodeType | null) => void;
 }
 
 export const useEditorStore = create<EditorStore>()(
@@ -80,6 +87,7 @@ export const useEditorStore = create<EditorStore>()(
       autosaveStatus: "idle",
       selectedEdgeId: null,
       variablesPanelOpen: false,
+      pendingNodeAdd: null,
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -101,6 +109,7 @@ export const useEditorStore = create<EditorStore>()(
       setAutosaveStatus: (status) => set({ autosaveStatus: status }),
       setSelectedEdgeId: (id) => set({ selectedEdgeId: id }),
       setVariablesPanelOpen: (open) => set({ variablesPanelOpen: open }),
+      setPendingNodeAdd: (type) => set({ pendingNodeAdd: type }),
     }),
     {
       name: "dialogue-forge-ui",

@@ -1,6 +1,7 @@
 "use client";
 
 import { Network, Mouse, Sparkles } from "lucide-react";
+import { useReactFlow } from "@xyflow/react";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useVariableStore } from "@/store/useVariableStore";
@@ -20,6 +21,17 @@ export function EmptyCanvasState() {
   const { loadGraph } = useGraphStore();
   const { setProjectName } = useEditorStore();
   const { setVariables } = useVariableStore();
+  const { fitView } = useReactFlow();
+
+  function loadDemo() {
+    loadGraph(DEMO_NODES, DEMO_EDGES);
+    setProjectName(DEMO_PROJECT_NAME);
+    setVariables(DEMO_VARIABLES);
+    // The canvas only auto-fits on mount, and the demo's coordinates sit off
+    // the default viewport — without this the empty state vanishes and the
+    // canvas still looks empty. Wait a tick for React Flow to measure nodes.
+    setTimeout(() => fitView({ padding: 0.2, duration: 400 }), 50);
+  }
 
   return (
     <div className={style.emptyState}>
@@ -40,7 +52,7 @@ export function EmptyCanvasState() {
 
         <button
           type="button"
-          onClick={() => { loadGraph(DEMO_NODES, DEMO_EDGES); setProjectName(DEMO_PROJECT_NAME); setVariables(DEMO_VARIABLES); }}
+          onClick={loadDemo}
           className={style.demoBtn}
         >
           <Sparkles size={14} />
