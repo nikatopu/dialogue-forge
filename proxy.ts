@@ -14,7 +14,26 @@ function isAuthAwarePath(pathname: string): boolean {
   );
 }
 
+/**
+ * OAuth results must be handled by /auth/callback. When Supabase rejects a
+ * `redirectTo` (not on its Redirect URLs allow-list) it falls back to the
+ * Site URL, so the code — or the error — lands on "/" where nothing reads
+ * it and the sign-in is silently lost. Forward it to the callback instead.
+ */
+function strayOAuthRedirect(request: NextRequest): NextResponse | null {
+  const { pathname, searchParams } = request.nextUrl;
+  if (pathname.startsWith("/auth/") || pathname.startsWith("/api/")) return null;
+  if (!searchParams.has("code") && !searchParams.has("error_description")) return null;
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/auth/callback";
+  return NextResponse.redirect(url);
+}
+
 export async function proxy(request: NextRequest) {
+  const oauthRedirect = strayOAuthRedirect(request);
+  if (oauthRedirect) return oauthRedirect;
+
   let supabaseResponse = NextResponse.next({ request });
 
   if (isAuthAwarePath(request.nextUrl.pathname)) {

@@ -1,23 +1,37 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { AUTH_ERROR_PARAM, AUTH_RETURN_COOKIE, safeReturnPath } from "@/lib/supabase/authReturn";
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
-  const rawNext = searchParams.get("next") ?? "/";
-  // Only ever redirect to a same-site relative path — "next" is
-  // attacker-controlled input, and a value like "//evil.com" or
-  // "https://evil.com" must never be honored as a redirect target.
-  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  // Supabase/the provider report failures (e.g. the user cancelled the
+  // consent screen) as error params instead of a code.
+  const providerError = searchParams.get("error_description") ?? searchParams.get("error");
+  // `?next=` is still accepted for links issued before the cookie existed.
+  const next = safeReturnPath(
+    request.cookies.get(AUTH_RETURN_COOKIE)?.value ?? searchParams.get("next"),
+  );
 
-  if (code) {
+  let failure = providerError ?? "missing auth code";
+
+  if (code && !providerError) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(`${origin}${next}`);
+      response.cookies.delete(AUTH_RETURN_COOKIE);
+      return response;
     }
+    failure = error.message;
   }
 
-  // Auth failed — redirect to home with error param
-  return NextResponse.redirect(`${origin}/?error=auth_failed`);
+  // Logged so failures show up in the Vercel function logs — the user only
+  // ever sees a generic toast.
+  console.error("[auth/callback] sign-in failed:", failure);
+
+  const separator = next.includes("?") ? "&" : "?";
+  const response = NextResponse.redirect(`${origin}${next}${separator}${AUTH_ERROR_PARAM}=1`);
+  response.cookies.delete(AUTH_RETURN_COOKIE);
+  return response;
 }

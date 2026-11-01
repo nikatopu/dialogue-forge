@@ -31,7 +31,7 @@ export default function ProjectsPage() {
   const {
     user, isAuthLoading,
     projects, isProjectsLoading,
-    loadProjects, createProject, deleteProject, duplicateProject, renameProject,
+    initAuth, createProject, deleteProject, duplicateProject, renameProject,
     canCreateCloudProject, cloudProjectCount,
   } = useProjectStore();
   const { setCurrentProjectId } = useEditorStore();
@@ -55,10 +55,12 @@ export default function ProjectsPage() {
     }
   }, [user, nodes.length]);
 
-  // Keyed on `user?.id`, not the `user` object, so a token-refresh event
-  // (which produces a new-but-equivalent user object) doesn't re-trigger a
-  // full project reload — only an actual sign-in/out/account-switch does.
-  useEffect(() => { if (user?.id) loadProjects(); }, [user?.id, loadProjects]);
+  // This page is reachable directly (bookmark, reload, post-sign-in
+  // redirect), not only from the editor, so it must resolve the session
+  // itself — otherwise `user` stays null and `isAuthLoading` stays true
+  // forever. initAuth() also loads the project list when signed in, and its
+  // listener reloads it on an actual sign-in/account switch.
+  useEffect(() => { initAuth(); }, [initAuth]);
 
   const localDraft: CloudProject | null = useMemo(() => {
     if (nodes.length === 0) return null;

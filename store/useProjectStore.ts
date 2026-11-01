@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { projectService, FREE_PLAN_CLOUD_LIMIT } from "@/lib/services/projectService";
 import { analyticsService } from "@/lib/analytics/analyticsService";
 import { track } from "@/lib/analytics";
+import { toast } from "@/lib/toast";
+import { AUTH_RETURN_COOKIE } from "@/lib/supabase/authReturn";
 import type { CloudProject, AuthUser } from "@/types";
 
 interface ProjectStore {
@@ -49,14 +51,25 @@ interface ProjectStore {
 let authListenerRegistered = false;
 
 /**
- * Builds the OAuth redirectTo, carrying the page the user signed in from
- * as `next` so /auth/callback can send them back there instead of always
- * dropping them on the landing page.
+ * Starts OAuth sign-in. `redirectTo` is always the bare callback URL — see
+ * lib/supabase/authReturn.ts for why the return path rides in a cookie
+ * instead of a query param.
  */
-function buildAuthCallbackUrl(): string {
-  const next = window.location.pathname + window.location.search;
-  const params = next && next !== "/" ? `?next=${encodeURIComponent(next)}` : "";
-  return `${window.location.origin}/auth/callback${params}`;
+async function signInWithProvider(provider: "google" | "github") {
+  const returnPath = window.location.pathname + window.location.search;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie =
+    `${AUTH_RETURN_COOKIE}=${encodeURIComponent(returnPath)}; Path=/; Max-Age=600; SameSite=Lax${secure}`;
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: `${window.location.origin}/auth/callback` },
+  });
+  if (error) {
+    console.error(`[auth] ${provider} sign-in failed to start:`, error);
+    toast.error("Couldn't start sign-in. Please try again.");
+  }
 }
 
 function mapUser(supabaseUser: {
@@ -131,19 +144,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   async signInWithGoogle() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: buildAuthCallbackUrl() },
-    });
+    await signInWithProvider("google");
   },
 
   async signInWithGitHub() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: { redirectTo: buildAuthCallbackUrl() },
-    });
+    await signInWithProvider("github");
   },
 
   async signOut() {

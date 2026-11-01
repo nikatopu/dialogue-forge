@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/atoms/Tooltip";
 import { ThemeProvider } from "@/components/organisms/ThemeProvider";
 import { PageTransition } from "@/components/organisms/PageTransition";
 import { Toaster } from "@/components/organisms/Toaster";
+import { AuthErrorNotice } from "@/components/organisms/AuthErrorNotice";
 import { CookieConsent } from "@/components/organisms/CookieConsent";
 import { AnalyticsScripts } from "@/components/organisms/AnalyticsScripts";
 import { AnalyticsProvider } from "@/components/organisms/AnalyticsProvider";
@@ -113,6 +114,7 @@ export default function RootLayout({
           </ThemeProvider>
         </TooltipProvider>
         <Toaster />
+        <AuthErrorNotice />
         <CookieConsent />
         <AnalyticsScripts />
         <AnalyticsProvider />
